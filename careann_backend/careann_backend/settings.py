@@ -35,7 +35,8 @@ STRIPE_PUBLISHABLE_KEY = "your-publishable-key"
 
 stripe.api_key = STRIPE_SECRET_KEY
 
-
+CHECKR_API_KEY = "your-checkr-api-key"
+CHECKR_BASE_URL = "https://api.checkr.com/v1"
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +52,8 @@ INSTALLED_APPS = [
     'payments',
     'messaging',
     'channels',
+    'admin_panel',
+    'background_checks'
 
 ]
 

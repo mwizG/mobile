@@ -36,3 +36,18 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return {'user': user}  # Return a dictionary with 'user' as the key
         raise serializers.ValidationError("Invalid Credentials")
+    
+
+class UserSerializer(serializers.ModelSerializer):
+    background_check_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'is_care_seeker', 'is_caregiver', 
+                  'location', 'bio', 'experience', 'certifications', 
+                  'availability', 'profile_image', 'background_check_status')
+
+    def get_background_check_status(self, obj):
+        # Get the most recent background check status
+        check = obj.background_checks.order_by('-created_at').first()
+        return check.status if check else 'No background check'

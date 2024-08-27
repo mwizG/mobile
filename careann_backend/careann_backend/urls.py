@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/jobs/', include('jobs.urls')),
     path('api/payments/', include('payments.urls')),
     path('api/messaging/', include('messaging.urls')),
+    path('api/background_checks/', include('background_checks.urls')),
 ]
 
 if settings.DEBUG:
