@@ -8,6 +8,8 @@ import ChatScreen from './screens/ChatScreen';
 import ConversationsScreen from './screens/ConversationsScreen';
 import PaymentsScreen from './screens/PaymentsScreen';
 import RatingsScreen from './screens/RatingsScreen';
+import CaregiverScheduleScreen from './screens/CaregiverScheduleScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -21,6 +23,7 @@ export default function App() {
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="Payments" component={PaymentsScreen} />
         <Stack.Screen name="Ratings" component={RatingsScreen} />
+        <Stack.Screen name="CaregiverSchedule" component={CaregiverScheduleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

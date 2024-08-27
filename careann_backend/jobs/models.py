@@ -8,15 +8,18 @@ class Job(models.Model):
         ('Open', 'Open'),
         ('In Progress', 'In Progress'),
         ('Completed', 'Completed'),
+        ('Declined', 'Declined'),
     ]
     
     care_seeker = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='jobs')
+    caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assigned_jobs', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255)
     job_type = models.CharField(max_length=100)
     pay_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Open')  # Track job status
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Open')
+    scheduled_time = models.DateTimeField(null=True, blank=True)  # Time for the job
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

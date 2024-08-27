@@ -102,3 +102,39 @@ class JobApplicationUpdateView(generics.UpdateAPIView):
             return JobApplication.objects.filter(job__care_seeker=user)
         return JobApplication.objects.none()
 
+
+
+class CaregiverJobsView(generics.ListAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Job.objects.filter(caregiver=self.request.user, status='In Progress')
+
+class AcceptJobView(generics.UpdateAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+        if job.status != 'Open':
+            return Response({"error": "Job is no longer available."}, status=400)
+
+        job.caregiver = request.user
+        job.status = 'In Progress'
+        job.scheduled_time = request.data.get('scheduled_time')
+        job.save()
+        return Response(JobSerializer(job).data)
+
+class DeclineJobView(generics.UpdateAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+        if job.status != 'Open':
+            return Response({"error": "Job is no longer available."}, status=400)
+
+        job.status = 'Declined'
+        job.save()
+        return Response(JobSerializer(job).data)
