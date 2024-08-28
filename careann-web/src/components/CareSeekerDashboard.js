@@ -20,6 +20,10 @@ function CareSeekerDashboard() {
         <Link to="/messaging" className="dashboard-option">
           <button>View Messages</button>
         </Link>
+        <Link to="/" className="dashboard-option">
+          <button>Home</button>
+        </Link>
+        
       </div>
     </div>
   );

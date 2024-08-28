@@ -4,17 +4,15 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import CareSeekerDashboard from './components/CareSeekerDashboard';
-import ServiceSearch from './components/ServiceSearch';
-import JobPosting from './components/JobPosting';
-import CaregiverReviews from './components/CaregiverReviews';
 import CaregiverDashboard from './components/CaregiverDashboard';
 import CaregiverProfile from './components/CaregiverProfile';
 import CaregiverJobSearch from './components/CaregiverJobSearch';
 import CaregiverSchedule from './components/CaregiverSchedule';
-import Messaging from './components/Messaging';  // Importing the Messaging component
+import Messaging from './components/Messaging';
+import JobList from './components/JobList';  // Import JobList component
 
 function AppRoutes() {
-  const userRole = localStorage.getItem('role'); // Assuming you store the role in localStorage after login
+  const userRole = localStorage.getItem('role'); // Retrieve the stored role
 
   return (
     <Router>
@@ -23,28 +21,11 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Redirect users based on role */}
-        <Route
-          path="/dashboard"
-          element={
-            userRole === 'care_seeker' ? (
-              <Navigate to="/care-seeker/dashboard" />
-            ) : userRole === 'caregiver' ? (
-              <Navigate to="/caregiver/dashboard" />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-
-        {/* Care Seeker-specific routes */}
-        <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
-        <Route path="/care-seeker/search" element={<ServiceSearch />} />
-        <Route path="/care-seeker/post-job" element={<JobPosting />} />
-        <Route path="/care-seeker/reviews" element={<CaregiverReviews />} />
-
         {/* Caregiver-specific routes */}
-        <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
+        <Route
+          path="/caregiver/dashboard"
+          element={userRole === 'caregiver' ? <CaregiverDashboard /> : <Navigate to="/" />}
+        />
         <Route
           path="/caregiver/profile"
           element={userRole === 'caregiver' ? <CaregiverProfile /> : <Navigate to="/" />}
@@ -52,6 +33,10 @@ function AppRoutes() {
         <Route
           path="/caregiver/search-jobs"
           element={userRole === 'caregiver' ? <CaregiverJobSearch /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/caregiver/jobs"
+          element={userRole === 'caregiver' ? <JobList /> : <Navigate to="/" />}  // Corrected route for JobList
         />
         <Route
           path="/caregiver/schedule"
@@ -63,6 +48,9 @@ function AppRoutes() {
           path="/messaging"
           element={userRole ? <Messaging /> : <Navigate to="/login" />}
         />
+
+        {/* Care Seeker-specific routes */}
+        <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
       </Routes>
     </Router>
   );

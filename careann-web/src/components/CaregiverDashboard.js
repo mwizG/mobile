@@ -20,6 +20,14 @@ function CaregiverDashboard() {
         <Link to="/messaging" className="dashboard-option">
           <button>View Messages</button>
         </Link>
+        <Link to="/" className="dashboard-option">
+          <button>Home</button>
+        </Link>
+        <div className="home-options">
+        <Link to="/caregiver/jobs" className="home-option">
+        <button>View Job Listings</button>
+        </Link>
+        </div>
       </div>
     </div>
   );
