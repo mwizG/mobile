@@ -11,6 +11,7 @@ import CaregiverDashboard from './components/CaregiverDashboard';
 import CaregiverProfile from './components/CaregiverProfile';
 import CaregiverJobSearch from './components/CaregiverJobSearch';
 import CaregiverSchedule from './components/CaregiverSchedule';
+import Messaging from './components/Messaging';  // Importing the Messaging component
 
 function AppRoutes() {
   const userRole = localStorage.getItem('role'); // Assuming you store the role in localStorage after login
@@ -55,6 +56,12 @@ function AppRoutes() {
         <Route
           path="/caregiver/schedule"
           element={userRole === 'caregiver' ? <CaregiverSchedule /> : <Navigate to="/" />}
+        />
+
+        {/* Messaging route, accessible to both roles */}
+        <Route
+          path="/messaging"
+          element={userRole ? <Messaging /> : <Navigate to="/login" />}
         />
       </Routes>
     </Router>
