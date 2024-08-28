@@ -1,5 +1,4 @@
 # In accounts/views.py
-
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -32,7 +31,12 @@ class LoginView(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+        
+        # Determine the role
+        role = 'care_seeker' if user.is_care_seeker else 'caregiver' if user.is_caregiver else 'unknown'
+
         return Response({
             'token': token.key,
-            'user': UserSerializer(user).data
+            'user': UserSerializer(user).data,
+            'role': role  # Return role explicitly
         })
