@@ -40,13 +40,30 @@ function CaregiverJobSearch() {
 
   const handleApply = async (jobId) => {
     try {
-      await apiPost(`/jobs/${jobId}/apply/`, {}, token);  // Use apiPost for the apply action
+      const url = `/jobs/${jobId}/apply/`;
+      const data = {};  // The data being sent (currently empty in this case)
+      const token = localStorage.getItem('token');
+  
+      // Log the request details
+      console.log('Applying for job:', jobId);
+      console.log('URL:', url);
+      console.log('Data:', data);
+      console.log('Token:', token);
+  
+      // Make the POST request
+      await apiPost(url, data, token);
       alert('Applied successfully');
     } catch (err) {
-      setError('Failed to apply for the job');
+      if (err.response && err.response.data) {
+        console.error('Error applying for job:', err.response.data);
+        setError(JSON.stringify(err.response.data));  // Display the actual error message
+      } else {
+        console.error('Error applying for job:', err.message);
+        setError('Failed to apply for the job');
+      }
     }
   };
-
+  
   return (
     <div className="job-search-container">
       <h2>Search Job Listings</h2>

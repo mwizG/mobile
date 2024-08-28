@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import RatingReview
 from .serializers import RatingReviewSerializer
 from rest_framework import serializers
-
+from rest_framework.exceptions import ValidationError
 
 class RatingReviewCreateView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()
@@ -66,14 +66,28 @@ class JobDetailView(generics.RetrieveAPIView):
 
 
 
-
 class JobApplicationCreateView(generics.CreateAPIView):
     queryset = JobApplication.objects.all()
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def post(self,serializer):
+        job_id = self.kwargs.get('job_id')  # Get the job_id from the URL
+        print(job_id)
+
     def perform_create(self, serializer):
-        serializer.save(caregiver=self.request.user)
+        job_id = self.kwargs.get('job_id')  # Get the job_id from the URL
+        print(job_id)
+        job = generics.get_object_or_404(Job, id=job_id)  # Ensure the job exists
+        print(job)
+        # Check if the caregiver has already applied for this job
+        if JobApplication.objects.filter(job=job, caregiver=self.request.user).exists():
+            raise ValidationError("You have already applied for this job.")
+
+        # Save the job application with the caregiver and job
+        serializer.save(caregiver=self.request.user, job=job)
+
+
 
 class JobApplicationListView(generics.ListAPIView):
     queryset = JobApplication.objects.all()

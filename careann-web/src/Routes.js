@@ -4,13 +4,15 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import CareSeekerDashboard from './components/CareSeekerDashboard';
+import ServiceSearch from './components/ServiceSearch';
+import JobPosting from './components/JobPosting';
+import CaregiverReviews from './components/CaregiverReviews';
 import CaregiverDashboard from './components/CaregiverDashboard';
 import CaregiverProfile from './components/CaregiverProfile';
 import CaregiverJobSearch from './components/CaregiverJobSearch';
 import CaregiverSchedule from './components/CaregiverSchedule';
 import Messaging from './components/Messaging';
 import JobList from './components/JobList';  // Import JobList component
-
 function AppRoutes() {
   const userRole = localStorage.getItem('role'); // Retrieve the stored role
 
@@ -51,9 +53,13 @@ function AppRoutes() {
 
         {/* Care Seeker-specific routes */}
         <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
+
+        <Route path="/care-seeker/search" element={<ServiceSearch />} />
+        <Route path="/care-seeker/post-job" element={<JobPosting />} />
+        <Route path="/care-seeker/reviews" element={<CaregiverReviews />} />
+
       </Routes>
     </Router>
   );
 }
-
 export default AppRoutes;

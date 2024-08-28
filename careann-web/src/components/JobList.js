@@ -24,9 +24,10 @@ function JobList() {
 
   const handleApply = async (jobId) => {
     try {
-      await apiPost(`/jobs/${jobId}/apply/`, {}, token);
+      await apiPost(`/jobs/${jobId}/apply/`, {}, token);  // Ensure the jobId is passed correctly
       alert('Applied successfully');
     } catch (err) {
+      console.error('Error applying for job:', err.response ? err.response.data : err.message);
       setError('Failed to apply for the job');
     }
   };
