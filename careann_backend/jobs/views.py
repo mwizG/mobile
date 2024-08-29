@@ -9,8 +9,61 @@ from .models import RatingReview
 from .serializers import RatingReviewSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from .models import Task
+from .serializers import TaskSerializer
 
 
+
+class TaskCreateView(generics.CreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(caregiver=self.request.user)
+
+class TaskListView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(caregiver=self.request.user).order_by('scheduled_time')
+
+class ProposeJobTimeView(generics.UpdateAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+        if request.user != job.care_seeker:
+            return Response({"error": "You are not authorized to propose a time for this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        proposed_time = request.data.get('proposed_time')
+        if not proposed_time:
+            return Response({"error": "Proposed time is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        job.proposed_time = proposed_time
+        job.save()
+
+        return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
+
+
+
+class AcceptJobTimeView(generics.UpdateAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+        if request.user != job.caregiver:
+            return Response({"error": "You are not authorized to accept the proposed time for this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        job.accepted_time = job.proposed_time
+        job.save()
+
+        return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
 
 class CreateRatingReviewView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()

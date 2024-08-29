@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'admin_panel',
     'background_checks',
     'emergency_services',
+    'pharmacy',
 
 ]
 

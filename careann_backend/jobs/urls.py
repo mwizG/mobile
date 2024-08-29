@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import JobCreateView, JobListView, JobDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView
+from .views import TaskCreateView, TaskListView,JobCreateView, JobListView, JobDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -14,4 +14,8 @@ urlpatterns = [
     path('caregiver-jobs/', CaregiverJobsView.as_view(), name='caregiver-jobs'),
     path('jobs/<int:pk>/accept/', AcceptJobView.as_view(), name='accept-job'),
     path('jobs/<int:pk>/decline/', DeclineJobView.as_view(), name='decline-job'),
+    path('jobs/<int:pk>/propose-time/', ProposeJobTimeView.as_view(), name='propose-job-time'),
+    path('jobs/<int:pk>/accept-time/', AcceptJobTimeView.as_view(), name='accept-job-time'),
+    path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
 ]

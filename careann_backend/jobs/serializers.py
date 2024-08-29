@@ -1,8 +1,7 @@
-# In jobs/serializers.py
 from rest_framework import serializers
 from .models import Job
 from .models import JobApplication
-from .models import RatingReview
+from .models import RatingReview, Task
 
 class RatingReviewSerializer(serializers.ModelSerializer):
     reviewer = serializers.ReadOnlyField(source='reviewer.username')
@@ -20,9 +19,22 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         model = JobApplication
         fields = ('id', 'job', 'caregiver', 'cover_letter', 'applied_at', 'status')
 
+
 class JobSerializer(serializers.ModelSerializer):
     care_seeker = serializers.ReadOnlyField(source='care_seeker.username')
+    caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Added to include caregiver's username
 
     class Meta:
         model = Job
-        fields = ('id', 'care_seeker', 'title', 'description', 'location', 'job_type', 'pay_rate', 'created_at', 'updated_at')
+        fields = (
+            'id', 'care_seeker', 'caregiver', 'title', 'description', 
+            'location', 'job_type', 'pay_rate', 'status', 'scheduled_time', 
+            'proposed_time', 'accepted_time', 'created_at', 'updated_at'
+        )
+        
+class TaskSerializer(serializers.ModelSerializer):
+    caregiver = serializers.ReadOnlyField(source='caregiver.username')
+
+    class Meta:
+        model = Task
+        fields = ('id', 'job', 'caregiver', 'description', 'scheduled_time', 'reminder_sent')
