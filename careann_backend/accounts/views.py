@@ -4,9 +4,15 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
-from . models import CustomUser
+from . models import CustomUser,CaregiverFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
+class CaregiverSearchView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(is_caregiver=True)
+    serializer_class = UserSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CaregiverFilter
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
