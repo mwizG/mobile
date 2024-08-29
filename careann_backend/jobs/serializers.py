@@ -1,5 +1,4 @@
 # In jobs/serializers.py
-
 from rest_framework import serializers
 from .models import Job
 from .models import JobApplication
@@ -12,6 +11,7 @@ class RatingReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = RatingReview
         fields = ('id', 'job', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
+
 
 class JobApplicationSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')

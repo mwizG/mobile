@@ -10,35 +10,33 @@ from .serializers import RatingReviewSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-class RatingReviewCreateView(generics.CreateAPIView):
+
+
+class CreateRatingReviewView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        job = serializer.validated_data['job']
+        job = Job.objects.get(id=self.request.data['job'])
         if job.status != 'Completed':
-            raise serializers.ValidationError("You can only leave a review after the job is completed.")
+            raise serializers.ValidationError("Reviews can only be submitted for completed jobs.")
         
-        if self.request.user == job.care_seeker:
-            # Care seeker is reviewing the caregiver
-            serializer.save(reviewer=self.request.user, reviewee=job.caregiver)
-        elif self.request.user == job.caregiver:
-            # Caregiver is reviewing the care seeker
-            serializer.save(reviewer=self.request.user, reviewee=job.care_seeker)
-        else:
+        # Ensure the reviewer is either the care seeker or the caregiver involved in the job
+        if self.request.user != job.care_seeker and self.request.user != job.caregiver:
             raise serializers.ValidationError("You are not authorized to review this job.")
         
-        
-class RatingReviewListView(generics.ListAPIView):
-    queryset = RatingReview.objects.all()
+        reviewee = job.caregiver if self.request.user == job.care_seeker else job.care_seeker
+
+        serializer.save(reviewer=self.request.user, reviewee=reviewee)
+
+class ListRatingReviewView(generics.ListAPIView):
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         return RatingReview.objects.filter(reviewee=user)
-    
 
 
 

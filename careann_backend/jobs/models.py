@@ -36,7 +36,7 @@ class JobApplication(models.Model):
     def __str__(self):
         return f"{self.caregiver.username} - {self.job.title}"
     
-
+    
 class RatingReview(models.Model):
     job = models.OneToOneField(Job, on_delete=models.CASCADE, related_name='rating_review')
     reviewer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reviews_given')
@@ -47,5 +47,3 @@ class RatingReview(models.Model):
 
     def __str__(self):
         return f"{self.reviewer.username} -> {self.reviewee.username} ({self.rating})"
-
-

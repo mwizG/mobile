@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'messaging',
     'channels',
     'admin_panel',
-    'background_checks'
+    'background_checks',
+    'emergency_services',
 
 ]
 
