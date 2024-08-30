@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SearchCaregiversForm from '../components/Forms/SearchCaregiversForm';
-import JobPostingForm from '../components/Jobs/JobPostingForm';
+import JobPostingForm from '../components/Forms/JobPostingForm';
 import ReviewList from '../components/Reviews/ReviewList';
 import PaymentForm from '../components/Payments/PaymentForm';
 

@@ -13,7 +13,7 @@ urlpatterns = [
     path('api/messaging/', include('messaging.urls')),
     path('api/background_checks/', include('background_checks.urls')),
     path('api/emergency', include('emergency_services.urls')),
-    path('api/', include('pharmacy.urls')),
+    path('api/pharmacy', include('pharmacy.urls')),
 ]
 
 if settings.DEBUG:

@@ -21,6 +21,8 @@ import SearchCaregiversForm from './components/Forms/SearchCaregiversForm';
 import CaregiverProfile from './pages/CaregiverProfile';
 import CaregiverJobSearch from './pages/CaregiverJobSearch';
 import CaregiverSchedule from './pages/CaregiverSchedule';
+import JobList from './components/JobList';
+import JobDetail from './components/JobDetail';
 
 function AppRoutes() {
     const userRole = localStorage.getItem('role');
@@ -55,6 +57,8 @@ function AppRoutes() {
                 <Route path="/care-seeker/payments" element={<PaymentManagement />} />
                 <Route path="/care-seeker/search" element={<SearchCaregiversForm />} />
                 <Route path="/care-seeker/rate" element={<RatingReviewForm />} />
+                <Route path="/care-seeker/jobs" element={<JobList />} />
+                <Route path="/care-seeker/jobs/:id" element={<JobDetail />} />
 
                 {/* Caregiver-specific routes */}
                 <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />

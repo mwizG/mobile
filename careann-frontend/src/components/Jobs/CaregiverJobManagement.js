@@ -9,7 +9,7 @@ function CaregiverJobManagement() {
         const fetchJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://your-backend-api-url/api/caregiver/jobs/', {
+                const response = await axios.get('http://127.0.0.1:8000/api/caregiver/jobs/', {
                     headers: {
                         Authorization: `Token ${token}`,
                     },

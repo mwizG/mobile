@@ -1,6 +1,6 @@
-// src/components/Jobs/CaregiverJobSearch.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function CaregiverJobSearch() {
     const [location, setLocation] = useState('');
@@ -8,28 +8,28 @@ function CaregiverJobSearch() {
     const [payRate, setPayRate] = useState('');
     const [jobs, setJobs] = useState([]);
 
-    useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://your-backend-api-url/api/jobs/', {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                    params: {
-                        location,
-                        care_type: careType,
-                        pay_rate: payRate,
-                    },
-                });
-                setJobs(response.data);
-            } catch (error) {
-                console.error('Error fetching jobs', error);
-            }
-        };
-
-        fetchJobs();
+    const fetchJobs = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://127.0.0.1:8000/api/jobs/search', {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+                params: {
+                    location,
+                    care_type: careType,
+                    pay_rate: payRate,
+                },
+            });
+            setJobs(response.data);
+        } catch (error) {
+            console.error('Error fetching jobs', error);
+        }
     }, [location, careType, payRate]);
+
+    useEffect(() => {
+        fetchJobs();
+    }, [location, careType, payRate, fetchJobs]);
 
     return (
         <div>
@@ -53,7 +53,7 @@ function CaregiverJobSearch() {
                     value={payRate}
                     onChange={(e) => setPayRate(e.target.value)}
                 />
-                <button type="button" onClick={() => fetchJobs()}>Search</button>
+                <button type="button" onClick={fetchJobs}>Search</button>
             </form>
 
             <div>
@@ -61,7 +61,12 @@ function CaregiverJobSearch() {
                 <ul>
                     {jobs.map((job) => (
                         <li key={job.id}>
-                            <strong>{job.title}</strong> - {job.location} - ${job.pay_rate}/hr
+                            <strong>
+                            <Link to={`/caregiver/jobs/${job.id}`}>
+                                    {job.title}
+                                </Link>
+                            </strong> 
+                            - {job.location} - ${job.pay_rate}/hr
                             <p>{job.description}</p>
                         </li>
                     ))}

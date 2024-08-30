@@ -29,6 +29,7 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
+
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
 
@@ -38,8 +39,15 @@ class LoginView(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
         
-        # Determine the role
-        role = 'care_seeker' if user.is_care_seeker else 'caregiver' if user.is_caregiver else 'unknown'
+         # Determine the role
+        if user.is_superuser or user.is_staff:
+            role = 'admin'
+        elif user.is_care_seeker:
+            role = 'care_seeker'
+        elif user.is_caregiver:
+            role = 'caregiver'
+        else:
+            role = 'unknown'
 
         return Response({
             'token': token.key,

@@ -14,7 +14,7 @@ function JobPostingForm() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://your-backend-api-url/api/jobs/', {
+            await axios.post('http://127.0.0.1:8000/api/jobs/create/', {
                 title,
                 description,
                 location,

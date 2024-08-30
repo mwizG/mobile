@@ -14,7 +14,7 @@ function SearchCaregiversForm() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.get('http://your-backend-api-url/api/caregivers/search/', {
+            const response = await axios.get('http://127.0.0.1:8000/api/caregivers/search/', {
                 params: {
                     location,
                     service_type: serviceType,
