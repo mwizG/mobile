@@ -11,13 +11,23 @@ class RatingReviewSerializer(serializers.ModelSerializer):
         model = RatingReview
         fields = ('id', 'job', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
 
-
 class JobApplicationSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')
 
     class Meta:
         model = JobApplication
         fields = ('id', 'job', 'caregiver', 'cover_letter', 'applied_at', 'status')
+        extra_kwargs = {
+            'job': {'required': False},  # Make 'job' not required in the incoming data
+        }
+
+    def create(self, validated_data):
+        # Remove the job from validated_data because it's being passed explicitly
+        job = self.context['job']
+        caregiver = self.context['request'].user
+        validated_data['job'] = job
+        validated_data['caregiver'] = caregiver
+        return super().create(validated_data)
 
 
 class JobSerializer(serializers.ModelSerializer):

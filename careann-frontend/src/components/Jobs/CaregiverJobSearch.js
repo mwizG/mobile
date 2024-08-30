@@ -66,7 +66,7 @@ function CaregiverJobSearch() {
                                     {job.title}
                                 </Link>
                             </strong> 
-                            - {job.location} - ${job.pay_rate}/hr
+                            - {job.location} - K{job.pay_rate}/hr
                             <p>{job.description}</p>
                         </li>
                     ))}

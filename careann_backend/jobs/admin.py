@@ -25,3 +25,5 @@ class TaskAdmin(admin.ModelAdmin):
     def job_title(self, obj):
         return obj.job.title
     job_title.short_description = 'Job Title'
+
+admin.site.register(JobApplication)

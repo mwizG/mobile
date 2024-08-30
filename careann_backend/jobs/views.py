@@ -64,6 +64,7 @@ class AcceptJobTimeView(generics.UpdateAPIView):
         job.save()
 
         return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
+    
 
 class CreateRatingReviewView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()
@@ -122,22 +123,28 @@ class JobApplicationCreateView(generics.CreateAPIView):
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self,serializer):
+    def post(self, request, *args, **kwargs):
         job_id = self.kwargs.get('job_id')  # Get the job_id from the URL
-        print(job_id)
-
-    def perform_create(self, serializer):
-        job_id = self.kwargs.get('job_id')  # Get the job_id from the URL
-        print(job_id)
         job = generics.get_object_or_404(Job, id=job_id)  # Ensure the job exists
-        print(job)
+        print(f"Job ID: {job_id}, Job: {job}")
+
+        # Print the incoming request data
+        print("Request Data:", request.data)
+
         # Check if the caregiver has already applied for this job
-        if JobApplication.objects.filter(job=job, caregiver=self.request.user).exists():
+        if JobApplication.objects.filter(job=job, caregiver=request.user).exists():
             raise ValidationError("You have already applied for this job.")
 
-        # Save the job application with the caregiver and job
-        serializer.save(caregiver=self.request.user, job=job)
+        # Create a new job application
+        serializer = self.get_serializer(data=request.data, context={'job': job, 'request': request})
+        if not serializer.is_valid():
+            # Print validation errors
+            print("Validation Errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        serializer.save()
+
+        return Response(serializer.data)
 
 
 class JobApplicationListView(generics.ListAPIView):
@@ -166,7 +173,6 @@ class JobApplicationUpdateView(generics.UpdateAPIView):
         if user.is_care_seeker:
             return JobApplication.objects.filter(job__care_seeker=user)
         return JobApplication.objects.none()
-
 
 
 class CaregiverJobsView(generics.ListAPIView):

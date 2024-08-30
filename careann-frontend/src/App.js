@@ -21,6 +21,11 @@ import UserActivity from './components/Admin/UserActivity';
 import JobList from './components/Jobs/JobList';
 import JobDetail from './components/Jobs/JobDetail';  // Import JobDetail
 import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';  // Import CaregiverJobSearch
+import JobApplicationForm from './components/Jobs/JobApplicationForm'; 
+import JobApplicationList from './components/Jobs/JobApplicationList';
+import JobApplicationUpdate from './components/Jobs/JobApplicationUpdate';
+
+// Add these routes inside the <Routes> component
 
 function App() {
   const userRole = localStorage.getItem('role');
@@ -56,7 +61,10 @@ function App() {
         <Route path="/care-seeker/search" element={<SearchCaregiversForm />} />
         <Route path="/care-seeker/rate" element={<RatingReviewForm />} />
         <Route path="care-seeker/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
-
+        <Route path="/care-seeker/applications" element={<JobApplicationList />} />
+        <Route path="/care-seeker/applications/:pk" element={<JobApplicationUpdate />} />  
+        
+        
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
         <Route path="/caregiver/messaging" element={<Messaging />} />
@@ -64,7 +72,7 @@ function App() {
         <Route path="/caregiver/search-jobs" element={<CaregiverJobSearch />} />
         <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
         <Route path="caregiver/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
-        
+        <Route path="/caregiver/jobs/:jobId/apply" element={<JobApplicationForm />} />
 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
