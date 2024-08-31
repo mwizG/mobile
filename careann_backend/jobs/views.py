@@ -162,7 +162,9 @@ class JobApplicationListView(generics.ListAPIView):
             return JobApplication.objects.filter(caregiver=user)
         return JobApplication.objects.none()
 
-class JobApplicationUpdateView(generics.UpdateAPIView):
+
+
+class JobApplicationUpdateView(generics.RetrieveUpdateAPIView):
     queryset = JobApplication.objects.all()
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -174,6 +176,24 @@ class JobApplicationUpdateView(generics.UpdateAPIView):
             return JobApplication.objects.filter(job__care_seeker=user)
         return JobApplication.objects.none()
 
+    def get(self, request, *args, **kwargs):
+        # Handle GET request to fetch job application details
+        application = self.get_object()
+        serializer = self.get_serializer(application)
+        print("GET data:", serializer.data)
+        return Response(serializer.data)
+        
+    def patch(self, request, *args, **kwargs):
+        # Log the incoming data
+        
+        print(request.data)
+        # Proceed with the usual update process
+        application = self.get_object()
+        serializer = self.get_serializer(application, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 
 class CaregiverJobsView(generics.ListAPIView):
     serializer_class = JobSerializer

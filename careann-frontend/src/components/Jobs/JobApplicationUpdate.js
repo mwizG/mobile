@@ -36,7 +36,7 @@ function JobApplicationUpdate() {
           Authorization: `Token ${token}`,
         },
       });
-      navigate('/care-seeker/jobs'); // Redirect after update
+      navigate('/care-seeker/applications'); // Redirect after update
     } catch (error) {
       console.error('Error updating job application', error);
     }
@@ -49,9 +49,10 @@ function JobApplicationUpdate() {
   return (
     <div>
       <h2>Update Job Application</h2>
-      <p><strong>Job:</strong> {application.job.title}</p>
-      <p><strong>Caregiver:</strong> {application.caregiver.username}</p>
+      <p><strong>Job:</strong> {application.job}</p>
+      <p><strong>Caregiver:</strong> {application.caregiver}</p>
       <p><strong>Cover Letter:</strong> {application.cover_letter}</p>
+      <p><strong>Applied At:</strong> {new Date(application.applied_at).toLocaleDateString()}</p>
       <p>
         <strong>Status:</strong>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
