@@ -35,6 +35,8 @@ class ProposeJobTimeView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
+        print(f"Request Data: {request.data}")
+        print(f"Job ID: {kwargs['pk']}")
         job = self.get_object()
         if request.user != job.care_seeker:
             return Response({"error": "You are not authorized to propose a time for this job."}, status=status.HTTP_403_FORBIDDEN)

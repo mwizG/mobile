@@ -1,4 +1,7 @@
 // src/components/CaregiverJobManagement.js
+
+import { Link } from 'react-router-dom'; // Add this line to import Link
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,7 +12,7 @@ function CaregiverJobManagement() {
         const fetchJobs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/api/caregiver/jobs/', {
+                const response = await axios.get('http://127.0.0.1:8000/api/jobs/caregiver-jobs/', {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
@@ -25,14 +28,13 @@ function CaregiverJobManagement() {
 
     return (
         <div className="job-management-container">
-            <h2>Your Jobs</h2>
+            <h2>My Assigned Jobs</h2>
             <ul>
                 {jobs.map((job) => (
                     <li key={job.id}>
-                        <h3>{job.title}</h3>
-                        <p>{job.description}</p>
-                        <p><strong>Status:</strong> {job.status}</p>
-                        <p><strong>Scheduled Time:</strong> {job.scheduled_time}</p>
+                        <Link to={`/caregiver/jobs/${job.id}`}>
+                            <strong>{job.title}</strong> - {job.location} - {new Date(job.scheduled_time).toLocaleString()}
+                        </Link>
                     </li>
                 ))}
             </ul>

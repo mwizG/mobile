@@ -1,7 +1,7 @@
 // src/components/Jobs/JobApplicationUpdate.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
 function JobApplicationUpdate() {
   const { pk } = useParams(); // Get the application ID from the URL
@@ -62,6 +62,13 @@ function JobApplicationUpdate() {
         </select>
       </p>
       <button onClick={handleStatusUpdate}>Update Status</button>
+
+      {/* Conditionally render the Propose Job Time button if the status is "Accepted" */}
+      {status === 'Accepted' && (
+        <Link to={`/care-seeker/jobs/${application.job}/propose-time`}>
+          <button>Propose Job Time</button>
+        </Link>
+      )}
     </div>
   );
 }

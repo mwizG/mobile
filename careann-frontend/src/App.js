@@ -8,6 +8,7 @@ import CaregiverDashboard from './components/Dashboard/CaregiverDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import Messaging from './components/Messaging/Messaging';
 import JobPostingForm from './components/Forms/JobPostingForm';
+import CaregiverJobManagement from './components/Jobs/CaregiverJobManagement'; 
 import PaymentManagement from './components/Forms/PaymentManagement';
 import SearchCaregiversForm from './components/Forms/SearchCaregiversForm';
 import RatingReviewForm from './components/Forms/RatingReviewForm';
@@ -24,6 +25,9 @@ import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';  // Impor
 import JobApplicationForm from './components/Jobs/JobApplicationForm'; 
 import JobApplicationList from './components/Jobs/JobApplicationList';
 import JobApplicationUpdate from './components/Jobs/JobApplicationUpdate';
+import ProposeJobTime from './components/Jobs/ProposeJobTime'; // Import the ProposeJobTime component
+import AcceptJobTime from './components/Jobs/AcceptJobTime'; // Import the AcceptJobTime component
+import JobApplicationDetails from './components/Jobs/JobApplicationDetails';
 
 // Add these routes inside the <Routes> component
 
@@ -63,7 +67,7 @@ function App() {
         <Route path="care-seeker/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
         <Route path="/care-seeker/applications" element={<JobApplicationList />} />
         <Route path="/care-seeker/applications/:pk" element={<JobApplicationUpdate />} />  
-        
+        <Route path="/care-seeker/jobs/:id/propose-time" element={<ProposeJobTime />} /> {/* Add ProposeJobTime route */}
         
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
@@ -73,6 +77,9 @@ function App() {
         <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
         <Route path="caregiver/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
         <Route path="/caregiver/jobs/:jobId/apply" element={<JobApplicationForm />} />
+        <Route path="/caregiver/jobs/:id/accept-time" element={<AcceptJobTime />} /> {/* Add AcceptJobTime route */}
+        <Route path="/caregiver/applications/:id" element={<JobApplicationDetails />} />
+        <Route path="/caregiver-jobs" element={<CaregiverJobManagement />} />
 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
