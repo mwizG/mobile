@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-p167p4pa36ytc^zpp41b%sc$d6309&vnkk0386mxt18h*41$b=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 import stripe

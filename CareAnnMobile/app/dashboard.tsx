@@ -1,19 +1,16 @@
-import { Link } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, View } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App'; // Ensure this path is correct
 
-export default function HomeScreen() {
-  return (
-    <View style={styles.container}>
-      <Text>Home</Text>
-      <Link href="/dashboard">Go to Dashboard</Link>
-    </View>
-  );
+type IndexScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CaregiverDashboard'>;
+
+// app/index.tsx
+
+
+import CaregiverDashboard from '@/components/Dashboard/CaregiverDashboard';
+
+export default function Index() {
+  return <CaregiverDashboard />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

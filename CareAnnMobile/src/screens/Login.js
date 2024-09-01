@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Make sure you import AsyncStorage
 import { apiPost } from '../services/api'; // Import the API service
 
 function Login() {
@@ -18,14 +19,19 @@ function Login() {
       const data = { username, password };
       const response = await apiPost('/accounts/login/', data); // Use the API service
 
-      // Store the token and role in AsyncStorage (or SecureStore)
-      await AsyncStorage.setItem('token', response.token);
-      await AsyncStorage.setItem('role', response.role);
+      if (response && response.token && response.role) {
+        // Store the token and role in AsyncStorage
+        await AsyncStorage.setItem('token', response.token);
+        await AsyncStorage.setItem('role', response.role);
 
-      if (response.role === 'care_seeker') {
-        navigation.navigate('CareSeekerDashboard');
+        if (response.role === 'care_seeker') {
+          navigation.navigate('(components)/Dashboard/CareSeekerDashboard');
+        } else if (response.role === 'caregiver') {
+          navigation.navigate('CaregiverDashboard');
+
+        }
       } else {
-        navigation.navigate('CaregiverDashboard');
+        setError('Invalid response from the server. Please try again.');
       }
     } catch (error) {
       console.error('Login failed', error);
