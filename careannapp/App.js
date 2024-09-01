@@ -1,21 +1,24 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from './screens/LoginScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import JobListScreen from './screens/JobListScreen';
-import ChatScreen from './screens/ChatScreen';
-import ConversationsScreen from './screens/ConversationsScreen';
-import PaymentsScreen from './screens/PaymentsScreen';
-import RatingsScreen from './screens/RatingsScreen';
-import CaregiverScheduleScreen from './screens/CaregiverScheduleScreen';
-import CalendarScreen from './screens/CalendarScreen';
+import LandingScreen from './src/screens/LandingScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import JobListScreen from './src/screens/JobListScreen';
+import ChatScreen from './src/screens/ChatScreen';
+import ConversationsScreen from './src/screens/ConversationsScreen';
+import PaymentsScreen from './src/screens/PaymentsScreen';
+import RatingsScreen from './src/screens/RatingsScreen';
+import CaregiverScheduleScreen from './src/screens/CaregiverScheduleScreen';
+import CalendarScreen from './src/screens/CalendarScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Landing">
+        <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Jobs" component={JobListScreen} />

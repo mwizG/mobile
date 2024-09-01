@@ -11,19 +11,17 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/accounts/login/', {
+      const response = await axios.post('http://10.0.2.2:8000/api/accounts/login/', {
         username,
         password,
       });
       // Save the token and navigate to the profile screen
       const token = response.data.token;
-      // You can use AsyncStorage to save the token if needed
       navigation.navigate('Profile', { token });
     } catch (err) {
       setError('Invalid credentials');
     }
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Login</Text>

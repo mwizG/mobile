@@ -1,4 +1,4 @@
-// In screens/LandingScreen.js
+S// In screens/LandingScreen.js
 
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
