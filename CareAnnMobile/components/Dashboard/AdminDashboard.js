@@ -1,21 +1,61 @@
-// src/pages/AdminDashboard.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 function AdminDashboard() {
+    const navigation = useNavigation();
+
     return (
-        <div className="admin-dashboard">
-            <h2>Admin Dashboard</h2>
-            <div className="admin-options">
-                <Link to="/admin/users"><button>User Management</button></Link>
-                <Link to="/admin/content-moderation"><button>Content Moderation</button></Link>
-                <Link to="/admin/payments"><button>Payment Management</button></Link>
-                <Link to="/admin/disputes"><button>Dispute Resolution</button></Link>
-                <Link to="/admin/analytics"><button>Analytics & Reporting</button></Link>
-                <Link to="/admin/support-tickets"><button>Support Tickets</button></Link>
-            </div>
-        </div>
+        <View style={styles.container}>
+            <Text style={styles.title}>Admin Dashboard</Text>
+            <View style={styles.optionsContainer}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserManagement')}>
+                    <Text style={styles.buttonText}>User Management</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContentModeration')}>
+                    <Text style={styles.buttonText}>Content Moderation</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PaymentManagement')}>
+                    <Text style={styles.buttonText}>Payment Management</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DisputeResolution')}>
+                    <Text style={styles.buttonText}>Dispute Resolution</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AnalyticsReporting')}>
+                    <Text style={styles.buttonText}>Analytics & Reporting</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SupportTickets')}>
+                    <Text style={styles.buttonText}>Support Tickets</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    optionsContainer: {
+        marginTop: 20,
+    },
+    button: {
+        backgroundColor: '#007bff',
+        padding: 15,
+        borderRadius: 5,
+        marginBottom: 10,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+    },
+});
 
 export default AdminDashboard;

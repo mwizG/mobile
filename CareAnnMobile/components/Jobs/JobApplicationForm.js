@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function JobApplicationForm() {
-  const { jobId } = useParams(); // Get the job ID from the URL
+  const route = useRoute();
+  const { jobId } = route.params; // Get the job ID from the route parameters
   const [coverLetter, setCoverLetter] = useState('');
-  const navigate = useNavigate(); // For navigating back after submission
+  const navigation = useNavigation(); // For navigating back after submission
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token');
       const requestData = {
         cover_letter: coverLetter,
       };
@@ -29,25 +31,48 @@ function JobApplicationForm() {
       );
 
       // Handle success, such as navigating back to the job list or dashboard
-      navigate('/caregiver/dashboard');
+      Alert.alert('Success', 'Application submitted successfully!');
+      navigation.navigate('CaregiverDashboard');
     } catch (error) {
       console.error('Error applying for the job:', error);
+      Alert.alert('Error', 'There was an error applying for the job. Please try again.');
     }
   };
 
   return (
-    <div className="job-application-form">
-      <h2>Apply for Job</h2>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          placeholder="Write your cover letter here..."
-          value={coverLetter}
-          onChange={(e) => setCoverLetter(e.target.value)}
-        />
-        <button type="submit">Submit Application</button>
-      </form>
-    </div>
+    <View style={styles.container}>
+      <Text style={styles.title}>Apply for Job</Text>
+      <TextInput
+        style={styles.textArea}
+        placeholder="Write your cover letter here..."
+        value={coverLetter}
+        onChangeText={setCoverLetter}
+        multiline
+        numberOfLines={5}
+      />
+      <Button title="Submit Application" onPress={handleSubmit} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  textArea: {
+    height: 150,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 16,
+    padding: 8,
+    textAlignVertical: 'top', // Ensures text starts from the top in Android
+  },
+});
 
 export default JobApplicationForm;

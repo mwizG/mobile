@@ -1,18 +1,20 @@
-// src/components/Jobs/JobApplicationUpdate.js
 import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, Picker, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function JobApplicationUpdate() {
-  const { pk } = useParams(); // Get the application ID from the URL
-  const navigate = useNavigate();
+  const route = useRoute();
+  const { pk } = route.params; // Get the application ID from the route params
+  const navigation = useNavigation();
   const [application, setApplication] = useState(null);
   const [status, setStatus] = useState('');
 
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token');
         const response = await axios.get(`http://127.0.0.1:8000/api/jobs/applications/${pk}/`, {
           headers: {
             Authorization: `Token ${token}`,
@@ -30,47 +32,81 @@ function JobApplicationUpdate() {
 
   const handleStatusUpdate = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token');
       await axios.patch(`http://127.0.0.1:8000/api/jobs/applications/${pk}/`, { status }, {
         headers: {
           Authorization: `Token ${token}`,
         },
       });
-      navigate('/care-seeker/applications'); // Redirect after update
+      Alert.alert('Success', 'Job application status updated successfully!');
+      navigation.navigate('CareSeekerApplications'); // Redirect after update
     } catch (error) {
       console.error('Error updating job application', error);
+      Alert.alert('Error', 'There was an error updating the job application.');
     }
   };
 
   if (!application) {
-    return <div>Loading application details...</div>;
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
   return (
-    <div>
-      <h2>Update Job Application</h2>
-      <p><strong>Job:</strong> {application.job}</p>
-      <p><strong>Caregiver:</strong> {application.caregiver}</p>
-      <p><strong>Cover Letter:</strong> {application.cover_letter}</p>
-      <p><strong>Applied At:</strong> {new Date(application.applied_at).toLocaleDateString()}</p>
-      <p>
-        <strong>Status:</strong>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="Pending">Pending</option>
-          <option value="Accepted">Accepted</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </p>
-      <button onClick={handleStatusUpdate}>Update Status</button>
+    <View style={styles.container}>
+      <Text style={styles.title}>Update Job Application</Text>
+      <Text><Text style={styles.label}>Job:</Text> {application.job}</Text>
+      <Text><Text style={styles.label}>Caregiver:</Text> {application.caregiver}</Text>
+      <Text><Text style={styles.label}>Cover Letter:</Text> {application.cover_letter}</Text>
+      <Text><Text style={styles.label}>Applied At:</Text> {new Date(application.applied_at).toLocaleDateString()}</Text>
+      <Text style={styles.label}>Status:</Text>
+      <Picker
+        selectedValue={status}
+        onValueChange={(itemValue) => setStatus(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Pending" value="Pending" />
+        <Picker.Item label="Accepted" value="Accepted" />
+        <Picker.Item label="Rejected" value="Rejected" />
+      </Picker>
+      <Button title="Update Status" onPress={handleStatusUpdate} />
 
-      {/* Conditionally render the Propose Job Time button if the status is "Accepted" */}
       {status === 'Accepted' && (
-        <Link to={`/care-seeker/jobs/${application.job}/propose-time`}>
-          <button>Propose Job Time</button>
-        </Link>
+        <Button
+          title="Propose Job Time"
+          onPress={() => navigation.navigate('ProposeJobTime', { jobId: application.job })}
+          style={styles.proposeButton}
+        />
       )}
-    </div>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  label: {
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 16,
+  },
+  proposeButton: {
+    marginTop: 20,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default JobApplicationUpdate;

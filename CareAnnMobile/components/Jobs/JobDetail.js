@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, Button, ActivityIndicator, StyleSheet } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function JobDetail() {
-    const { jobId } = useParams();
+    const route = useRoute();
+    const { jobId } = route.params;
     const [job, setJob] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -13,6 +17,8 @@ function JobDetail() {
                 setJob(response.data);
             } catch (error) {
                 console.error('Error fetching job details:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -21,37 +27,65 @@ function JobDetail() {
 
     const acceptJobTime = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = await AsyncStorage.getItem('token');
             const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept-time/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
             console.log('Job time accepted:', response.data);
-            // Optionally, you can update the job state to reflect the accepted time
-            setJob(response.data);
+            setJob(response.data); // Update job state to reflect the accepted time
         } catch (error) {
             console.error('Error accepting job time', error);
         }
     };
 
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
+    }
+
     if (!job) {
-        return <div>Loading job details...</div>;
+        return <Text style={styles.error}>Error loading job details.</Text>;
     }
 
     return (
-        <div className="job-detail-container">
-            <h2>{job.title}</h2>
-            <p><strong>Description:</strong> {job.description}</p>
-            <p><strong>Location:</strong> {job.location}</p>
-            <p><strong>Pay Rate:</strong> ${job.pay_rate}</p>
-            <p><strong>Status:</strong> {job.status}</p>
-            <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</p>
+        <View style={styles.container}>
+            <Text style={styles.title}>{job.title}</Text>
+            <Text><Text style={styles.label}>Description:</Text> {job.description}</Text>
+            <Text><Text style={styles.label}>Location:</Text> {job.location}</Text>
+            <Text><Text style={styles.label}>Pay Rate:</Text> ${job.pay_rate}</Text>
+            <Text><Text style={styles.label}>Status:</Text> {job.status}</Text>
+            <Text><Text style={styles.label}>Proposed Time:</Text> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</Text>
             {job.proposed_time && (
-                <button onClick={acceptJobTime}>Accept Proposed Time</button>
+                <Button title="Accept Proposed Time" onPress={acceptJobTime} />
             )}
-        </div>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    label: {
+        fontWeight: 'bold',
+    },
+    loading: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    error: {
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});
 
 export default JobDetail;

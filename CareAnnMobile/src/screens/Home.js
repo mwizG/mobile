@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TextInput } from 'react-native'; // Added TextInput import
 import { useNavigation } from '@react-navigation/native';
 
 function Home() {

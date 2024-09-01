@@ -1,11 +1,15 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import App from '../App';
+import React, { useEffect } from 'react';
+import { Text, View } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App'; // Ensure this path is correct
 
-export default function Root() {
-  return (
-    <NavigationContainer>
-      <App />
-    </NavigationContainer>
-  );
+type IndexScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
+// app/index.tsx
+
+import Home from '../src/screens/Home';
+
+export default function Index() {
+  return <Home />;
 }

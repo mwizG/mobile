@@ -1,16 +1,17 @@
-// src/components/Jobs/JobApplicationList.js
-
 import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function JobApplicationList() {
   const [applications, setApplications] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token');
         const response = await axios.get('http://127.0.0.1:8000/api/jobs/applications/', {
           headers: {
             Authorization: `Token ${token}`,
@@ -41,20 +42,51 @@ function JobApplicationList() {
     fetchApplications();
   }, []);
 
+  const renderApplicationItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('ApplicationDetails', { applicationId: item.id })}
+      style={styles.applicationItem}
+    >
+      <Text style={styles.jobTitle}>{item.jobTitle}</Text>
+      <Text style={styles.status}>{item.status}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <div>
-      <h2>Job Applications</h2>
-      <ul>
-        {applications.map((application) => (
-          <li key={application.id}>
-            <Link to={`/care-seeker/applications/${application.id}`}>
-              {application.jobTitle} - {application.status}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <View style={styles.container}>
+      <Text style={styles.title}>Job Applications</Text>
+      <FlatList
+        data={applications}
+        renderItem={renderApplicationItem}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  applicationItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  jobTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  status: {
+    fontSize: 16,
+    color: '#555',
+  },
+});
 
 export default JobApplicationList;

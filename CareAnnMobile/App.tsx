@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import your components/screens
 import Home from './src/screens/Home';
@@ -11,7 +12,7 @@ import CaregiverDashboard from './components/Dashboard/CaregiverDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import Messaging from './components/Messaging/Messaging';
 import JobPostingForm from './components/Forms/JobPostingForm';
-import CaregiverJobManagement from './components/Jobs/CaregiverJobManagement'; 
+import CaregiverJobManagement from './components/Jobs/CaregiverJobManagement';
 import PaymentManagement from './components/Forms/PaymentManagement';
 import SearchCaregiversForm from './components/Forms/SearchCaregiversForm';
 import RatingReviewForm from './components/Forms/RatingReviewForm';
@@ -24,8 +25,8 @@ import ModerationAction from './components/Admin/ModerationAction';
 import UserActivity from './components/Admin/UserActivity';
 import JobList from './components/Jobs/JobList';
 import JobDetail from './components/Jobs/JobDetail';
-import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';  
-import JobApplicationForm from './components/Jobs/JobApplicationForm'; 
+import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';
+import JobApplicationForm from './components/Jobs/JobApplicationForm';
 import JobApplicationList from './components/Jobs/JobApplicationList';
 import JobApplicationUpdate from './components/Jobs/JobApplicationUpdate';
 import ProposeJobTime from './components/Jobs/ProposeJobTime';
@@ -67,7 +68,29 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  const userRole = localStorage.getItem('role');
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigationRef = useRef(null);
+  const isReadyRef = useRef(false);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem('role');
+        setUserRole(role);
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      } finally {
+        setIsLoading(false); // Ensure loading is complete
+      }
+    };
+
+    fetchUserRole();
+
+    return () => {
+      isReadyRef.current = false;
+    };
+  }, []);
 
   const renderRoleBasedScreens = () => {
     switch (userRole) {
@@ -118,8 +141,17 @@ function App() {
     }
   };
 
+  if (isLoading) {
+    return null; // or a loading spinner if desired
+  }
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        isReadyRef.current = true;
+      }}
+    >
       <Stack.Navigator initialRouteName="Home">
         {/* Public Routes */}
         <Stack.Screen name="Home" component={Home} />
