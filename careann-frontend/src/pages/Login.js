@@ -23,8 +23,12 @@ function Login() {
 
       if (response.role === 'care_seeker') {
         navigate('/care-seeker/dashboard');
-      } else {
+      } else if (response.role === 'caregiver') {
         navigate('/caregiver/dashboard');
+      } else if (response.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/'); // Fallback to home if role is not recognized
       }
     } catch (error) {
       console.error('Login failed', error);
