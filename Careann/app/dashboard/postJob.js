@@ -3,8 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const JobPostingForm = ({ navigation }) => {
+const PostJob = ({ navigation }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
@@ -107,4 +106,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default JobPostingForm;
+export default PostJob;
