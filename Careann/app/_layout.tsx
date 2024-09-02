@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import { AuthContext } from '../state/AuthContext';
 import { RoleContext } from '../state/RoleContext';
@@ -9,19 +9,18 @@ import AdminDashboard from './dashboard/admin';
 import CareSeekerDashboard from './dashboard/care-seeker';
 import CaregiverDashboard from './dashboard/caregiver';
 import Services from './services';
-import HowItWorks from './how-it-works';
 import Contact from './contact';
 import FAQ from './faq';
-import ProfileView from './profile/ProfileView';
-import ProfileSetupForm from './profile/ProfileSetupForm';
+import ProfileView from '../components/profile/ProfileView';
+import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 
 const Layout = () => {
-  const { user } = useContext(AuthContext);
-  const { role } = useContext(RoleContext);
+  const { user } = useContext(AuthContext) || {}; // Fallback to empty object if undefined
+  const { role } = useContext(RoleContext) || {}; // Fallback to empty object if undefined
   const router = useRouter();
 
   // Redirect user based on role
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       if (role === 'admin') {
         router.push('/dashboard/admin');
@@ -41,7 +40,6 @@ const Layout = () => {
           <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
           <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
           <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
-          <Stack.Screen name="how-it-works" component={HowItWorks} options={{ title: 'How It Works' }} />
           <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
           <Stack.Screen name="faq" component={FAQ} options={{ title: 'FAQ' }} />
         </>
@@ -65,3 +63,4 @@ const Layout = () => {
 };
 
 export default Layout;
+

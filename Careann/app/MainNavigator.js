@@ -8,10 +8,10 @@ import AdminDashboard from './dashboard/admin';
 import CareSeekerDashboard from './dashboard/care-seeker';
 import CaregiverDashboard from './dashboard/caregiver';
 import UserManagement from './dashboard/UserManagement';
-import PostJob from './dashboard/PostJob';
+import PostJob from './dashboard/postJob';
 import SearchJobs from './dashboard/SearchJobs';
-import ProfileView from './profile/ProfileView';
-import ProfileSetupForm from './profile/ProfileSetupForm';
+import ProfileView from '../components/profile/ProfileView';
+import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import Home from './index';
 import { JobProvider } from '../state/JobContext';  // Corrected import path for JobProvider
 

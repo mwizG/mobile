@@ -2,18 +2,15 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './state/AuthContext';
 import { RoleProvider } from './state/RoleContext';
-import { JobProvider } from './state/JobContext';  // Import JobProvider
-import MainNavigator from './app/MainNavigator';
+import Layout from './app/Layout';
 
 export default function App() {
   return (
     <AuthProvider>
       <RoleProvider>
-        <JobProvider>  {/* Wrap the MainNavigator with JobProvider */}
-          <NavigationContainer>
-            <MainNavigator />
-          </NavigationContainer>
-        </JobProvider>
+        <NavigationContainer>
+          <Layout />
+        </NavigationContainer>
       </RoleProvider>
     </AuthProvider>
   );

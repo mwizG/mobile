@@ -3,7 +3,8 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } f
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { BASE_URL } from '../services/api';
+import { get, post }  from '../services/api';
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ const Login = () => {
 
     try {
       const data = { username, password };
-      const response = await axios.post(`${BASE_URL}/accounts/login/`, data);
+      const response = await post(`/accounts/login/`, data);
 
       await AsyncStorage.setItem('token', response.data.token);
       await AsyncStorage.setItem('role', response.data.role);

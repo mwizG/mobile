@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="(screens)/Login" /> 
       <Stack.Screen name="(components)/Dashboard/CaregiverDashboard" />
       <Stack.Screen name="(components)/Dashboard/CareSeekerDashboard" />
+      
     </Stack>
   );
 }
