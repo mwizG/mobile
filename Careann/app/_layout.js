@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Stack, useRouter } from 'expo-router';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthContext } from '../state/AuthContext';
 import { RoleContext } from '../state/RoleContext';
 import Home from './index';
@@ -14,34 +14,41 @@ import FAQ from './faq';
 import ProfileView from '../components/profile/ProfileView';
 import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 
+const Stack = createNativeStackNavigator();
+
 const Layout = () => {
   const { user } = useContext(AuthContext) || {}; // Fallback to empty object if undefined
   const { role } = useContext(RoleContext) || {}; // Fallback to empty object if undefined
-  const router = useRouter();
 
   // Redirect user based on role
   useEffect(() => {
     if (user) {
-      if (role === 'admin') {
-        router.push('/dashboard/admin');
-      } else if (role === 'care_seeker') {
-        router.push('/dashboard/care-seeker');
-      } else if (role === 'caregiver') {
-        router.push('/dashboard/caregiver');
+      switch (role) {
+        case 'admin':
+          navigation.navigate('AdminDashboard');
+          break;
+        case 'care_seeker':
+          navigation.navigate('CareSeekerDashboard');
+          break;
+        case 'caregiver':
+          navigation.navigate('CaregiverDashboard');
+          break;
+        default:
+          break;
       }
     }
-  }, [user, role, router]);
+  }, [user, role]);
 
   return (
-    <Stack>
+    <Stack.Navigator>
       {!user ? (
         <>
           <Stack.Screen name="index" component={Home} options={{ title: 'Home' }} />
-          <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
-          <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
-          <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
-          <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
-          <Stack.Screen name="faq" component={FAQ} options={{ title: 'FAQ' }} />
+          <Stack.Screen name="login" component={Login} options={{ title: 'login' }} />
+          <Stack.Screen name="Register" component={Register} options={{ title: 'Register' }} />
+          <Stack.Screen name="Services" component={Services} options={{ title: 'Services' }} />
+          <Stack.Screen name="Contact" component={Contact} options={{ title: 'Contact' }} />
+          <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
         </>
       ) : (
         <>
@@ -58,9 +65,8 @@ const Layout = () => {
           <Stack.Screen name="ProfileSetupForm" component={ProfileSetupForm} options={{ title: 'Set Up Profile' }} />
         </>
       )}
-    </Stack>
+    </Stack.Navigator>
   );
 };
 
 export default Layout;
-
