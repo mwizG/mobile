@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { get, post }  from '../services/api';
-
+import { AuthContext } from '../state/AuthContext'; // Import AuthContext
+import { post } from '../services/api';  // Import the API service
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -13,17 +12,31 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigation = useNavigation();
 
+  const { setUser } = useContext(AuthContext); // Access the setUser function from AuthContext
+
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const data = { username, password };
-      const response = await post(`/accounts/login/`, data);
+      if (!username || !password) {
+        setError('Username and password are required.');
+        setLoading(false);
+        return;
+      }
 
+      const data = { username, password };
+      const response = await post('/accounts/login/', data); // Use the API service
+
+      // Store token and user info in AsyncStorage or Context
       await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
       await AsyncStorage.setItem('role', response.data.role);
 
+      // Update context
+      setUser(response.data.user);
+
+      // Navigate based on user role
       if (response.data.role === 'care_seeker') {
         navigation.navigate('CareSeekerDashboard');
       } else if (response.data.role === 'caregiver') {
@@ -31,10 +44,10 @@ const Login = () => {
       } else if (response.data.role === 'admin') {
         navigation.navigate('AdminDashboard');
       } else {
-        navigation.navigate('Home'); // Fallback to home if role is not recognized
+        navigation.navigate('index'); // Fallback to home if role is not recognized
       }
     } catch (error) {
-      console.error('Login failed', error);
+      console.error('Login failed', error.response?.data || error.message);
       setError('Invalid username or password. Please try again.');
     } finally {
       setLoading(false);
@@ -51,7 +64,7 @@ const Login = () => {
         value={username}
         onChangeText={setUsername}
         autoCapitalize="none"
-        disabled={loading}
+        editable={!loading}
       />
       <TextInput
         style={styles.input}
@@ -59,7 +72,7 @@ const Login = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        disabled={loading}
+        editable={!loading}
       />
       <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleSubmit} disabled={loading} />
       {loading && <ActivityIndicator size="large" color="#0000ff" />}

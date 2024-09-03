@@ -23,6 +23,7 @@ function Register() {
     contact_info: '',
   });
 
+  const [error, setError] = useState('');
   const navigation = useNavigation();
 
   const handleChange = (name, value) => {
@@ -57,6 +58,12 @@ function Register() {
   };
 
   const handleSubmit = async () => {
+    // Basic validation
+    if (!formData.username || !formData.email || !formData.password || (!formData.is_care_seeker && !formData.is_caregiver)) {
+      setError('Please fill in all required fields and select a role.');
+      return;
+    }
+
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== null && formData[key] !== undefined) {
@@ -83,7 +90,7 @@ function Register() {
       ]);
     } catch (error) {
       if (error.response && error.response.data) {
-        Alert.alert('Error', `Registration failed: ${error.response.data}`);
+        Alert.alert('Error', `Registration failed: ${JSON.stringify(error.response.data)}`);
       } else {
         Alert.alert('Error', 'Registration failed. Please try again.');
       }
@@ -93,6 +100,7 @@ function Register() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Register</Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -111,7 +119,7 @@ function Register() {
         secureTextEntry
       />
 
-      {/* Radio buttons to select Care Seeker or Caregiver */}
+      {/* Role Selection */}
       <View style={styles.radioContainer}>
         <TouchableOpacity
           style={styles.radioButton}
@@ -261,6 +269,11 @@ const styles = StyleSheet.create({
   },
   fileButtonText: {
     color: 'white',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });
 

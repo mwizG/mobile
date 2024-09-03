@@ -1,4 +1,5 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const ProfileContext = createContext();
 
@@ -8,17 +9,21 @@ export const ProfileProvider = ({ children }) => {
     email: '',
     location: '',
     bio: '',
-    phone: '',
-    address: '',
   });
 
-  const saveProfile = (profileData) => {
-    setProfile(profileData);
-    // Here you would also handle saving the profile data to a backend API
-  };
+  useEffect(() => {
+    const loadProfile = async () => {
+      // Assuming you load profile from AsyncStorage or an API
+      const storedProfile = JSON.parse(await AsyncStorage.getItem('profile'));
+      if (storedProfile) {
+        setProfile(storedProfile);
+      }
+    };
+    loadProfile();
+  }, []);
 
   return (
-    <ProfileContext.Provider value={{ profile, saveProfile }}>
+    <ProfileContext.Provider value={{ profile, setProfile }}>
       {children}
     </ProfileContext.Provider>
   );

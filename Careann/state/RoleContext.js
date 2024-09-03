@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 
-// Create the RoleContext
 export const RoleContext = createContext();
 
 export const RoleProvider = ({ children }) => {
@@ -9,7 +8,7 @@ export const RoleProvider = ({ children }) => {
   const [role, setRole] = useState(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.role) {
       setRole(user.role); // Assuming the user object contains a 'role' property
     } else {
       setRole(null);
