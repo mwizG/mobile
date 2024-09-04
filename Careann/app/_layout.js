@@ -26,8 +26,8 @@ const Layout = () => {
   const { role } = useContext(RoleContext);
   
   // Debugging
-  console.log("User:", user);
-  console.log("Role:", role);
+  //console.log("User:", user);
+  //console.log("Role:", role);
 
   return (
     <Stack.Navigator>

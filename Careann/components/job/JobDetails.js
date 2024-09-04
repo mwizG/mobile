@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Button, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { api } from '../../services/api'; // Assuming your api.js is set up properly
 import { JobContext } from '../../state/JobContext'; // Import JobContext to manage state
 
@@ -50,11 +51,11 @@ function JobDetails() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{job.title}</Text>
-      <Text><strong>Description:</strong> {job.description}</Text>
-      <Text><strong>Location:</strong> {job.location}</Text>
-      <Text><strong>Pay Rate:</strong> ${job.pay_rate}</Text>
-      <Text><strong>Status:</strong> {job.status}</Text>
-      <Text><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</Text>
+      <Text style={styles.detailText}><Text style={styles.boldText}>Description:</Text> {job.description}</Text>
+      <Text style={styles.detailText}><Text style={styles.boldText}>Location:</Text> {job.location}</Text>
+      <Text style={styles.detailText}><Text style={styles.boldText}>Pay Rate:</Text> ${job.pay_rate}</Text>
+      <Text style={styles.detailText}><Text style={styles.boldText}>Status:</Text> {job.status}</Text>
+      <Text style={styles.detailText}><Text style={styles.boldText}>Proposed Time:</Text> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</Text>
       {job.proposed_time && (
         <Button title="Accept Proposed Time" onPress={acceptJobTime} />
       )}
@@ -65,6 +66,7 @@ function JobDetails() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -75,6 +77,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+  },
+  detailText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
 });
 
