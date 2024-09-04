@@ -27,6 +27,7 @@ const Login = () => {
 
       const data = { username, password };
       const response = await post('/accounts/login/', data); // Use the API service
+      console.log(response.data);
 
       // Store token and user info in AsyncStorage or Context
       await AsyncStorage.setItem('token', response.data.token);
@@ -38,11 +39,11 @@ const Login = () => {
 
       // Navigate based on user role
       if (response.data.role === 'care_seeker') {
-        navigation.navigate('CareSeekerDashboard');
+        navigation.navigate('dashboard/care-seeker');
       } else if (response.data.role === 'caregiver') {
-        navigation.navigate('CaregiverDashboard');
+        navigation.navigate('dashboard/caregiver');
       } else if (response.data.role === 'admin') {
-        navigation.navigate('AdminDashboard');
+        navigation.navigate('dashboard/admin');
       } else {
         navigation.navigate('index'); // Fallback to home if role is not recognized
       }

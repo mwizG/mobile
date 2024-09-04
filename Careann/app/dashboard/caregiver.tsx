@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { get } from '../../services/api'; // Import the get function from api.js
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 function CaregiverDashboard() {
     const [applications, setApplications] = useState([]);
@@ -10,10 +11,17 @@ function CaregiverDashboard() {
     useEffect(() => {
         const fetchApplications = async () => {
             try {
-                const token = 'your_token_here'; // Replace with the actual token management solution
-                const response = await axios.get('http://127.0.0.1:8000/api/jobs/applications/', {
+                // Retrieve token from AsyncStorage
+                const token = await AsyncStorage.getItem('token');
+                if (!token) {
+                    console.error('Token not found');
+                    return;
+                }
+
+                // Fetch job applications using the get method from api.js
+                const response = await get('/jobs/applications/', {
                     headers: {
-                        Authorization: `Token ${token}`,
+                        Authorization: `Token ${token}`,  // Add the token in the Authorization header
                     },
                 });
                 setApplications(response.data);
@@ -52,9 +60,9 @@ function CaregiverDashboard() {
                 <Button title="Settings" onPress={() => navigation.navigate('Settings')} />
             </View>
             <View>
-            {/* Other dashboard features */}
-            <Button title="Messaging" onPress={() => navigation.navigate('ConversationList')} />
-        </View>
+                {/* Other dashboard features */}
+                <Button title="Messaging" onPress={() => navigation.navigate('ConversationList')} />
+            </View>
             <View style={styles.applicationsSection}>
                 <Text style={styles.subTitle}>Job Applications</Text>
                 <View>

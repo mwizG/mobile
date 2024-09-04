@@ -34,7 +34,7 @@ const MainNavigator = () => {
     } else if (role === 'care_seeker') {
       return (
         <>
-          <Stack.Screen name="CareSeekerDashboard" component={CareSeekerDashboard} />
+          <Stack.Screen name="care-seeker" component={CareSeekerDashboard} />
           <Stack.Screen name="PostJob" component={PostJob} />
           <Stack.Screen name="ProfileView" component={ProfileView} />
           <Stack.Screen name="ProfileSetupForm" component={ProfileSetupForm} />
@@ -43,7 +43,7 @@ const MainNavigator = () => {
     } else if (role === 'caregiver') {
       return (
         <>
-          <Stack.Screen name="CaregiverDashboard" component={CaregiverDashboard} />
+          <Stack.Screen name="caregiver" component={CaregiverDashboard} />
           <Stack.Screen name="SearchJobs" component={SearchJobs} />
           <Stack.Screen name="ProfileView" component={ProfileView} />
           <Stack.Screen name="ProfileSetupForm" component={ProfileSetupForm} />

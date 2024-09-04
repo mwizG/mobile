@@ -20,28 +20,33 @@ const Stack = createNativeStackNavigator();
 const Layout = () => {
   const { user } = useContext(AuthContext);
   const { role } = useContext(RoleContext);
+  
+  // Debugging
+  console.log("User:", user);
+  console.log("Role:", role);
 
   return (
     <Stack.Navigator>
       {/* Unauthenticated Routes */}
       <Stack.Screen name="index" component={Home} options={{ title: 'Landing Page' }} />
-      <Stack.Screen name="login" component={Login} options={{ title: 'login' }} />
+      <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
       <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
       <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
       <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
       <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
 
-      {/* Authenticated Routes */}
+      {/* Conditionally Render Authenticated Routes Based on User and Role */}
       {user && role === 'admin' && (
-        <Stack.Screen name="AdminDashboard" component={AdminDashboard} options={{ title: 'Admin Dashboard' }} />
+        <Stack.Screen name="dashboard/admin" component={AdminDashboard} options={{ title: 'Admin Dashboard' }} />
       )}
       {user && role === 'care_seeker' && (
-        <Stack.Screen name="CareSeekerDashboard" component={CareSeekerDashboard} options={{ title: 'Care Seeker Dashboard' }} />
+        <Stack.Screen name="dashboard/care-seeker" component={CareSeekerDashboard} options={{ title: 'Care Seeker Dashboard' }} />
       )}
       {user && role === 'caregiver' && (
-        <Stack.Screen name="CaregiverDashboard" component={CaregiverDashboard} options={{ title: 'Caregiver Dashboard' }} />
+        <Stack.Screen name="dashboard/caregiver" component={CaregiverDashboard} options={{ title: 'Caregiver Dashboard' }} />
       )}
 
+      {/* Profile and Other Authenticated Routes */}
       {user && (
         <>
           <Stack.Screen name="ProfileView" component={ProfileView} options={{ title: 'View Profile' }} />
@@ -51,6 +56,7 @@ const Layout = () => {
     </Stack.Navigator>
   );
 };
+
 
 // Wrap the Layout component with both AuthProvider and RoleProvider
 export default function App() {
