@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { fetchJobs } from '../../services/jobService';
 import { useNavigation } from '@react-navigation/native';
 import { JobContext } from '../../state/JobContext';
 
 const JobList = ({ filters }) => {
   const [jobs, setJobs] = useState([]);
   const navigation = useNavigation();
-  const { setJobDetails } = useContext(JobContext); // Access the JobContext
+  const { setSelectedJob } = useContext(JobContext); // Access the correct function from JobContext
 
   useEffect(() => {
     const loadJobs = async () => {
-      const data = await fetchJobs(filters);
-      setJobs(data);
+      const data = await api.get('/jobs/search/', { params: filters });
+      setJobs(data.data);
     };
 
     loadJobs();
   }, [filters]);
 
   const handleJobPress = (job) => {
-    setJobDetails(job); // Store job details in context
+    setSelectedJob(job); // Store job details in context
     navigation.navigate('JobDetails', { jobId: job.id });
   };
 

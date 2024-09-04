@@ -42,7 +42,7 @@ function CaregiverDashboard() {
 
             <View style={styles.dashboardOptions}>
                 <Button title="Search for Jobs" onPress={() => navigation.navigate('SearchJobs')} />
-                <Button title="View Available Jobs" onPress={() => navigation.navigate('ViewJobs')} />
+                <Button title="View Available Jobs" onPress={() => navigation.navigate('JobList')} />
                 <Button title="View & Manage Applications" onPress={() => navigation.navigate('ManageApplications')} />
                 <Button title="View & Manage Jobs" onPress={() => navigation.navigate('ManageJobs')} />
                 <Button title="Manage Schedule & Availability" onPress={() => navigation.navigate('Scheduler')} />

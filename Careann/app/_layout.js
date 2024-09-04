@@ -12,8 +12,12 @@ import Services from './services';
 import Contact from './contact';
 import FAQ from './faq';
 import ProfileView from '../components/profile/ProfileView';
+import JobList from '../components/job/JobList';
 import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import { ProfileProvider } from '../state/ProfileContext'; 
+import { JobProvider } from '../state/JobContext'; 
+
+import JobDetails from '../components/job/JobDetails'; // Assuming JobDetails is for detailed job info
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +37,8 @@ const Layout = () => {
       <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
       <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
       <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
+      <Stack.Screen name="JobList" component={JobList} options={{ title: 'job list' }} />
+      <Stack.Screen name="JobDetails" component={JobDetails} options={{ title: 'job details' }}/>
       <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
 
       {/* Conditionally Render Authenticated Routes Based on User and Role */}
@@ -63,8 +69,10 @@ export default function App() {
   return (
     <AuthProvider>
       <RoleProvider>
-        <ProfileProvider> 
-          <Layout />
+        <ProfileProvider>
+          <JobProvider>
+            <Layout />
+          </JobProvider>
         </ProfileProvider>
       </RoleProvider>
     </AuthProvider>
