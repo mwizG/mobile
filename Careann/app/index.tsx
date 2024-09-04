@@ -23,8 +23,8 @@ const Home = () => {
         <Text style={styles.subtitle}>Welcome to CareAnn</Text>
         <Text>Your trusted platform to connect care seekers with caregivers.</Text>
         <View style={styles.homeOptions}>
-          <Button title="Login" onPress={() => navigation.navigate('Login')} />
-          <Button title="Register" onPress={() => navigation.navigate('Register')} />
+          <Button title="login" onPress={() => navigation.navigate('login')} />
+          <Button title="register" onPress={() => navigation.navigate('register')} />
         </View>
       </View>
 
