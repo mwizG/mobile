@@ -16,7 +16,7 @@ import JobList from '../components/job/JobList';
 import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import { ProfileProvider } from '../state/ProfileContext'; 
 import { JobProvider } from '../state/JobContext'; 
-
+import { NavigationContainer } from '@react-navigation/native';
 import JobDetails from '../components/job/JobDetails'; // Assuming JobDetails is for detailed job info
 
 const Stack = createNativeStackNavigator();
@@ -64,17 +64,20 @@ const Layout = () => {
 };
 
 
-// Wrap the Layout component with both AuthProvider and RoleProvider
+
+
 export default function App() {
   return (
-    <AuthProvider>
-      <RoleProvider>
-        <ProfileProvider>
-          <JobProvider>
-            <Layout />
-          </JobProvider>
-        </ProfileProvider>
-      </RoleProvider>
-    </AuthProvider>
+    <NavigationContainer independent={true}>
+      <AuthProvider>
+        <RoleProvider>
+          <ProfileProvider>
+            <JobProvider>
+              <Layout />
+            </JobProvider>
+          </ProfileProvider>
+        </RoleProvider>
+      </AuthProvider>
+    </NavigationContainer>
   );
 }
