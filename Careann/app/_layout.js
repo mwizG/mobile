@@ -13,12 +13,13 @@ import Contact from './contact';
 import FAQ from './faq';
 import ProfileView from '../components/profile/ProfileView';
 import JobList from '../components/job/JobList';
+import SearchJobs from '../components/job/SearchJobs';
 import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import { ProfileProvider } from '../state/ProfileContext'; 
 import { JobProvider } from '../state/JobContext'; 
 import { NavigationContainer } from '@react-navigation/native';
 import JobDetails from '../components/job/JobDetails'; // Assuming JobDetails is for detailed job info
-
+import { searchJobs } from '../services/jobService';
 const Stack = createNativeStackNavigator();
 
 const Layout = () => {
@@ -38,6 +39,7 @@ const Layout = () => {
       <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
       <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
       <Stack.Screen name="JobList" component={JobList} options={{ title: 'job list' }} />
+      <Stack.Screen name="SearchJobs" component={SearchJobs} options={{ title: 'search jobs' }} />
       <Stack.Screen name="JobDetails" component={JobDetails} options={{ title: 'job details' }}/>
       <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
 
