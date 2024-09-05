@@ -1,17 +1,17 @@
 import axios from 'axios';
 import { BASE_URL } from './api';
-import { get } from './api'; 
+import { get,post } from './api'; 
 
 export const postJob = async (jobData, token) => {
   try {
-    const response = await axios.post(`${BASE_URL}/jobs/post/`, jobData, {
+    const response = await post('/jobs/create/', jobData, {
       headers: {
         Authorization: `Token ${token}`,
       },
     });
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    throw error.response ? error.response.data : 'Error posting job';
   }
 };
 

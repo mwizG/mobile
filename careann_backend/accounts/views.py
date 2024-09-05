@@ -49,8 +49,18 @@ class LoginView(ObtainAuthToken):
         else:
             role = 'unknown'
 
+        response_data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+            'role': role  # Return role explicitly
+        }
+
+        print(f"Response data: {response_data}")  # This will print to the console/logs
+
+       
         return Response({
             'token': token.key,
             'user': UserSerializer(user).data,
             'role': role  # Return role explicitly
         })
+    

@@ -14,8 +14,8 @@ const CareSeekerDashboard = () => {
 
       <View style={styles.dashboardOptions}>
         <Button title="Search for Caregivers" onPress={() => navigation.navigate('SearchCaregivers')} />
-        <Button title="Post a Job" onPress={() => navigation.navigate('PostJob')} />
-        <Button title="View & Manage Job Listings" onPress={() => navigation.navigate('ManageListings')} />
+        <Button title="Post a Job" onPress={() => navigation.navigate('JobPostingForm')} />
+        <Button title="View & Manage Job Listings" onPress={() => navigation.navigate('JobListingManager')} />
         <Button title="Messaging" onPress={() => navigation.navigate('Messaging')} />
         <Button title="Manage Payments" onPress={() => navigation.navigate('PaymentHistory')} />
         <Button title="Manage Reviews" onPress={() => navigation.navigate('ReviewList')} />

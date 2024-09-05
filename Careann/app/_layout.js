@@ -18,8 +18,11 @@ import ProfileSetupForm from '../components/profile/ProfileSetupForm';
 import { ProfileProvider } from '../state/ProfileContext'; 
 import { JobProvider } from '../state/JobContext'; 
 import { NavigationContainer } from '@react-navigation/native';
-import JobDetails from '../components/job/JobDetails'; // Assuming JobDetails is for detailed job info
-import { searchJobs } from '../services/jobService';
+import JobDetails from '../components/job/JobDetails';
+import JobPostingForm from '../components/job/JobPostingForm';
+import JobListingManager from '../components/job/JobListingManager';
+import JobApplicationList from '../components/job/JobApplicationList';
+import JJobApplicationDetail from '../components/job/JobApplicationDetails'
 const Stack = createNativeStackNavigator();
 
 const Layout = () => {
@@ -27,20 +30,24 @@ const Layout = () => {
   const { role } = useContext(RoleContext);
   
   // Debugging
-  //console.log("User:", user);
-  //console.log("Role:", role);
+  console.log("User:", user);
+  console.log("Role:", role);
 
   return (
     <Stack.Navigator>
-      {/* Unauthenticated Routes */}
+      {/* Unauthenticated Routes JobApplicationDetail*/}
       <Stack.Screen name="index" component={Home} options={{ title: 'Landing Page' }} />
       <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
       <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
       <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
       <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
       <Stack.Screen name="JobList" component={JobList} options={{ title: 'job list' }} />
+      <Stack.Screen name="JobListingManager" component={JobListingManager} options={{ title: 'job listing' }} />
+      <Stack.Screen name="JobApplicationList" component={JobApplicationList} options={{ title: 'Application list' }} />
+      <Stack.Screen name="JobPostingForm" component={JobPostingForm} options={{ title: 'Post job' }} />
       <Stack.Screen name="SearchJobs" component={SearchJobs} options={{ title: 'search jobs' }} />
       <Stack.Screen name="JobDetails" component={JobDetails} options={{ title: 'job details' }}/>
+      <Stack.Screen name="JobApplicationDetail" component={JJobApplicationDetail} options={{ title: 'application details' }}/>
       <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
 
       {/* Conditionally Render Authenticated Routes Based on User and Role */}

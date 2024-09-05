@@ -11,7 +11,7 @@ const Home = () => {
       <View style={styles.header}>
         <Text style={styles.title}>CareAnn</Text>
         <View style={styles.nav}>
-          <Button title="Services" onPress={() => navigation.navigate('Services')} />
+          <Button title="services" onPress={() => navigation.navigate('Services')} />
           <Button title="How It Works" onPress={() => navigation.navigate('HowItWorks')} />
           <Button title="Contact Us" onPress={() => navigation.navigate('Contact')} />
           <Button title="FAQ" onPress={() => navigation.navigate('FAQ')} />
