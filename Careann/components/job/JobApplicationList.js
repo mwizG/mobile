@@ -40,7 +40,7 @@ const JobApplicationList = () => {
 
   const handleViewDetails = (applicationId) => {
     // Navigate to the JobApplicationDetail screen and pass the applicationId
-    navigation.navigate('JobApplicationDetail', { applicationId });
+    navigation.navigate('JobApplicationUpdate', { applicationId });
   };
    
   if (loading) {

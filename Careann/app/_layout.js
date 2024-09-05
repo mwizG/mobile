@@ -23,6 +23,7 @@ import JobPostingForm from '../components/job/JobPostingForm';
 import JobListingManager from '../components/job/JobListingManager';
 import JobApplicationList from '../components/job/JobApplicationList';
 import JJobApplicationDetail from '../components/job/JobApplicationDetails'
+import JJobApplicationUpdate from '../components/job/JobApplicationUpdate'
 const Stack = createNativeStackNavigator();
 
 const Layout = () => {
@@ -35,7 +36,7 @@ const Layout = () => {
 
   return (
     <Stack.Navigator>
-      {/* Unauthenticated Routes JobApplicationDetail*/}
+      {/* Unauthenticated Routes JobApplicationUpdate*/}
       <Stack.Screen name="index" component={Home} options={{ title: 'Landing Page' }} />
       <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
       <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
@@ -48,6 +49,7 @@ const Layout = () => {
       <Stack.Screen name="SearchJobs" component={SearchJobs} options={{ title: 'search jobs' }} />
       <Stack.Screen name="JobDetails" component={JobDetails} options={{ title: 'job details' }}/>
       <Stack.Screen name="JobApplicationDetail" component={JJobApplicationDetail} options={{ title: 'application details' }}/>
+      <Stack.Screen name="JobApplicationUpdate" component={JJobApplicationUpdate} options={{ title: 'application update' }}/>
       <Stack.Screen name="FAQ" component={FAQ} options={{ title: 'FAQ' }} />
 
       {/* Conditionally Render Authenticated Routes Based on User and Role */}
