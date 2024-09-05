@@ -62,7 +62,7 @@ function JobApplicationDetail() {
             <h2>{job.title}</h2>
             <p><strong>Description:</strong> {job.description}</p>
             <p><strong>Location:</strong> {job.location}</p>
-            <p><strong>Pay Rate:</strong> ${job.pay_rate}</p>
+            <p><strong>Pay Rate:</strong> K{job.pay_rate}</p>
             <p><strong>Status:</strong> {job.status}</p>
             <p><strong>Scheduled Time:</strong> {new Date(job.scheduled_time).toLocaleString()}</p>
 

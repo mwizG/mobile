@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { get } from '../../services/api'; // Using your API service
 
 const JobApplicationList = () => {
@@ -9,6 +9,8 @@ const JobApplicationList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigation = useNavigation(); // Use navigation to navigate to the details screen
+  const route = useRoute();
+  const { jobId } = route.params;
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -19,14 +21,18 @@ const JobApplicationList = () => {
           return;
         }
 
-        // Call the correct API endpoint for job applications
+        // Fetch all applications
         const response = await get(`/jobs/applications/`, {
           headers: {
             Authorization: `Token ${token}`,
           },
         });
 
-        setApplications(response.data);
+        // Filter applications by jobId
+        const filteredApplications = response.data.filter(application => application.job === jobId);
+
+        // Set filtered applications
+        setApplications(filteredApplications);
       } catch (error) {
         console.error('Error fetching job applications:', error);
         setError('Error fetching job applications.');
@@ -36,13 +42,13 @@ const JobApplicationList = () => {
     };
 
     fetchApplications();
-  }, []);
+  }, [jobId]);
 
   const handleViewDetails = (applicationId) => {
     // Navigate to the JobApplicationDetail screen and pass the applicationId
     navigation.navigate('JobApplicationUpdate', { applicationId });
   };
-   
+
   if (loading) {
     return <Text>Loading applications...</Text>;
   }

@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRoute } from '@react-navigation/native'; // For navigation and route params
+import { post } from '../../services/api'; // Assuming you're using a custom API service
 
-function JobApplicationForm() {
-  const { jobId } = useParams(); // Get the job ID from the URL
+const JobApplicationForm = () => {
   const [coverLetter, setCoverLetter] = useState('');
-  const navigate = useNavigate(); // For navigating back after submission
+  const navigation = useNavigation();
+  const route = useRoute(); // Get jobId from the route params
+  const { jobId } = route.params;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token'); // Get the token from AsyncStorage
+      if (!token) {
+        Alert.alert('Error', 'User not authenticated');
+        return;
+      }
+
       const requestData = {
         cover_letter: coverLetter,
       };
@@ -21,33 +28,50 @@ function JobApplicationForm() {
       // Log the request data and headers
       console.log('Request Data:', requestData);
       console.log('Headers:', headers);
+      console.log('Job ID:', jobId);
 
-      const response = await axios.post(
-        `http://127.0.0.1:8000/api/jobs/${jobId}/apply/`,
-        requestData,
-        { headers }
-      );
+      // Send the POST request to apply for the job
+      const response = await post(`/jobs/${jobId}/apply/`, requestData, {
+        headers: headers,
+      });
 
-      // Handle success, such as navigating back to the job list or dashboard
-      navigate('/caregiver/dashboard');
+      // Handle success and navigate back to the dashboard or success page
+      Alert.alert('Success', 'Job application submitted successfully', [
+        { text: 'OK', onPress: () => navigation.navigate('CaregiverDashboard') },
+      ]);
     } catch (error) {
       console.error('Error applying for the job:', error);
+      Alert.alert('Error', 'Failed to apply for the job');
     }
   };
 
   return (
-    <div className="job-application-form">
-      <h2>Apply for Job</h2>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          placeholder="Write your cover letter here..."
-          value={coverLetter}
-          onChange={(e) => setCoverLetter(e.target.value)}
-        />
-        <button type="submit">Submit Application</button>
-      </form>
-    </div>
+    <View style={styles.container}>
+      <TextInput
+        style={styles.textArea}
+        placeholder="Write your cover letter here..."
+        value={coverLetter}
+        onChangeText={setCoverLetter}
+        multiline={true}
+        numberOfLines={5}
+      />
+      <Button title="Submit Application" onPress={handleSubmit} />
+    </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  textArea: {
+    height: 100,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 16,
+    padding: 8,
+    textAlignVertical: 'top',
+  },
+});
 
 export default JobApplicationForm;

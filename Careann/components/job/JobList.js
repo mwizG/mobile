@@ -44,7 +44,7 @@ const JobList = ({ filters }) => {
                 <Text style={styles.boldText}>Location: </Text> {item.location}
               </Text>
               <Text style={styles.jobText}>
-                <Text style={styles.boldText}>Pay Rate: </Text> ${item.pay_rate}
+                <Text style={styles.boldText}>Pay Rate: </Text> K{item.pay_rate}
               </Text>
               <Text style={styles.jobText}>
                 <Text style={styles.boldText}>Status: </Text> {item.status}

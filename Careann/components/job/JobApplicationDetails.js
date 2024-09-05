@@ -83,7 +83,7 @@ const JobApplicationDetail = () => {
       <Text style={styles.title}>{job.title}</Text>
       <Text style={styles.boldText}>Description: <Text style={styles.normalText}>{job.description}</Text></Text>
       <Text style={styles.boldText}>Location: <Text style={styles.normalText}>{job.location}</Text></Text>
-      <Text style={styles.boldText}>Pay Rate: <Text style={styles.normalText}>${job.pay_rate}</Text></Text>
+      <Text style={styles.boldText}>Pay Rate: <Text style={styles.normalText}>K{job.pay_rate}</Text></Text>
       <Text style={styles.boldText}>Status: <Text style={styles.normalText}>{job.status}</Text></Text>
       <Text style={styles.boldText}>Scheduled Time: <Text style={styles.normalText}>{new Date(job.scheduled_time).toLocaleString()}</Text></Text>
 
