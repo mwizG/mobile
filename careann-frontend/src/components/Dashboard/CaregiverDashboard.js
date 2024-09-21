@@ -29,11 +29,8 @@ function CaregiverDashboard() {
             <p>Welcome to your dashboard. From here, you can manage all aspects of your caregiving services effectively.</p>
 
             <div className="dashboard-options">
-            <Link to="/caregiver/search-jobs">
-                    <button>Search for Jobs</button>
-                </Link>
                 <Link to="/caregiver/search-jobs">
-                    <button>View Available Jobs</button>
+                    <button>Search for Jobs</button>
                 </Link>
                 <Link to="/caregiver/applications">
                     <button>View & Manage Applications</button>
@@ -80,35 +77,24 @@ function CaregiverDashboard() {
                 <Link to="/caregiver/settings">
                     <button>Settings</button>
                 </Link>
-                <Link to="/caregiver/search-jobs">
-                    <button>Search for Jobs</button>
-                </Link>
-                <Link to="/caregiver/applications">
-                    <button>View & Manage Applications</button>
-                </Link>
-                <Link to="/caregiver/schedule">
-                    <button>Manage Schedule & Availability</button>
-                </Link>
-                
-                
             </div>
 
-           <div className="applications-section">
-    <h3>Job Applications</h3>
-    <ul>
-        {applications.map((application) => (
-            <li key={application.id}>
-                <Link to={`/caregiver/applications/${application.job}`}>
-                    <strong>{application.job}</strong>
-                </Link>
-                <span> - Status: {application.status}</span>
-                {application.status === 'Accepted' && application.job.proposed_time && (
-                    <p>Proposed Time: {new Date(application.job.proposed_time).toLocaleString()}</p>
-                )}
-            </li>
-        ))}
-    </ul>
-</div>
+            <div className="applications-section">
+            <h3>Job Applications</h3>
+                <ul>
+                    {applications.map((application) => (
+                        <li key={application.id}>
+                            <Link to={`/caregiver/applications/${application.job}`}>
+                                <strong>{application.job}</strong>
+                            </Link>
+                            <span> - Status: {application.status}</span>
+                            {application.status === 'Accepted' && application.job.proposed_time && (
+                                <p>Proposed Time: {new Date(application.job.proposed_time).toLocaleString()}</p>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }

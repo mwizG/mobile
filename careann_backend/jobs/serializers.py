@@ -47,4 +47,4 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ('id', 'job', 'caregiver', 'description', 'scheduled_time', 'reminder_sent')
+        fields = ('id', 'job', 'caregiver', 'description', 'scheduled_time', 'status', 'reminder_sent')

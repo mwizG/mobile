@@ -19,7 +19,7 @@ import SupportTickets from './components/Admin/SupportTickets';
 import DisputeResolution from './components/Admin/DisputeResolution';
 import ModerationAction from './components/Admin/ModerationAction';
 import UserActivity from './components/Admin/UserActivity';
-import JobList from './components/Jobs/JobList';
+import CreateTask from './components/Tasks/CreateTask';
 import JobDetail from './components/Jobs/JobDetail';  // Import JobDetail
 import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';  // Import CaregiverJobSearch
 import JobApplicationForm from './components/Jobs/JobApplicationForm'; 
@@ -28,6 +28,8 @@ import JobApplicationUpdate from './components/Jobs/JobApplicationUpdate';
 import ProposeJobTime from './components/Jobs/ProposeJobTime'; // Import the ProposeJobTime component
 import AcceptJobTime from './components/Jobs/AcceptJobTime'; // Import the AcceptJobTime component
 import JobApplicationDetails from './components/Jobs/JobApplicationDetails';
+import TaskManagement from './components/Tasks/TaskManagement';  // Import TaskManagement
+import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  // Import TaskManagementDetail
 
 // Add these routes inside the <Routes> component
 
@@ -80,6 +82,9 @@ function App() {
         <Route path="/caregiver/jobs/:id/accept-time" element={<AcceptJobTime />} /> {/* Add AcceptJobTime route */}
         <Route path="/caregiver/applications/:id" element={<JobApplicationDetails />} />
         <Route path="/caregiver-jobs" element={<CaregiverJobManagement />} />
+        <Route path="/caregiver/tasks" element={<TaskManagement />} />
+        <Route path="/tasks/create" element={<CreateTask />} />
+        <Route path="/tasks/:taskId" element={<TaskManagementDetail />} />
 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -91,6 +96,7 @@ function App() {
         <Route path="/admin/disputes" element={<DisputeResolution />} />
         <Route path="/admin/moderation-actions" element={<ModerationAction />} />
         <Route path="/admin/user-activity" element={<UserActivity />} />
+        <Route path="/tasks" element={<TaskManagement />} />
       </Routes>
     </Router>
   );

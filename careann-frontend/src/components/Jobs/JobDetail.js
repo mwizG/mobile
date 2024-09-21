@@ -22,14 +22,14 @@ function JobDetail() {
     const acceptJobTime = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept-time/`, {}, {
+            const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
             console.log('Job time accepted:', response.data);
-            // Optionally, you can update the job state to reflect the accepted time
             setJob(response.data);
+            navigate('/tasks');  // Redirect to task management page after accepting job
         } catch (error) {
             console.error('Error accepting job time', error);
         }

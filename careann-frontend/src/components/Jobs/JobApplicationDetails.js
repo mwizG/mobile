@@ -28,12 +28,18 @@ function JobApplicationDetail() {
     const handleAcceptJob = async () => {
         try {
             const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found');
+                return;
+            }
+        
+            // Send PATCH request to accept the job
             await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/accept/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            navigate('/caregiver-jobs'); // Redirect to the caregiver jobs page after accepting
+            navigate('/caregiver-jobs'); // Redirect to caregiver jobs page after accepting job
         } catch (error) {
             console.error('Error accepting the job', error);
         }

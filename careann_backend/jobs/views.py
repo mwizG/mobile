@@ -29,6 +29,34 @@ class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         return Task.objects.filter(caregiver=self.request.user).order_by('scheduled_time')
 
+
+class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Only show tasks for the currently logged-in caregiver
+        return Task.objects.filter(caregiver=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        task = self.get_object()
+
+        # Mark the task as complete if needed
+        if request.data.get('status') == 'complete':
+            task.status = 'Completed'
+            task.save()
+
+        return super().patch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        task = self.get_object()
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
 class ProposeJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -203,13 +231,18 @@ class CaregiverJobsView(generics.ListAPIView):
 
     def get_queryset(self):
         return Job.objects.filter(caregiver=self.request.user, status='In Progress')
+    
 
 class AcceptJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        # Return only jobs that are open
+        return Job.objects.filter(status='Open')
+
     def update(self, request, *args, **kwargs):
-        job = self.get_object()
+        job = self.get_object()  # This now uses the queryset from get_queryset()
         if job.status != 'Open':
             return Response({"error": "Job is no longer available."}, status=400)
 
@@ -218,6 +251,30 @@ class AcceptJobView(generics.UpdateAPIView):
         job.scheduled_time = request.data.get('scheduled_time')
         job.save()
         return Response(JobSerializer(job).data)
+
+class AcceptJobTimeView(generics.UpdateAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+
+        # Ensure the job has an assigned caregiver
+        if job.caregiver != request.user:
+            return Response({"error": "You are not authorized to accept the proposed time for this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Ensure the job has a proposed time
+        if not job.proposed_time:
+            return Response({"error": "No proposed time to accept."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Accept the proposed time
+        job.accepted_time = job.proposed_time
+        job.save()
+
+        return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
+
+
 
 class DeclineJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer

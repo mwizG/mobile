@@ -53,11 +53,17 @@ class RatingReview(models.Model):
 
 
 class Task(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+    ]
+
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='tasks')
     caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
     description = models.TextField()
     scheduled_time = models.DateTimeField()  # When the task is supposed to be done
     reminder_sent = models.BooleanField(default=False)  # Track if a reminder has been sent
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')  # Add status field
 
     def __str__(self):
         return f"Task for {self.caregiver.username} - {self.job.title} at {self.scheduled_time}"
