@@ -1,4 +1,3 @@
-// src/components/Jobs/JobApplicationUpdate.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -36,10 +35,15 @@ function JobApplicationUpdate() {
           Authorization: `Token ${token}`,
         },
       });
-      navigate('/care-seeker/applications'); // Redirect after update
+      navigate(`/care-seeker/jobs/${application.job}/applications`);// Redirect after update
     } catch (error) {
       console.error('Error updating job application', error);
     }
+  };
+
+  // Handle caregiver click to navigate to the caregiver details page
+  const handleCaregiverClick = (caregiverId) => {
+    navigate(`/caregiver/${caregiverId}`); // Adjust the URL to match your caregiver details route
   };
 
   if (!application) {
@@ -50,7 +54,19 @@ function JobApplicationUpdate() {
     <div>
       <h2>Update Job Application</h2>
       <p><strong>Job:</strong> {application.job}</p>
-      <p><strong>Caregiver:</strong> {application.caregiver}</p>
+
+      {/* Caregiver name is clickable to navigate to their details */}
+      <p>
+        <strong>Caregiver:</strong>{' '}
+        <span
+          className="caregiver-link"
+          onClick={() => handleCaregiverClick(application.caregiver_id)}
+          style={{ color: 'blue', cursor: 'pointer' }}
+        >
+          {application.caregiver}  {/* Display caregiver's username */}
+        </span>
+      </p>
+
       <p><strong>Cover Letter:</strong> {application.cover_letter}</p>
       <p><strong>Applied At:</strong> {new Date(application.applied_at).toLocaleDateString()}</p>
       <p>

@@ -80,21 +80,7 @@ class ProposeJobTimeView(generics.UpdateAPIView):
 
 
 
-class AcceptJobTimeView(generics.UpdateAPIView):
-    queryset = Job.objects.all()
-    serializer_class = JobSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-    def update(self, request, *args, **kwargs):
-        job = self.get_object()
-        if request.user != job.caregiver:
-            return Response({"error": "You are not authorized to accept the proposed time for this job."}, status=status.HTTP_403_FORBIDDEN)
-
-        job.accepted_time = job.proposed_time
-        job.save()
-
-        return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
-    
 
 class CreateRatingReviewView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()

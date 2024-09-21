@@ -23,6 +23,29 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         # Return the profile of the currently authenticated user
         return self.request.user
 
+class CareSeekerDetailView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.filter(is_care_seeker=True)
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUser.objects.filter(is_care_seeker=True)
+
+    def get_object(self):
+        care_seeker_id = self.kwargs['pk']
+        return CustomUser.objects.get(id=care_seeker_id, is_care_seeker=True)
+
+class CaregiverDetailView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.filter(is_caregiver=True)
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUser.objects.filter(is_caregiver=True)
+
+    def get_object(self):
+        caregiver_id = self.kwargs['pk']
+        return CustomUser.objects.get(id=caregiver_id, is_caregiver=True)
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()

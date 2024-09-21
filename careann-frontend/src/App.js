@@ -32,7 +32,10 @@ import TaskManagement from './components/Tasks/TaskManagement';  // Import TaskM
 import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  // Import TaskManagementDetail
 import JobListingManager from './components/Jobs/JobListingManager';
 // Add these routes inside the <Routes> component
+import CaregiverDetail from './components/Profile/CareGiverDetail'; // Adjust the path
+import CareSeekerDetail from './components/Profile/CareSeekerDetail';
 
+    
 function App() {
   const userRole = localStorage.getItem('role');
 
@@ -71,7 +74,8 @@ function App() {
         <Route path="/care-seeker/applications/:pk" element={<JobApplicationUpdate />} />  
         <Route path="/care-seeker/jobs/:id/propose-time" element={<ProposeJobTime />} /> {/* Add ProposeJobTime route */}
         <Route path="/care-seeker/jobs" element={<JobListingManager />} />
-        
+        <Route path="/caregiver/:caregiverId" element={<CaregiverDetail />} />
+
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
         <Route path="/caregiver/messaging" element={<Messaging />} />
@@ -86,6 +90,7 @@ function App() {
         <Route path="/caregiver/tasks" element={<TaskManagement />} />
         <Route path="/tasks/create" element={<CreateTask />} />
         <Route path="/tasks/:taskId" element={<TaskManagementDetail />} />
+        <Route path="/careseeker/:careSeekerId" element={<CareSeekerDetail />} />
 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />

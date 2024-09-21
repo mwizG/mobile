@@ -3,14 +3,22 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 function JobApplicationDetail() {
-    const { id } = useParams(); // Get the application ID from the URL
+    const { id } = useParams(); // Get the job ID from the URL
     const navigate = useNavigate();
     const [job, setJob] = useState(null);
+    const [userRole, setUserRole] = useState(''); // State for the user's role
+    const [error, setError] = useState(''); // Error state for handling issues
 
     useEffect(() => {
+        // Fetch the job details
         const fetchJob = async () => {
             try {
                 const token = localStorage.getItem('token');
+                if (!token) {
+                    setError('No token found. Please log in.');
+                    return;
+                }
+
                 const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${id}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
@@ -18,49 +26,81 @@ function JobApplicationDetail() {
                 });
                 setJob(response.data);
             } catch (error) {
-                console.error('Error fetching job details', error);
+                setError('Error fetching job details');
+                console.error('Error fetching job details:', error);
             }
         };
+
+        // Fetch the user role from localStorage
+        const role = localStorage.getItem('role');
+        if (role) {
+            setUserRole(role);
+        } else {
+            console.error('User role not found');
+        }
 
         fetchJob();
     }, [id]);
 
-    const handleAcceptJob = async () => {
+    // Handle job acceptance by caregivers
+    const handleAcceptJobTime = async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error('No token found');
+                setError('No token found. Please log in.');
                 return;
             }
-        
+
             // Send PATCH request to accept the job
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/accept/`, {}, {
+            const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/accept/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            navigate('/caregiver-jobs'); // Redirect to caregiver jobs page after accepting job
+
+            if (response.status === 200) {
+                navigate('/caregiver-jobs'); // Redirect to caregiver jobs page after accepting the job
+            } else {
+                setError('Failed to accept the job.');
+            }
         } catch (error) {
-            console.error('Error accepting the job', error);
+            setError('Error accepting the job');
+            console.error('Error accepting the job:', error);
         }
     };
 
+    // Handle job decline by caregivers
     const handleDeclineJob = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/decline/`, {}, {
+            if (!token) {
+                setError('No token found. Please log in.');
+                return;
+            }
+
+            const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/decline/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            navigate('/caregiver-jobs'); // Redirect to the caregiver jobs page after declining
+
+            if (response.status === 200) {
+                navigate('/caregiver-jobs'); // Redirect to caregiver jobs page after declining the job
+            } else {
+                setError('Failed to decline the job.');
+            }
         } catch (error) {
-            console.error('Error declining the job', error);
+            setError('Error declining the job');
+            console.error('Error declining the job:', error);
         }
     };
 
     if (!job) {
         return <div>Loading job details...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
     }
 
     return (
@@ -73,8 +113,13 @@ function JobApplicationDetail() {
             <p><strong>Scheduled Time:</strong> {new Date(job.scheduled_time).toLocaleString()}</p>
 
             <div>
-                <button onClick={handleAcceptJob} disabled={job.status !== 'Open'}>Accept Job</button>
-                <button onClick={handleDeclineJob} disabled={job.status !== 'Open'}>Decline Job</button>
+                {/* Only caregivers should be able to accept or decline jobs */}
+                {userRole === 'caregiver' && job.status === 'Open' && (
+                    <>
+                        <button onClick={handleAcceptJobTime}>Accept Job</button>
+                        <button onClick={handleDeclineJob}>Decline Job</button>
+                    </>
+                )}
             </div>
         </div>
     );

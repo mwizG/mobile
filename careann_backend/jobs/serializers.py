@@ -12,11 +12,12 @@ class RatingReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'job', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
 
 class JobApplicationSerializer(serializers.ModelSerializer):
-    caregiver = serializers.ReadOnlyField(source='caregiver.username')
+    caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Caregiver username
+    caregiver_id = serializers.ReadOnlyField(source='caregiver.id')  # Caregiver ID
 
     class Meta:
         model = JobApplication
-        fields = ('id', 'job', 'caregiver', 'cover_letter', 'applied_at', 'status')
+        fields = ('id', 'job', 'caregiver', 'caregiver_id', 'cover_letter', 'applied_at', 'status')
         extra_kwargs = {
             'job': {'required': False},  # Make 'job' not required in the incoming data
         }
@@ -28,7 +29,6 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         validated_data['job'] = job
         validated_data['caregiver'] = caregiver
         return super().create(validated_data)
-
 
 class JobSerializer(serializers.ModelSerializer):
     care_seeker = serializers.ReadOnlyField(source='care_seeker.username')
