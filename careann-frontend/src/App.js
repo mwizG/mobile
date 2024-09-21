@@ -30,7 +30,7 @@ import AcceptJobTime from './components/Jobs/AcceptJobTime'; // Import the Accep
 import JobApplicationDetails from './components/Jobs/JobApplicationDetails';
 import TaskManagement from './components/Tasks/TaskManagement';  // Import TaskManagement
 import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  // Import TaskManagementDetail
-
+import JobListingManager from './components/Jobs/JobListingManager';
 // Add these routes inside the <Routes> component
 
 function App() {
@@ -67,9 +67,10 @@ function App() {
         <Route path="/care-seeker/search" element={<SearchCaregiversForm />} />
         <Route path="/care-seeker/rate" element={<RatingReviewForm />} />
         <Route path="care-seeker/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
-        <Route path="/care-seeker/applications" element={<JobApplicationList />} />
+        <Route path="/care-seeker/jobs/:jobId/applications" element={<JobApplicationList />} />
         <Route path="/care-seeker/applications/:pk" element={<JobApplicationUpdate />} />  
         <Route path="/care-seeker/jobs/:id/propose-time" element={<ProposeJobTime />} /> {/* Add ProposeJobTime route */}
+        <Route path="/care-seeker/jobs" element={<JobListingManager />} />
         
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
