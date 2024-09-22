@@ -142,6 +142,17 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Allow the deletion if the user is the owner or admin
         return super().delete(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        job = self.get_object()
+
+        # Check if the user is the owner of the job or an admin
+        if request.user != job.care_seeker and not request.user.is_staff:
+            return Response({"error": "You are not authorized to update this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Allow the update if the user is the owner or admin
+        return super().update(request, *args, **kwargs)
+    
+    
 class JobApplicationCreateView(generics.CreateAPIView):
     queryset = JobApplication.objects.all()
     serializer_class = JobApplicationSerializer
