@@ -18,9 +18,12 @@ function CareSeekerDashboard() {
         <Link to="/care-seeker/jobs">
           <button>View & Manage Job Listings</button>
         </Link>
-        <Link to="/care-seeker/messaging">
-          <button>Messaging</button>
+        <Link to="/care-seeker/caregiverlist">
+          <button>Caregivers</button>
         </Link>
+        <Link to="/care-seeker/conversations">
+                    <button>Conversations</button>
+         </Link>
         <Link to="/care-seeker/payments">
           <button>Manage Payments</button>
         </Link>

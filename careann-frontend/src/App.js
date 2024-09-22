@@ -7,6 +7,8 @@ import CareSeekerDashboard from './components/Dashboard/CareSeekerDashboard';
 import CaregiverDashboard from './components/Dashboard/CaregiverDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import Messaging from './components/Messaging/Messaging';
+import CaregiverList from './components/Messaging/CaregiverList';
+import ConversationList from './components/Messaging/ConversationList';
 import JobPostingForm from './components/Forms/JobPostingForm';
 import CaregiverJobManagement from './components/Jobs/CaregiverJobManagement'; 
 import PaymentManagement from './components/Forms/PaymentManagement';
@@ -62,6 +64,10 @@ function App() {
           }
         />
 
+        {/* Route for conversations */}
+        <Route path="/conversations/:conversation_id/messages" element={<Messaging />} />
+        
+  
         {/* Care Seeker-specific routes */}
         <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
         <Route path="/care-seeker/messaging" element={<Messaging />} />
@@ -75,7 +81,8 @@ function App() {
         <Route path="/care-seeker/jobs/:id/propose-time" element={<ProposeJobTime />} /> {/* Add ProposeJobTime route */}
         <Route path="/care-seeker/jobs" element={<JobListingManager />} />
         <Route path="/caregiver/:caregiverId" element={<CaregiverDetail />} />
-
+        <Route path="/care-seeker/conversations" element={<ConversationList />} />
+        <Route path="/care-seeker/caregiverlist" element={<CaregiverList />} /> 
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
         <Route path="/caregiver/messaging" element={<Messaging />} />
@@ -91,7 +98,7 @@ function App() {
         <Route path="/tasks/create" element={<CreateTask />} />
         <Route path="/tasks/:taskId" element={<TaskManagementDetail />} />
         <Route path="/careseeker/:careSeekerId" element={<CareSeekerDetail />} />
-
+        <Route path="/caregiver/conversations" element={<ConversationList />} /> 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />

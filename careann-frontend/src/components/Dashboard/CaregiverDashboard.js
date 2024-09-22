@@ -32,9 +32,7 @@ function CaregiverDashboard() {
                 <Link to="/caregiver/search-jobs">
                     <button>Search for Jobs</button>
                 </Link>
-                <Link to="/caregiver/applications">
-                    <button>View & Manage Applications</button>
-                </Link>
+            
                 <Link to="/caregiver-jobs">
                     <button>View & Manage Jobs</button>
                 </Link>
@@ -47,8 +45,8 @@ function CaregiverDashboard() {
                 <Link to="/caregiver/history">
                     <button>Job History</button>
                 </Link>
-                <Link to="/caregiver/messaging">
-                    <button>Messaging</button>
+                <Link to="/caregiver/conversations">
+                    <button>Conversations</button>
                 </Link>
                 <Link to="/caregiver/reviews">
                     <button>View & Manage Reviews</button>
