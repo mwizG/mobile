@@ -127,12 +127,20 @@ class JobListView(generics.ListAPIView):
     ordering_fields = ['created_at', 'pay_rate']
 
 
-class JobDetailView(generics.RetrieveAPIView):
+class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
+    def delete(self, request, *args, **kwargs):
+        job = self.get_object()
 
+        # Check if the user is the owner of the job or an admin
+        if request.user != job.care_seeker and not request.user.is_staff:
+            return Response({"error": "You are not authorized to delete this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Allow the deletion if the user is the owner or admin
+        return super().delete(request, *args, **kwargs)
 
 class JobApplicationCreateView(generics.CreateAPIView):
     queryset = JobApplication.objects.all()
