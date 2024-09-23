@@ -25,6 +25,8 @@ import JobApplicationList from '../components/job/JobApplicationList';
 import JobApplicationDetail from '../components/job/JobApplicationDetails'
 import JobApplicationUpdate from '../components/job/JobApplicationUpdate'
 import JobApplicationForm from '../components/job/JobApplicationForm'
+import NewCareSeekerDashboard from "./dashboard/new_care_seeker"
+
 const Stack = createNativeStackNavigator();
 
 const Layout = () => {
@@ -36,7 +38,7 @@ const Layout = () => {
   //console.log("Role:", role);
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* Unauthenticated Routes JobApplicationUpdate*/}
       <Stack.Screen name="index" component={Home} options={{ title: 'Landing Page' }} />
       <Stack.Screen name="login" component={Login} options={{ title: 'Login' }} />
@@ -56,13 +58,13 @@ const Layout = () => {
 
       {/* Conditionally Render Authenticated Routes Based on User and Role */}
       {user && role === 'admin' && (
-        <Stack.Screen name="dashboard/admin" component={AdminDashboard} options={{ title: 'Admin Dashboard' }} />
+        <Stack.Screen name="dashboard/admin" component={AdminDashboard} options={{ title: 'Admin Dashboard',headerBackVisible: false }} />
       )}
       {user && role === 'care_seeker' && (
-        <Stack.Screen name="dashboard/care-seeker" component={CareSeekerDashboard} options={{ title: 'Care Seeker Dashboard' }} />
+        <Stack.Screen name="dashboard/new_care-seeker" component={NewCareSeekerDashboard} options={{ title: 'Care Seeker Dashboard',headerBackVisible: false }} />
       )}
       {user && role === 'caregiver' && (
-        <Stack.Screen name="dashboard/caregiver" component={CaregiverDashboard} options={{ title: 'Caregiver Dashboard' }} />
+        <Stack.Screen name="dashboard/caregiver" component={CaregiverDashboard} options={{ title: 'Caregiver Dashboard',headerBackVisible: false }} />
       )}
 
       {/* Profile and Other Authenticated Routes */}
