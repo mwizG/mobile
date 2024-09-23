@@ -15,7 +15,7 @@ function JobListingManager() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://127.0.0.1:8000/api/jobs/search/', {
+            const response = await axios.get('http://127.0.0.1:8000/api/jobs/all-jobs/', {
                 headers: {
                     Authorization: `Token ${token}`,
                 },

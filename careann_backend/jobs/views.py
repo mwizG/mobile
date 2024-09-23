@@ -118,6 +118,17 @@ class JobCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(care_seeker=self.request.user)
 
+
+class OpenJobListView(generics.ListAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['location', 'job_type', 'title']
+    ordering_fields = ['created_at', 'pay_rate']
+
+
+
 class JobListView(generics.ListAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -125,6 +136,47 @@ class JobListView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['location', 'job_type', 'title']
     ordering_fields = ['created_at', 'pay_rate']
+
+    def get_queryset(self):
+        jobs_queryset = Job.objects.filter(status='Open')  # Fetch only Open jobs
+        
+        return jobs_queryset
+
+
+# For fetching all jobs (without status filtering)
+class AllJobsListView(generics.ListAPIView):
+    queryset = Job.objects.all()  # Fetch all jobs
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['location', 'job_type', 'title']
+    ordering_fields = ['created_at', 'pay_rate']
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+       
+        return Response(serializer.data)
+
+# For fetching only 'Open' jobs
+class OpenJobsListView(generics.ListAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['location', 'job_type', 'title']
+    ordering_fields = ['created_at', 'pay_rate']
+
+    def get_queryset(self):
+        jobs_queryset = Job.objects.filter(status='Open')  # Fetch only Open jobs
+        print(f"SQL Query being executed for Open jobs: {jobs_queryset.query}")
+        return jobs_queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        print(f"Response data for Open jobs: {serializer.data}")
+        return Response(serializer.data)
+
 
 
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -163,9 +215,7 @@ class JobApplicationCreateView(generics.CreateAPIView):
         job = generics.get_object_or_404(Job, id=job_id)  # Ensure the job exists
         print(f"Job ID: {job_id}, Job: {job}")
 
-        # Print the incoming request data
-        print("Request Data:", request.data)
-
+       
         # Check if the caregiver has already applied for this job
         if JobApplication.objects.filter(job=job, caregiver=request.user).exists():
             raise ValidationError("You have already applied for this job.")
