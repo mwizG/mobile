@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 
 function JobDetail() {
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
-    const [userRole, setUserRole] = useState(''); // State for storing the user's role
-    const navigate = useNavigate(); // For navigation
+    const [userRole, setUserRole] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchJob = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${jobId}/`);
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No token found');
+                    navigate('/login'); // Redirect to login if no token
+                    return;
+                }
+
+                const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${jobId}/`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
                 setJob(response.data);
             } catch (error) {
                 console.error('Error fetching job details:', error);
             }
         };
 
-        // Fetch the user role from localStorage or another source (e.g., API)
-        const role = localStorage.getItem('role'); // Assuming the role is stored in localStorage
+        const role = localStorage.getItem('role');
         if (role) {
             setUserRole(role);
         } else {
@@ -27,27 +37,23 @@ function JobDetail() {
         }
 
         fetchJob();
-    }, [jobId]);
+    }, [jobId, navigate]);
 
     const acceptJobTime = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept-time/`, {}, {
+            await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept-time/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            console.log('Job time accepted:', response.data);
-            setJob(response.data); // Update the job state to reflect the accepted time
-            
-            navigate('/tasks');  // Redirect to task
+            navigate('/tasks');  // Redirect after accepting job time
         } catch (error) {
             console.error('Error accepting job time', error);
         }
     };
 
     const handleApplyClick = () => {
-        // Navigate to the job application form
         navigate(`/caregiver/jobs/${jobId}/apply`);
     };
 
@@ -64,12 +70,12 @@ function JobDetail() {
             <p><strong>Status:</strong> {job.status}</p>
             <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</p>
 
-            {/* Only caregivers can see the "Accept Proposed Time" button */}
+            {/* Only caregivers can accept proposed time */}
             {userRole === 'caregiver' && job.proposed_time && (
                 <button onClick={acceptJobTime}>Accept Proposed Time</button>
             )}
 
-            {/* Conditionally render Apply button for caregivers when job is open */}
+            {/* Only caregivers can apply for open jobs */}
             {userRole === 'caregiver' && job.status === 'Open' && (
                 <button onClick={handleApplyClick}>Apply for Job</button>
             )}
