@@ -1,10 +1,13 @@
 from django.urls import path
 
-from .views import TaskCreateView, TaskListView,JobCreateView, JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
+from .views import TaskCreateView, TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
     path('search/', JobListView.as_view(), name='job-search'),
+    path('create/', JobCreateView.as_view(), name='job-create'),
+    path('all-jobs/', AllJobsListView.as_view(), name='all-jobs'),
+    path('open-jobs/', OpenJobsListView.as_view(), name='open-jobs'),
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
     path('<int:job_id>/apply/', JobApplicationCreateView.as_view(), name='job-apply'),
     path('applications/', JobApplicationListView.as_view(), name='job-applications'),
