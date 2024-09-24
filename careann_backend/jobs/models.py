@@ -22,11 +22,12 @@ class Job(models.Model):
     scheduled_time = models.DateTimeField(null=True, blank=True)  # Time for the job
     proposed_time = models.DateTimeField(null=True, blank=True)  # Time proposed by care seeker
     accepted_time = models.DateTimeField(null=True, blank=True)  # Time accepted by caregiver
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set to Zambian time on creation
+    updated_at = models.DateTimeField(auto_now=True)      # Automatically set to Zambian time on update
 
     def __str__(self):
         return self.title
+
     
 
 class JobApplication(models.Model):

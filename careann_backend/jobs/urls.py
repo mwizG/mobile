@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import TaskCreateView, TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
+from .views import TaskCreateView,JobApplicationListByJobView, TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -22,4 +22,6 @@ urlpatterns = [
     path('tasks/', TaskListView.as_view(), name='task-list'),
     path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
+     path('<int:job_id>/applications/', JobApplicationListByJobView.as_view(), name='job-applications-by-job'),  # Add this
+  
 ]

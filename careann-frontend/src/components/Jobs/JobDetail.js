@@ -6,6 +6,7 @@ function JobDetail() {
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
     const [userRole, setUserRole] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +27,7 @@ function JobDetail() {
                 setJob(response.data);
             } catch (error) {
                 console.error('Error fetching job details:', error);
+                setError('Error fetching job details.');
             }
         };
 
@@ -50,6 +52,7 @@ function JobDetail() {
             navigate('/tasks');  // Redirect after accepting job time
         } catch (error) {
             console.error('Error accepting job time', error);
+            setError('Error accepting job time.');
         }
     };
 
@@ -61,6 +64,10 @@ function JobDetail() {
         return <div>Loading job details...</div>;
     }
 
+    if (error) {
+        return <div>{error}</div>;
+    }
+
     return (
         <div className="job-detail-container">
             <h2>{job.title}</h2>
@@ -70,15 +77,21 @@ function JobDetail() {
             <p><strong>Status:</strong> {job.status}</p>
             <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</p>
 
-            {/* Only caregivers can accept proposed time */}
-            {userRole === 'caregiver' && job.proposed_time && (
-                <button onClick={acceptJobTime}>Accept Proposed Time</button>
-            )}
+            <div>
+                {/* Safely check if job.application exists before accessing status */}
+                {userRole === 'caregiver' && job.application && job.application.status === 'Accepted' && job.proposed_time && (
+                    <button onClick={acceptJobTime}>Accept Proposed Time</button>
+                )}
 
-            {/* Only caregivers can apply for open jobs */}
-            {userRole === 'caregiver' && job.status === 'Open' && (
-                <button onClick={handleApplyClick}>Apply for Job</button>
-            )}
+                {/* Caregiver can apply for open jobs only if they haven't applied yet */}
+                {userRole === 'caregiver' && job.status === 'Open' && (
+                    !job.has_applied ? (
+                        <button onClick={handleApplyClick}>Apply for Job</button>
+                    ) : (
+                        <p>You've already applied for this job.</p>
+                    )
+                )}
+            </div>
         </div>
     );
 }

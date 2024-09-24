@@ -81,7 +81,6 @@ class ProposeJobTimeView(generics.UpdateAPIView):
 
 
 
-
 class CreateRatingReviewView(generics.CreateAPIView):
     queryset = RatingReview.objects.all()
     serializer_class = RatingReviewSerializer
@@ -254,26 +253,25 @@ class JobApplicationUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        # Only allow care seekers to update the status of applications for their jobs
-        user = self.request.user
-        if user.is_care_seeker:
-            return JobApplication.objects.filter(job__care_seeker=user)
-        return JobApplication.objects.none()
-
-    def get(self, request, *args, **kwargs):
-        # Handle GET request to fetch job application details
-        application = self.get_object()
-        serializer = self.get_serializer(application)
-        print("GET data:", serializer.data)
-        return Response(serializer.data)
-        
     def patch(self, request, *args, **kwargs):
-        # Log the incoming data
-        
-        print(request.data)
-        # Proceed with the usual update process
         application = self.get_object()
+        job = application.job
+        
+        # Ensure the user is the care seeker for this job
+        if request.user != job.care_seeker:
+            return Response({"error": "You are not authorized to update this application."}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Update the application status to "Accepted"
+        new_status = request.data.get('status')
+        if new_status == 'Accepted':
+            application.status = 'Accepted'
+            application.save()
+
+            # Update the job caregiver but DO NOT change the job status yet
+            job.caregiver = application.caregiver
+            job.save()
+
+        # Proceed with normal partial update for any other fields
         serializer = self.get_serializer(application, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -285,27 +283,37 @@ class CaregiverJobsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Job.objects.filter(caregiver=self.request.user, status='In Progress')
-    
+        # Return only jobs where the logged-in user is the caregiver and the job is either accepted or in progress
+        return Job.objects.filter(caregiver=self.request.user, status__in=['Accepted', 'In Progress'])
+
 
 class AcceptJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # You need to override the get_queryset method
     def get_queryset(self):
         # Return only jobs that are open
         return Job.objects.filter(status='Open')
 
     def update(self, request, *args, **kwargs):
         job = self.get_object()  # This now uses the queryset from get_queryset()
+        
+        # Ensure the caregiver is accepting the job
+        if job.caregiver != request.user:
+            return Response({"error": "You are not authorized to accept this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Only allow the job to be accepted if it is still open
         if job.status != 'Open':
             return Response({"error": "Job is no longer available."}, status=400)
 
-        job.caregiver = request.user
+        # Caregiver accepts the job and the status changes to "In Progress"
         job.status = 'In Progress'
-        job.scheduled_time = request.data.get('scheduled_time')
+        job.scheduled_time = request.data.get('scheduled_time')  # Optional scheduled time
         job.save()
+
         return Response(JobSerializer(job).data)
+ 
 
 class AcceptJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
@@ -335,11 +343,38 @@ class DeclineJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # Add get_queryset to filter only 'Open' jobs
+    def get_queryset(self):
+        return Job.objects.filter(status='Open')
+
     def update(self, request, *args, **kwargs):
-        job = self.get_object()
+        job = self.get_object()  # This now uses the queryset from get_queryset()
+
         if job.status != 'Open':
             return Response({"error": "Job is no longer available."}, status=400)
 
+        # Ensure only the caregiver can decline the job
+        if job.caregiver != request.user:
+            return Response({"error": "You are not authorized to decline this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Set job status to 'Declined'
         job.status = 'Declined'
         job.save()
+
         return Response(JobSerializer(job).data)
+
+
+
+class JobApplicationListByJobView(generics.ListAPIView):
+    serializer_class = JobApplicationSerializer
+
+    def get_queryset(self):
+        job_id = self.kwargs['job_id']  # Get the job_id from the URL
+        status = self.request.query_params.get('status', None)  # Get status from query params, default is None
+
+        # If status is provided in the query params, filter by both job_id and status
+        if status:
+            return JobApplication.objects.filter(job_id=job_id, status=status)
+        
+        # If no status is provided, just filter by job_id
+        return JobApplication.objects.filter(job_id=job_id)
