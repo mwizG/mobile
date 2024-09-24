@@ -1,13 +1,15 @@
 import React from 'react';
 import { StatusBar, View, Text, Button, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Home = () => {
   const navigation = useNavigation();
 
   return (
+    <SafeAreaView>
     <ScrollView contentContainerStyle={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
       
       {/* Header and Navigation */}
       <View style={styles.header}>
@@ -89,6 +91,7 @@ const Home = () => {
         </View>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

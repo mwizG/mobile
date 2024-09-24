@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, Modal,SafeAreaView, Pressable } from 'react-native';
+import { View, Text, Button, StyleSheet, ScrollView, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const AppBar = ({ onNotificationPress }) => {
   return (
-    <View className="">
+    <View className="flex-row px-4 py-1 justify-between items-center bg-white">
       <Text className="text-lg">Careseeker Dashboard</Text>
-      <Pressable className="w-6 h-6 bg-red-400" onPress={onNotificationPress}>
+      <Pressable className="w-6 h-6 bg-gray-300" onPress={onNotificationPress}>
         <FontAwesome
           name="bell"
           size={24}
