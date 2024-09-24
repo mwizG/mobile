@@ -4,16 +4,9 @@ from jobs.models import RatingReview
 from rest_framework import serializers
 from .models import CustomUser
 from django.contrib.auth import authenticate
+from django.db.models import Avg 
 
-from . import models
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = (
-            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience', 'certifications', 'availability', 'profile_image'
-        )
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -28,22 +21,29 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    average_rating = serializers.SerializerMethodField()  # Add this line
+    # Define SerializerMethodFields for dynamic data
+    average_rating = serializers.SerializerMethodField()
+    rating_count = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'experience', 'certifications', 
-            'availability', 'profile_image', 'average_rating'  # Include average_rating
+            'availability', 'profile_image', 'average_rating', 'rating_count'
         )
 
+    # Method to get average rating
     def get_average_rating(self, obj):
         reviews = RatingReview.objects.filter(reviewee=obj)
         if reviews.exists():
-            return reviews.aggregate(models.Avg('rating'))['rating__avg']
-        return None
+            return reviews.aggregate(Avg('rating'))['rating__avg']
+        return 0  # Return 0 if there are no reviews
 
+    # Method to get the count of ratings
+    def get_rating_count(self, obj):
+        reviews = RatingReview.objects.filter(reviewee=obj)
+        return reviews.count()  # Return the count of reviews
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)

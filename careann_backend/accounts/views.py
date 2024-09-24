@@ -7,6 +7,8 @@ from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from . models import CustomUser,CaregiverFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
+from django.db.models import Avg, Count
+
 
 
 class CaregiverSearchView(generics.ListAPIView):
@@ -51,7 +53,8 @@ class CaregiverDetailView(generics.RetrieveAPIView):
         # Fetch all ratings for the caregiver from the RatingReview model
         reviews = RatingReview.objects.filter(reviewee=caregiver)
         if reviews.exists():
-            average_rating = reviews.aggregate(models.Avg('rating'))['rating__avg']
+            # Aggregate the average rating without the 'models.' prefix
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
         else:
             average_rating = None  # No reviews yet
 
@@ -60,9 +63,10 @@ class CaregiverDetailView(generics.RetrieveAPIView):
         caregiver_data = serializer.data
 
         # Add average_rating to the response
-        caregiver_data['average_rating'] = average_rating
+        caregiver_data['average_rating'] = average_rating if average_rating else 0  # Default to 0 if no reviews
 
         return Response(caregiver_data)
+
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
