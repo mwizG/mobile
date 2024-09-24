@@ -26,7 +26,7 @@ const Login = () => {
       }
 
       const data = { username, password };
-      const response = await post('http://192.168.40.59:8000/api/accounts/login/', data); // Use the API service
+      const response = await post('/accounts/login/', data); // Use the API service
       console.log(response.data);
 
       // Store token and user info in AsyncStorage or Context

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthContext, AuthProvider } from '../state/AuthContext';
 import { RoleProvider, RoleContext } from '../state/RoleContext'; // Import RoleProvider
@@ -22,10 +23,10 @@ import JobDetails from '../components/job/JobDetails';
 import JobPostingForm from '../components/job/JobPostingForm';
 import JobListingManager from '../components/job/JobListingManager';
 import JobApplicationList from '../components/job/JobApplicationList';
-import JobApplicationDetail from '../components/job/JobApplicationDetails'
-import JobApplicationUpdate from '../components/job/JobApplicationUpdate'
-import JobApplicationForm from '../components/job/JobApplicationForm'
-import NewCareSeekerDashboard from "./dashboard/new_care_seeker"
+import JobApplicationDetail from '../components/job/JobApplicationDetails';
+import JobApplicationUpdate from '../components/job/JobApplicationUpdate';
+import JobApplicationForm from '../components/job/JobApplicationForm';
+import NewCareSeekerDashboard from "./dashboard/new_care_seeker";
 
 const Stack = createNativeStackNavigator();
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { StatusBar, View, Text, Button, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
@@ -7,6 +7,8 @@ const Home = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
       {/* Header and Navigation */}
       <View style={styles.header}>
         <Text style={styles.title}>CareAnn</Text>
