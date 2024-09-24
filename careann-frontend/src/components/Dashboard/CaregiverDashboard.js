@@ -48,7 +48,7 @@ function CaregiverDashboard() {
                 <Link to="/caregiver/conversations">
                     <button>Conversations</button>
                 </Link>
-                <Link to="/caregiver/reviews">
+                <Link to="/caregiver/listreviews">
                     <button>View & Manage Reviews</button>
                 </Link>
                 <Link to="/caregiver/payments">

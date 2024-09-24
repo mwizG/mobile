@@ -6,6 +6,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from . models import CustomUser,CaregiverFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from jobs.models import RatingReview
 
 
 class CaregiverSearchView(generics.ListAPIView):
@@ -40,13 +41,28 @@ class CaregiverDetailView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        return CustomUser.objects.filter(is_caregiver=True)
-
     def get_object(self):
         caregiver_id = self.kwargs['pk']
         return CustomUser.objects.get(id=caregiver_id, is_caregiver=True)
 
+    def retrieve(self, request, *args, **kwargs):
+        caregiver = self.get_object()
+
+        # Fetch all ratings for the caregiver from the RatingReview model
+        reviews = RatingReview.objects.filter(reviewee=caregiver)
+        if reviews.exists():
+            average_rating = reviews.aggregate(models.Avg('rating'))['rating__avg']
+        else:
+            average_rating = None  # No reviews yet
+
+        # Get the serialized caregiver data
+        serializer = self.get_serializer(caregiver)
+        caregiver_data = serializer.data
+
+        # Add average_rating to the response
+        caregiver_data['average_rating'] = average_rating
+
+        return Response(caregiver_data)
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer

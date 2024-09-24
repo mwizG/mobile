@@ -37,6 +37,7 @@ function CaregiverDetail() {
             <p><strong>Certifications:</strong> {caregiver.certifications || 'No certifications'}</p>
             <p><strong>Availability:</strong> {caregiver.availability || 'Not available'}</p>
             <p><strong>Payment Preference:</strong> {caregiver.payment_preference || 'Not specified'}</p>
+            <p><strong>Average Rating:</strong> {caregiver.average_rating ? caregiver.average_rating.toFixed(2) : 'No rating yet'}</p>
             {/* Add more fields if necessary based on the caregiver profile */}
         </div>
     );

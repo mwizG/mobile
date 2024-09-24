@@ -1,8 +1,11 @@
 # In accounts/serializers.py
 
+from jobs.models import RatingReview
 from rest_framework import serializers
 from .models import CustomUser
 from django.contrib.auth import authenticate
+
+from . import models
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,22 +26,23 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError("Invalid Credentials")
     
 
+
 class UserSerializer(serializers.ModelSerializer):
-    background_check_status = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()  # Add this line
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'experience', 'certifications', 
-            'availability', 'profile_image', 'background_check_status', 
-            'payment_preference', 'experience_categories', 'health_status', 'contact_info'
+            'availability', 'profile_image', 'average_rating'  # Include average_rating
         )
 
-    def get_background_check_status(self, obj):
-        check = obj.background_checks.order_by('-created_at').first()
-        return check.status if check else 'No background check'
-
+    def get_average_rating(self, obj):
+        reviews = RatingReview.objects.filter(reviewee=obj)
+        if reviews.exists():
+            return reviews.aggregate(models.Avg('rating'))['rating__avg']
+        return None
 
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)

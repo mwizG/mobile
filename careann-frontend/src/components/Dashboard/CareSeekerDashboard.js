@@ -27,7 +27,7 @@ function CareSeekerDashboard() {
         <Link to="/care-seeker/payments">
           <button>Manage Payments</button>
         </Link>
-        <Link to="/care-seeker/reviews">
+        <Link to="/caregiver/listreviews">
           <button>Manage Reviews</button>
         </Link>
         <Link to="/care-seeker/schedule">

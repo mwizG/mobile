@@ -113,10 +113,6 @@ function JobUpdate() {
                 </div>
             )}
 
-            {/* Caregiver reviews care seeker after the job is marked completed */}
-            {userRole === 'caregiver' && job.status === 'Completed' && (
-                <button onClick={redirectToReviewCareSeeker}>Review Care Seeker</button>
-            )}
 
             {/* Care Seeker reviews caregiver after the job is marked completed */}
             {userRole === 'care_seeker' && job.status === 'Completed' && (

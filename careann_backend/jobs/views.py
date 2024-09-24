@@ -95,27 +95,37 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
 
 
-
 class CreateRatingReviewView(generics.CreateAPIView):
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         job = Job.objects.get(id=self.request.data['job'])
-        
+
         # Only allow reviews for completed jobs
         if job.status != 'Completed':
             raise serializers.ValidationError("Reviews can only be submitted for completed jobs.")
 
         # Ensure the reviewer is the care seeker or caregiver for this job
-        if self.request.user != job.care_seeker and self.request.user != job.caregiver:
+        if self.request.user != job.care_seeker:
             raise serializers.ValidationError("You are not authorized to review this job.")
 
-        # Determine reviewee
-        reviewee = job.caregiver if self.request.user == job.care_seeker else job.care_seeker
+        # Determine reviewee (in this case, the caregiver)
+        reviewee = job.caregiver
+        
+        # Save the new review
         serializer.save(reviewer=self.request.user, reviewee=reviewee)
-
-
+        
+        # Update the caregiver's average rating
+        new_rating = serializer.validated_data['rating']
+        reviewee.rating_count += 1
+        
+        # Use incremental average formula
+        reviewee.average_rating = (
+            (reviewee.average_rating * (reviewee.rating_count - 1)) + new_rating
+        ) / reviewee.rating_count
+        
+        reviewee.save()
 
 
 

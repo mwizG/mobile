@@ -14,7 +14,7 @@ function ListReviews() {
                     return;
                 }
 
-                const response = await axios.get('http://127.0.0.1:8000/api/reviews/', {
+                const response = await axios.get('http://127.0.0.1:8000/api/jobs/reviews/', {
                     headers: {
                         Authorization: `Token ${token}`,
                     },

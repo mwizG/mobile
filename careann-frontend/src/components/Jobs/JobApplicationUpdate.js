@@ -110,6 +110,11 @@ function JobApplicationUpdate() {
     }
   };
 
+  // Handle navigation to caregiver's profile
+  const goToCaregiverProfile = () => {
+    navigate(`/caregiver/${application.caregiver_id}`); // Navigate to caregiver profile using the correct route
+  };
+
   if (!application || !job) {
     return <div>Loading application or job details...</div>;
   }
@@ -122,7 +127,11 @@ function JobApplicationUpdate() {
 
       <p>
         <strong>Caregiver:</strong>{' '}
-        <span className="caregiver-link" style={{ color: 'blue', cursor: 'pointer' }}>
+        <span
+          className="caregiver-link"
+          style={{ color: 'blue', cursor: 'pointer' }}
+          onClick={goToCaregiverProfile}  // Navigate to caregiver's profile
+        >
           {application.caregiver}
         </span>
       </p>
