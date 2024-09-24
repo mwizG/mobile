@@ -11,6 +11,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import Task
 from .serializers import TaskSerializer
+from rest_framework.views import APIView
 
 
 
@@ -55,7 +56,22 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class CompleteJobView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def patch(self, request, job_id):
+        job = Job.objects.get(id=job_id)
+        if request.user != job.care_seeker:
+            return Response({"error": "Only care seekers can mark the job as completed."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Ensure all tasks are completed
+        if job.tasks.filter(status='Pending').exists():
+            return Response({"error": "Cannot complete job until all tasks are completed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        job.status = 'Completed'
+        job.save()
+
+        return Response({"message": "Job marked as completed."}, status=status.HTTP_200_OK)
 
 class ProposeJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
@@ -80,24 +96,28 @@ class ProposeJobTimeView(generics.UpdateAPIView):
 
 
 
-
 class CreateRatingReviewView(generics.CreateAPIView):
-    queryset = RatingReview.objects.all()
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         job = Job.objects.get(id=self.request.data['job'])
+        
+        # Only allow reviews for completed jobs
         if job.status != 'Completed':
             raise serializers.ValidationError("Reviews can only be submitted for completed jobs.")
-        
-        # Ensure the reviewer is either the care seeker or the caregiver involved in the job
+
+        # Ensure the reviewer is the care seeker or caregiver for this job
         if self.request.user != job.care_seeker and self.request.user != job.caregiver:
             raise serializers.ValidationError("You are not authorized to review this job.")
-        
-        reviewee = job.caregiver if self.request.user == job.care_seeker else job.care_seeker
 
+        # Determine reviewee
+        reviewee = job.caregiver if self.request.user == job.care_seeker else job.care_seeker
         serializer.save(reviewer=self.request.user, reviewee=reviewee)
+
+
+
+
 
 class ListRatingReviewView(generics.ListAPIView):
     serializer_class = RatingReviewSerializer
@@ -378,3 +398,52 @@ class JobApplicationListByJobView(generics.ListAPIView):
         
         # If no status is provided, just filter by job_id
         return JobApplication.objects.filter(job_id=job_id)
+    
+
+class ApproveJobCompletionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            job = Job.objects.get(pk=pk)
+
+            if request.user != job.care_seeker:
+                return Response({"error": "Only the care seeker can approve the job completion."}, status=status.HTTP_403_FORBIDDEN)
+
+            new_status = request.data.get('status')
+
+            # If the care seeker rejects, revert to "In Progress"
+            if new_status == 'In Progress':
+                job.status = 'In Progress'
+            elif new_status == 'Completed':
+                job.status = 'Completed'
+
+            job.save()
+
+            return Response(JobSerializer(job).data)
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UpdateJobStatusView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            job = Job.objects.get(pk=pk)
+
+            if request.user != job.caregiver:
+                return Response({"error": "You are not authorized to update the job status."}, status=status.HTTP_403_FORBIDDEN)
+
+            new_status = request.data.get('status')
+
+            # Caregiver cannot set status directly to Completed
+            if new_status == 'Completed':
+                return Response({"error": "Caregiver cannot set the job status to Completed."}, status=status.HTTP_400_BAD_REQUEST)
+
+            job.status = new_status
+            job.save()
+
+            return Response(JobSerializer(job).data)
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)

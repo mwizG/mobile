@@ -23,6 +23,7 @@ import ModerationAction from './components/Admin/ModerationAction';
 import UserActivity from './components/Admin/UserActivity';
 import CreateTask from './components/Tasks/CreateTask';
 import JobDetail from './components/Jobs/JobDetail';  // Import JobDetail
+import JobUpdate from './components/Jobs/JobUpdate';
 import CaregiverJobSearch from './components/Jobs/CaregiverJobSearch';  // Import CaregiverJobSearch
 import JobApplicationForm from './components/Jobs/JobApplicationForm'; 
 import JobApplicationList from './components/Jobs/JobApplicationList';
@@ -33,11 +34,13 @@ import JobApplicationDetails from './components/Jobs/JobApplicationDetails';
 import TaskManagement from './components/Tasks/TaskManagement';  // Import TaskManagement
 import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  // Import TaskManagementDetail
 import JobListingManager from './components/Jobs/JobListingManager';
-// Add these routes inside the <Routes> component
+
 import CaregiverDetail from './components/Profile/CareGiverDetail'; // Adjust the path
 import CareSeekerDetail from './components/Profile/CareSeekerDetail';
+import Review from './components/Reviews/Review';
+import ListReviews from './components/Reviews/ListReviews';   
 
-    
+
 function App() {
   const userRole = localStorage.getItem('role');
 
@@ -75,7 +78,8 @@ function App() {
         <Route path="/care-seeker/payments" element={<PaymentManagement />} />
         <Route path="/care-seeker/search" element={<SearchCaregiversForm />} />
         <Route path="/care-seeker/rate" element={<RatingReviewForm />} />
-        <Route path="care-seeker/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
+        <Route path="care-seeker/jobs/:jobId" element={<JobDetail />} />
+        <Route path="care-seeker/jobsUp/:jobId" element={<JobUpdate />}/>
         <Route path="/care-seeker/jobs/:jobId/applications" element={<JobApplicationList />} />
         <Route path="/care-seeker/applications/:pk" element={<JobApplicationUpdate />} />  
         <Route path="/care-seeker/jobs/:id/propose-time" element={<ProposeJobTime />} /> {/* Add ProposeJobTime route */}
@@ -83,6 +87,9 @@ function App() {
         <Route path="/caregiver/:caregiverId" element={<CaregiverDetail />} />
         <Route path="/care-seeker/conversations" element={<ConversationList />} />
         <Route path="/care-seeker/caregiverlist" element={<CaregiverList />} /> 
+        <Route path="/care-seeker/listreviews" element={<ListReviews />} /> 
+        <Route path="/jobs/:jobId/review-care-seeker" element={<Review />} />
+
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
         <Route path="/caregiver/messaging" element={<Messaging />} />
@@ -90,6 +97,7 @@ function App() {
         <Route path="/caregiver/search-jobs" element={<CaregiverJobSearch />} />
         <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
         <Route path="caregiver/jobs/:jobId" element={<JobDetail />} />  {/* JobDetail Route */}
+        <Route path="caregiver/jobsUp/:jobId" element={<JobUpdate />}/>
         <Route path="/caregiver/jobs/:jobId/apply" element={<JobApplicationForm />} />
         <Route path="/caregiver/jobs/:id/accept-time" element={<AcceptJobTime />} /> {/* Add AcceptJobTime route */}
         <Route path="/caregiver/applications/:id" element={<JobApplicationDetails />} />
@@ -99,6 +107,8 @@ function App() {
         <Route path="/tasks/:taskId" element={<TaskManagementDetail />} />
         <Route path="/careseeker/:careSeekerId" element={<CareSeekerDetail />} />
         <Route path="/caregiver/conversations" element={<ConversationList />} /> 
+        <Route path="/caregiver/listreviews" element={<ListReviews />} /> 
+        <Route path="/jobs/:jobId/review-care-giver" element={<Review />} /> 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />

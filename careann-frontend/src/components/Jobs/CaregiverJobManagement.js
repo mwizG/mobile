@@ -32,7 +32,7 @@ function CaregiverJobManagement() {
                 {jobs.length > 0 ? (
                     jobs.map((job) => (
                         <li key={job.id}>
-                            <Link to={`/caregiver/jobs/${job.id}`}>
+                            <Link to={`/caregiver/jobsUp/${job.id}`}>
                                 <strong>{job.title}</strong> - {job.location} - {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'No proposed time'}
                             </Link>
                         </li>

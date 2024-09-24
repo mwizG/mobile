@@ -78,8 +78,8 @@ function JobDetail() {
             <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</p>
 
             <div>
-                {/* Safely check if job.application exists before accessing status */}
-                {userRole === 'caregiver' && job.application && job.application.status === 'Accepted' && job.proposed_time && (
+                {/* Caregiver can accept proposed time only when the job is accepted and a proposed time exists */}
+                {userRole === 'caregiver' && job.applicatstatus === 'Accepted' && job.proposed_time && (
                     <button onClick={acceptJobTime}>Accept Proposed Time</button>
                 )}
 

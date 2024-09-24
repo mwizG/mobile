@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import TaskCreateView,JobApplicationListByJobView, TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
+from .views import TaskCreateView,JobApplicationListByJobView,UpdateJobStatusView,CompleteJobView,ApproveJobCompletionView,TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -22,6 +22,10 @@ urlpatterns = [
     path('tasks/', TaskListView.as_view(), name='task-list'),
     path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
-     path('<int:job_id>/applications/', JobApplicationListByJobView.as_view(), name='job-applications-by-job'),  # Add this
+    path('<int:job_id>/applications/', JobApplicationListByJobView.as_view(), name='job-applications-by-job'),
+    path('<int:job_id>/complete/', CompleteJobView.as_view(), name='complete-job'),
+    path('<int:pk>/update-status/', UpdateJobStatusView.as_view(), name='update-job-status'),
+    path('<int:pk>/approve-completion/', ApproveJobCompletionView.as_view(), name='approve-job-completion'),
+    path('<int:job_id>/approve-completion/', ApproveJobCompletionView.as_view(), name='approve-completion'),
   
 ]

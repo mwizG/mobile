@@ -78,6 +78,10 @@ function JobListingManager() {
                                 View Details
                             </button>
 
+                            <button onClick={() => navigate(`/care-seeker/jobsUp/${job.id}`)}>
+                                Job state Approvals
+                            </button>
+
                             {/* View Applications */}
                             <button onClick={() => navigate(`/care-seeker/jobs/${job.id}/applications`)}>
                                 View Applications
