@@ -88,7 +88,7 @@ function App() {
         <Route path="/care-seeker/conversations" element={<ConversationList />} />
         <Route path="/care-seeker/caregiverlist" element={<CaregiverList />} /> 
         <Route path="/care-seeker/listreviews" element={<ListReviews />} /> 
-        <Route path="/jobs/:jobId/review-care-seeker" element={<Review />} />
+        <Route path="/jobs/:jobId/review-caregiver" element={<Review />} />
 
         {/* Caregiver-specific routes */}
         <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
@@ -108,7 +108,7 @@ function App() {
         <Route path="/careseeker/:careSeekerId" element={<CareSeekerDetail />} />
         <Route path="/caregiver/conversations" element={<ConversationList />} /> 
         <Route path="/caregiver/listreviews" element={<ListReviews />} /> 
-        <Route path="/jobs/:jobId/review-care-giver" element={<Review />} /> 
+        <Route path="/jobs/:jobId/review-care-seeker" element={<Review />} /> 
         {/* Admin-specific routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />

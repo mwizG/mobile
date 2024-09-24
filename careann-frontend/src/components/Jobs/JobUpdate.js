@@ -80,6 +80,11 @@ function JobUpdate() {
         navigate(`/jobs/${jobId}/review-care-seeker`);
     };
 
+    // Care Seeker reviews the caregiver after the job is marked completed
+    const redirectToReviewCaregiver = () => {
+        navigate(`/jobs/${jobId}/review-caregiver`);
+    };
+
     if (!job) return <div>Loading job details...</div>;
     if (error) return <div>{error}</div>;
 
@@ -111,6 +116,11 @@ function JobUpdate() {
             {/* Caregiver reviews care seeker after the job is marked completed */}
             {userRole === 'caregiver' && job.status === 'Completed' && (
                 <button onClick={redirectToReviewCareSeeker}>Review Care Seeker</button>
+            )}
+
+            {/* Care Seeker reviews caregiver after the job is marked completed */}
+            {userRole === 'care_seeker' && job.status === 'Completed' && (
+                <button onClick={redirectToReviewCaregiver}>Review Care Giver</button>
             )}
         </div>
     );

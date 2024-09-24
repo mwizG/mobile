@@ -6,7 +6,6 @@ function Review() {
     const { jobId } = useParams();
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
-    const [userRole, setUserRole] = useState('');
     const [reviewee, setReviewee] = useState('');  // The person being reviewed
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -15,7 +14,6 @@ function Review() {
     useEffect(() => {
         const role = localStorage.getItem('role');
         const token = localStorage.getItem('token');
-        setUserRole(role);
 
         if (!token) {
             navigate('/login'); // Redirect to login if no token
@@ -54,7 +52,7 @@ function Review() {
                 return;
             }
 
-            await axios.post('http://127.0.0.1:8000/api/reviews/create/', {
+            await axios.post('http://127.0.0.1:8000/api/jobs/reviews/create/', {
                 job: jobId,
                 rating: rating,
                 review: review,
