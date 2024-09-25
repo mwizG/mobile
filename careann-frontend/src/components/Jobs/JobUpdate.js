@@ -65,7 +65,7 @@ function JobUpdate() {
 
             if (newStatus === 'Completed') {
                 // Redirect to review page after approval
-                navigate(`/jobs/${jobId}/review`);
+                navigate(`/jobs/${jobId}/review-caregiver`);
             } else if (newStatus === 'In Progress') {
                 // If rejected, revert to "In Progress"
                 setStatus('In Progress');
@@ -75,10 +75,6 @@ function JobUpdate() {
         }
     };
 
-    // Caregiver reviews the care seeker after the job is marked completed
-    const redirectToReviewCareSeeker = () => {
-        navigate(`/jobs/${jobId}/review-care-seeker`);
-    };
 
     // Care Seeker reviews the caregiver after the job is marked completed
     const redirectToReviewCaregiver = () => {
@@ -106,7 +102,8 @@ function JobUpdate() {
                     <select
                         value={status}
                         onChange={(e) => updateSeekerStatus(e.target.value)}
-                    >
+                    >   
+                        <option value="non">-----</option>
                         <option value="Completed">Approve (Completed)</option>
                         <option value="In Progress">Reject (In Progress)</option>
                     </select>
