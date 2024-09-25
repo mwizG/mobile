@@ -139,14 +139,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
+# Set the timezone to Africa/Lusaka, which is Zambian time
+TIME_ZONE = 'Africa/Lusaka'
+
+USE_TZ = True  # Enable timezone-aware datetimes
+
+# Optional: Make sure to adjust the localization and language settings if needed
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
+USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

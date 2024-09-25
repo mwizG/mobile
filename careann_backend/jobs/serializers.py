@@ -14,13 +14,22 @@ class RatingReviewSerializer(serializers.ModelSerializer):
 class JobApplicationSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Caregiver username
     caregiver_id = serializers.ReadOnlyField(source='caregiver.id')  # Caregiver ID
-
+    has_applied = serializers.SerializerMethodField()  # Add the calculated field 'has_applied'
+    job_title = serializers.ReadOnlyField(source='job.title')
     class Meta:
         model = JobApplication
-        fields = ('id', 'job', 'caregiver', 'caregiver_id', 'cover_letter', 'applied_at', 'status')
+        fields = ('id', 'job', 'job_title','caregiver', 'caregiver_id', 'cover_letter', 'applied_at', 'has_applied', 'status')
         extra_kwargs = {
             'job': {'required': False},  # Make 'job' not required in the incoming data
         }
+
+    # Method to calculate if the current caregiver has applied for the job
+    def get_has_applied(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request.user, 'caregiver'):
+            # Check if the current caregiver has already applied for this job
+            return JobApplication.objects.filter(job=obj.job, caregiver=request.user).exists()
+        return False
 
     def create(self, validated_data):
         # Remove the job from validated_data because it's being passed explicitly
@@ -30,18 +39,31 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         validated_data['caregiver'] = caregiver
         return super().create(validated_data)
 
+
 class JobSerializer(serializers.ModelSerializer):
     care_seeker = serializers.ReadOnlyField(source='care_seeker.username')
     caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Added to include caregiver's username
+    has_applied = serializers.SerializerMethodField()  # New field to check if the user has applied
 
     class Meta:
         model = Job
         fields = (
-            'id', 'care_seeker', 'caregiver', 'title', 'description', 
-            'location', 'job_type', 'pay_rate', 'status', 'scheduled_time', 
-            'proposed_time', 'accepted_time', 'created_at', 'updated_at'
+            'id', 'care_seeker', 'caregiver', 'title', 'description',
+            'location', 'job_type', 'pay_rate', 'status', 'scheduled_time',
+            'proposed_time', 'accepted_time', 'created_at', 'updated_at', 'has_applied'
         )
-        
+
+    def get_has_applied(self, obj):
+        """
+        Checks if the current authenticated user has applied for the job.
+        """
+        request = self.context.get('request', None)
+        if request and request.user.is_authenticated:
+            # Check if the current user (caregiver) has already applied for this job
+            return JobApplication.objects.filter(job=obj, caregiver=request.user).exists()
+        return False
+    
+
 class TaskSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')
 

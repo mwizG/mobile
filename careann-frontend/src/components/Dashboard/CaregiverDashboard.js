@@ -48,7 +48,7 @@ function CaregiverDashboard() {
                 <Link to="/caregiver/conversations">
                     <button>Conversations</button>
                 </Link>
-                <Link to="/caregiver/reviews">
+                <Link to="/caregiver/listreviews">
                     <button>View & Manage Reviews</button>
                 </Link>
                 <Link to="/caregiver/payments">
@@ -83,7 +83,7 @@ function CaregiverDashboard() {
                     {applications.map((application) => (
                         <li key={application.id}>
                             <Link to={`/caregiver/applications/${application.job}`}>
-                                <strong>{application.job}</strong>
+                                <strong>{application.job_title}</strong>
                             </Link>
                             <span> - Status: {application.status}</span>
                             {application.status === 'Accepted' && application.job.proposed_time && (

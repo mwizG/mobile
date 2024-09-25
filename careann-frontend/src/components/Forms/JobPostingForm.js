@@ -8,7 +8,7 @@ function JobPostingForm() {
     const [location, setLocation] = useState('');
     const [jobType, setJobType] = useState('');
     const [payRate, setPayRate] = useState('');
-    const [scheduledTime, setScheduledTime] = useState('');
+    const [proposedTime, setProposedTime] = useState(''); // Changed to proposedTime
 
     const handlePostJob = async (e) => {
         e.preventDefault();
@@ -20,7 +20,7 @@ function JobPostingForm() {
                 location,
                 job_type: jobType,
                 pay_rate: payRate,
-                scheduled_time: scheduledTime,
+                proposed_time: proposedTime, // Changed to proposed_time
             }, {
                 headers: {
                     Authorization: `Token ${token}`,
@@ -68,9 +68,9 @@ function JobPostingForm() {
                 />
                 <input
                     type="datetime-local"
-                    placeholder="Scheduled Time"
-                    value={scheduledTime}
-                    onChange={(e) => setScheduledTime(e.target.value)}
+                    placeholder="Proposed Time"
+                    value={proposedTime} // Changed to proposedTime
+                    onChange={(e) => setProposedTime(e.target.value)} // Changed to proposedTime
                 />
                 <button type="submit">Post Job</button>
             </form>

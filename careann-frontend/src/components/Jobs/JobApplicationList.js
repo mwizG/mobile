@@ -63,7 +63,7 @@ function JobApplicationList() {
                 <ul>
                     {applications.map((application) => (
                         <li key={application.id}>
-                            <p><strong>Job ID:</strong> {application.job}</p>
+                            <p><strong>Job:</strong> {application.job_title}</p>
                             <p><strong>Applicant:</strong> {application.caregiver}</p>
                             <p><strong>Status:</strong> {application.status}</p>
                             <button onClick={() => handleViewDetails(application.id)}>View Details</button>

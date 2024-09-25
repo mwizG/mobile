@@ -7,8 +7,9 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     is_care_seeker = models.BooleanField(default=False)
     is_caregiver = models.BooleanField(default=False)
-    
-    # Additional fields for both care seekers and caregivers
+    rating_count = models.PositiveIntegerField(default=0)  # Number of ratings
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)  # Average rating
+
     location = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     experience = models.TextField(null=True, blank=True)  # Caregiver-specific
@@ -16,7 +17,6 @@ class CustomUser(AbstractUser):
     availability = models.CharField(max_length=255, null=True, blank=True)  # Caregiver-specific
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
 
-    # New fields based on updated requirements
     payment_preference = models.CharField(max_length=20, null=True, blank=True)  # Subscription or Freelance
     experience_categories = models.CharField(max_length=255, null=True, blank=True)  # Categories like respite care, home care
     health_status = models.TextField(null=True, blank=True)  # Care Seeker-specific
