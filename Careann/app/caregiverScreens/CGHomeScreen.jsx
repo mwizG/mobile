@@ -7,24 +7,31 @@ import {
   ScrollView,
   Modal,
   Pressable,
+  StatusBar
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const AppBar = ({ onNotificationPress }) => {
+const AppBar = ({ onNotificationPress, onProfilePress }) => {
   return (
     <View className="flex-row px-4 py-1 justify-between items-center bg-white">
       <Text className="text-lg ">Careann</Text>
+      <View className="flex-row p-2 gap-4">
       <Pressable onPress={onNotificationPress}>
         <FontAwesome name="bell" size={24} color="black" />
-        <FontAwesome name="user" size={24} color="black" />
+        
       </Pressable>
+      <Pressable onPress={onProfilePress}>
+        <FontAwesome name="user" size={24} color="black" />
+        
+      </Pressable>
+      </View>
     </View>
   );
 };
 
-const HomeScreen = () => {
+const CGHomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
 
@@ -34,10 +41,9 @@ const HomeScreen = () => {
       <View className="flex-1">
         <AppBar onNotificationPress={() => setModalVisible(true)} />
 
-        <ScrollView className="bg-gray-100">
+        <ScrollView className="bg-gray-50 p-4">
           <View className="flex-1">
             <View className="flex items-center">
-              <Text className="text-3xl font-bold">CareAnn</Text>
               <View className="flex-row w-full justify-between mt-4">
                 <Pressable
                   className="bg-blue-500 p-2 rounded"
@@ -121,4 +127,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default CGHomeScreen;

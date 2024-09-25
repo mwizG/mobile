@@ -1,9 +1,12 @@
 import React, { useState, useContext } from 'react';
-import { StatusBar, View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { StatusBar, View, Text, TextInput, Button, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../state/AuthContext'; // Import AuthContext
-import { post } from '../services/api';  // Import the API service
+import { post } from '../services/api'; // Import the API service
+import { styled } from 'nativewind'; // Import NativeWind
+
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -39,7 +42,7 @@ const Login = () => {
 
       // Navigate based on user role
       if (response.data.role === 'care_seeker') {
-        navigation.navigate('dashboard/new_care-seeker');
+        navigation.navigate('dashboard/careseeker');
       } else if (response.data.role === 'caregiver') {
         navigation.navigate('dashboard/caregiver');
       } else if (response.data.role === 'admin') {
@@ -56,12 +59,13 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.container}>
+    
+    <View className="flex-1 p-6 bg-gray-200 justify-center">
       <StatusBar barStyle="dark-content" />
-      <Text style={styles.title}>Login</Text>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      <Text className="text-4xl font-bold mb-8 text-center text-green-500">Login</Text>
+      {error && <Text className="text-red-500 mb-4 text-center">{error}</Text>}
       <TextInput
-        style={styles.input}
+        className="border border-gray-300 rounded-lg p-4 mb-4"
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
@@ -69,44 +73,24 @@ const Login = () => {
         editable={!loading}
       />
       <TextInput
-        style={styles.input}
+        className="border border-gray-300 rounded-lg p-4 mb-6"
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
         editable={!loading}
       />
-      <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleSubmit} disabled={loading} />
-      {loading && <ActivityIndicator size="large" color="#0000ff" />}
+      <View className="bg-indigo-600 rounded-lg">
+        <Button
+          className=""
+          title={loading ? 'Logging in...' : 'Login'}
+          onPress={handleSubmit}
+          disabled={loading}
+        />
+      </View>
+      {loading && <ActivityIndicator size="large" color="#0000ff" className="mt-4" />}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-});
 
 export default Login;

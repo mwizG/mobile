@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Platform } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { postJob } from '../../services/jobService'; // Assuming postJob is imported correctly
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JobPostingForm = ({ navigation }) => {
     const [title, setTitle] = useState('');
@@ -67,8 +68,8 @@ const JobPostingForm = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Post a Job</Text>
+        <SafeAreaView className="flex-1 flex-row p-4">
+        <View className="flex-1">
             <TextInput
                 style={styles.input}
                 placeholder="Title"
@@ -131,6 +132,7 @@ const JobPostingForm = ({ navigation }) => {
 
             <Button title="Post Job" onPress={handlePostJob} />
         </View>
+        </SafeAreaView>
     );
 };
 

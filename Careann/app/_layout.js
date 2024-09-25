@@ -7,8 +7,8 @@ import Home from './index'; // Landing page
 import Login from './login';
 import Register from './register';
 import AdminDashboard from './dashboard/admin';
-import CareSeekerDashboard from './dashboard/care-seeker';
-import CaregiverDashboard from './dashboard/caregiver';
+import CareSeekerDashboard from './dashboard/careseekerDashboard';
+import CaregiverDashboard from './dashboard/caregiverDashboard';
 import Services from './services';
 import Contact from './contact';
 import FAQ from './faq';
@@ -26,7 +26,7 @@ import JobApplicationList from '../components/job/JobApplicationList';
 import JobApplicationDetail from '../components/job/JobApplicationDetails';
 import JobApplicationUpdate from '../components/job/JobApplicationUpdate';
 import JobApplicationForm from '../components/job/JobApplicationForm';
-import NewCareSeekerDashboard from "./dashboard/new_care_seeker";
+import CGDashboard from './dashboard/newcgdash';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,10 +46,10 @@ const Layout = () => {
       <Stack.Screen name="register" component={Register} options={{ title: 'Register' }} />
       <Stack.Screen name="services" component={Services} options={{ title: 'Services' }} />
       <Stack.Screen name="contact" component={Contact} options={{ title: 'Contact' }} />
-      <Stack.Screen name="JobList" component={JobList} options={{ title: 'job list' }} />
-      <Stack.Screen name="JobListingManager" component={JobListingManager} options={{ title: 'job listing' }} />
+      <Stack.Screen name="JobList" component={JobList} options={{ title: 'job list',headerShown: true  }} />
+      <Stack.Screen name="JobListingManager" component={JobListingManager} options={{ title: 'job listing',headerShown: true  }} />
       <Stack.Screen name="JobApplicationList" component={JobApplicationList} options={{ title: 'Application list' }} />
-      <Stack.Screen name="JobPostingForm" component={JobPostingForm} options={{ title: 'Post job' }} />
+      <Stack.Screen name="JobPostingForm" component={JobPostingForm} options={{ title: 'Post job',headerShown: true }} />
       <Stack.Screen name="SearchJobs" component={SearchJobs} options={{ title: 'search jobs' }} />
       <Stack.Screen name="JobDetails" component={JobDetails} options={{ title: 'job details' }}/>
       <Stack.Screen name="JobApplicationDetail" component={JobApplicationDetail} options={{ title: 'application details' }}/>
@@ -62,10 +62,10 @@ const Layout = () => {
         <Stack.Screen name="dashboard/admin" component={AdminDashboard} options={{ title: 'Admin Dashboard',headerBackVisible: false }} />
       )}
       {user && role === 'care_seeker' && (
-        <Stack.Screen name="dashboard/new_care-seeker" component={NewCareSeekerDashboard} options={{ title: 'Care Seeker Dashboard',headerBackVisible: false }} />
+        <Stack.Screen name="dashboard/careseeker" component={CareSeekerDashboard} options={{ title: 'Care Seeker Dashboard',headerBackVisible: false }} />
       )}
       {user && role === 'caregiver' && (
-        <Stack.Screen name="dashboard/caregiver" component={CaregiverDashboard} options={{ title: 'Caregiver Dashboard',headerBackVisible: false }} />
+        <Stack.Screen name="dashboard/caregiver" component={CGDashboard} options={{ title: 'Caregiver Dashboard',headerBackVisible: false }} />
       )}
 
       {/* Profile and Other Authenticated Routes */}

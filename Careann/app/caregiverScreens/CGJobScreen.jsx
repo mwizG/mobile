@@ -16,12 +16,11 @@ const CardComponent = ({title,image,onPress}) =>{
   );
 }
   
-export default function JobScreen() {
+export default function CGJobScreen() {
   const navigation = useNavigation();
   const [clicked, setClicked] = useState('');
   return (
     <SafeAreaView className="flex-1 justify-center bg-gray-50 p-4">
-      <StatusBar backgroundColor='white' barStyle="dark-content" />
       <View className="flex">
 
       </View>
@@ -29,7 +28,7 @@ export default function JobScreen() {
       <View className="flex">
         <View className="flex justify-center flex-row">
           <View className="p-4">
-            <CardComponent title={"Post a Job"} onPress={()=> navigation.navigate('JobPostingForm')}/>
+            <CardComponent title={"Search For a Job"} onPress={()=> navigation.navigate('SearchJobs')}/>
           </View>
           <View className="p-4" >
             <CardComponent className="" title={"View & Manage Jobs"} onPress={()=> navigation.navigate('JobListingManager')}/>

@@ -1,18 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons'; // Make sure FontAwesome is imported
-import HomeScreen from '../screens/HomeScreen'; // Adjust the imports according to your project
-import ProfileScreen from '../screens/ProfileScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import JobScreen from "../screens/JobScreen";
-import MessageScreen from "../screens/MessageScreen";
+import CGHomeScreen from '../caregiverScreens/CGHomeScreen';
+import CGJobScreen from '../caregiverScreens/CGJobScreen';
+import MessageScreen from '../screens/MessageScreen';
 import { useNavigation } from 'expo-router';
 import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 
-export default function NewCareSeekerDashboard() {
+export default function CGDashboard() {
   const navigation = useNavigation();
   return (
       <Tab.Navigator
@@ -28,22 +26,18 @@ export default function NewCareSeekerDashboard() {
               iconName = 'send';
             } else if (route.name === 'Profile') {
               iconName = 'user';
-            } else if (route.name === 'Settings') {
-              iconName = 'cog';
-            }
+            } 
             // Return FontAwesome Icon
             return <FontAwesome name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: 'tomato',
+          tabBarActiveTintColor: 'green',
           tabBarInactiveTintColor: 'gray',
           headerShown: false,
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Jobs" component={JobScreen}/>
+        <Tab.Screen name="Home" component={CGHomeScreen} />
+        <Tab.Screen name="Jobs" component={CGJobScreen}/>
         <Tab.Screen name="Messages" component={MessageScreen}/>
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-        <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
   );
 }

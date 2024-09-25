@@ -54,7 +54,7 @@ const ChatMessages = ({ chatMessages }) => {
 
 const MessageScreen = () => {
   const [selectedChat, setSelectedChat] = useState('1');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { width } = useWindowDimensions();
 
   const selectChat = (id) => {
@@ -74,7 +74,7 @@ const MessageScreen = () => {
           <Pressable onPress={() => setSidebarOpen(!sidebarOpen)}>
             <Feather name="menu" size={24} color="white" />
           </Pressable>
-          <Text className="text-white text-lg">Chat with {chatsList.find((chat) => chat.id === selectedChat)?.name}</Text>
+          <Text className="text-white text-lg">{chatsList.find((chat) => chat.id === selectedChat)?.name}</Text>
         </View>
 
         {/* Messages */}
