@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Container, TextField, Button, Typography, Box, Radio, RadioGroup, FormControlLabel, Grid } from '@mui/material';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ function Register() {
   const handleFileChange = (e) => {
     setFormData({
       ...formData,
-      profile_image: e.target.files[0], // Ensure this is the file object
+      profile_image: e.target.files[0],
     });
   };
 
@@ -50,166 +51,221 @@ function Register() {
     e.preventDefault();
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null && formData[key] !== undefined) { // Ensure the field is not null or undefined before appending
+      if (formData[key] !== null && formData[key] !== undefined) {
         data.append(key, formData[key]);
       }
     });
 
-    // Convert FormData to an array of key-value pairs and log it
-    for (let [key, value] of data.entries()) {
-      console.log(`${key}:`, value);
-    }
-
     try {
       await axios.post('http://127.0.0.1:8000/api/accounts/register/', data, {
         headers: {
-          'Content-Type': 'multipart/form-data', // Important for file uploads
+          'Content-Type': 'multipart/form-data',
         },
       });
       navigate('/login');
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.error('Registration failed:', error.response.data);
-      } else {
-        console.error('Registration failed', error);
-      }
+      console.error('Registration failed', error);
     }
-};
+  };
 
   return (
-    <div>
-      <h2>Register</h2>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Typography 
+        variant="h4" 
+        sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: '600', color: '#388e3c', textAlign: 'center', mb: 4 }}
+      >
+        Register
+      </Typography>
+
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
+        {/* Username, Email, Password */}
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           name="username"
-          placeholder="Username"
           onChange={handleChange}
         />
-        <input
+        <TextField
+          label="Email"
           type="email"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           name="email"
-          placeholder="Email"
           onChange={handleChange}
         />
-        <input
+        <TextField
+          label="Password"
           type="password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           name="password"
-          placeholder="Password"
           onChange={handleChange}
         />
 
-        {/* Radio buttons to select Care Seeker or Caregiver */}
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="role"
-              value="care_seeker"
+        {/* Role Selection */}
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>Select Role</Typography>
+          <RadioGroup row>
+            <FormControlLabel 
+              value="care_seeker" 
+              control={<Radio />} 
+              label="Care Seeker"
               checked={formData.is_care_seeker}
               onChange={() => handleRoleChange('care_seeker')}
             />
-            Care Seeker
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="role"
-              value="caregiver"
+            <FormControlLabel 
+              value="caregiver" 
+              control={<Radio />} 
+              label="Caregiver"
               checked={formData.is_caregiver}
               onChange={() => handleRoleChange('caregiver')}
             />
-            Caregiver
-          </label>
-        </div>
+          </RadioGroup>
+        </Box>
 
-        {/* Conditional fields based on role */}
+        {/* Conditional Fields for Care Seekers */}
         {formData.is_care_seeker && (
           <>
-            <input
-              type="text"
+            <TextField
+              label="Location"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="location"
-              placeholder="Location"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Health Status"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="health_status"
-              placeholder="Health Status"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Contact Info"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="contact_info"
-              placeholder="Contact Info"
               onChange={handleChange}
             />
-            <textarea
+            <TextField
+              label="Bio"
+              variant="outlined"
+              multiline
+              rows={4}
+              fullWidth
+              margin="normal"
               name="bio"
-              placeholder="Tell us more about yourself"
               onChange={handleChange}
-            ></textarea>
+            />
           </>
         )}
 
+        {/* Conditional Fields for Caregivers */}
         {formData.is_caregiver && (
           <>
-            <input
-              type="text"
+            <TextField
+              label="Experience"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="experience"
-              placeholder="Experience"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Certifications"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="certifications"
-              placeholder="Certifications"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Availability"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="availability"
-              placeholder="Availability"
               onChange={handleChange}
             />
-            
-            <input
-              type="text"
+            <TextField
+              label="Payment Preference"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="payment_preference"
-              placeholder="Payment Preference"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Experience Categories"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="experience_categories"
-              placeholder="Experience Categories"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Location"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="location"
-              placeholder="Location"
               onChange={handleChange}
             />
-            <input
-              type="text"
+            <TextField
+              label="Contact Info"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               name="contact_info"
-              placeholder="Contact Info"
               onChange={handleChange}
             />
-            <textarea
+            <TextField
+              label="Bio"
+              variant="outlined"
+              multiline
+              rows={4}
+              fullWidth
+              margin="normal"
               name="bio"
-              placeholder="Tell us more about yourself"
               onChange={handleChange}
-            ></textarea>
+            />
           </>
         )}
 
-        <input type="file" name="profile_image" onChange={handleFileChange} />
+        {/* Profile Image Upload */}
+        <Button
+          variant="contained"
+          component="label"
+          fullWidth
+          sx={{ mt: 2, mb: 3, backgroundColor: '#81c784', '&:hover': { backgroundColor: '#66bb6a' } }}
+        >
+          Upload Profile Image
+          <input
+            type="file"
+            hidden
+            name="profile_image"
+            onChange={handleFileChange}
+          />
+        </Button>
 
-        <button type="submit">Register</button>
+        {/* Register Button */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ mt: 2, fontFamily: 'Poppins, sans-serif', fontWeight: '600', backgroundColor: '#388e3c', '&:hover': { backgroundColor: '#2e7d32' } }}
+        >
+          Register
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 }
 

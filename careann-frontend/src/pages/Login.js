@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../services/api'; // Import the API service
-import { TextField, Button, Typography, Container, CircularProgress } from '@mui/material';
+import { TextField, Button, Typography, Container, CircularProgress, Box } from '@mui/material';
+import '@fontsource/poppins';  // Creative typography import
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -41,10 +42,17 @@ function Login() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Typography variant="h4" gutterBottom>
-        Login
-      </Typography>
-      {error && <Typography color="error">{error}</Typography>}
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: '600', color: '#388e3c' }}
+          gutterBottom
+        >
+          Login
+        </Typography>
+        {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+      </Box>
+      
       <form onSubmit={handleSubmit}>
         <TextField
           label="Username"
@@ -54,6 +62,7 @@ function Login() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
+          sx={{ fontFamily: 'Poppins, sans-serif' }}
         />
         <TextField
           label="Password"
@@ -64,14 +73,20 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
+          sx={{ fontFamily: 'Poppins, sans-serif' }}
         />
         <Button
           type="submit"
           variant="contained"
-          color="primary"
           fullWidth
           disabled={loading}
-          sx={{ mt: 2 }}
+          sx={{ 
+            mt: 2, 
+            fontFamily: 'Poppins, sans-serif', 
+            fontWeight: '600', 
+            backgroundColor: '#81c784',
+            '&:hover': { backgroundColor: '#66bb6a' }
+          }}
         >
           {loading ? <CircularProgress size={24} /> : 'Login'}
         </Button>
