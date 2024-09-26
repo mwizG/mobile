@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../services/api'; // Import the API service
+import { TextField, Button, Typography, Container, CircularProgress } from '@mui/material';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -39,29 +40,43 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Typography variant="h4" gutterBottom>
+        Login
+      </Typography>
+      {error && <Typography color="error">{error}</Typography>}
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
         />
-        <input
+        <TextField
+          label="Password"
           type="password"
-          placeholder="Password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={loading}
+          sx={{ mt: 2 }}
+        >
+          {loading ? <CircularProgress size={24} /> : 'Login'}
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 }
 

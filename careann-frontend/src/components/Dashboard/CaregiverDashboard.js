@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Container, Typography, Grid, Card, CardContent, Button, Drawer, List, ListItem, ListItemText, ListItemButton, Box } from '@mui/material';
+import JobList from '../Jobs/JobList'; // Make sure JobList is correctly imported
 
 function CaregiverDashboard() {
     const [applications, setApplications] = useState([]);
@@ -23,77 +25,77 @@ function CaregiverDashboard() {
         fetchApplications();
     }, []);
 
+    // Sidebar items
+    const menuItems = [
+        { text: "Search for Jobs", link: "/caregiver/search-jobs" },
+        { text: "View & Manage Jobs", link: "/caregiver-jobs" },
+        { text: "Manage Schedule & Availability", link: "/caregiver/schedule" },
+        { text: "Task Management", link: "/caregiver/tasks" },
+        { text: "Job History", link: "/caregiver/history" },
+        { text: "Conversations", link: "/caregiver/conversations" },
+        { text: "View & Manage Reviews", link: "/caregiver/listreviews" },
+        { text: "Manage Payments", link: "/caregiver/payments" },
+        { text: "View Analytics", link: "/caregiver/analytics" },
+        { text: "Learning & Resources", link: "/caregiver/resources" },
+        { text: "Client Feedback", link: "/caregiver/feedback" },
+        { text: "Emergency Contacts", link: "/caregiver/emergency-contacts" },
+        { text: "Support & Help", link: "/caregiver/support" },
+        { text: "Manage Subscriptions", link: "/caregiver/subscriptions" },
+        { text: "Settings", link: "/caregiver/settings" }
+    ];
+
     return (
-        <div className="dashboard-container">
-            <h1>Caregiver Dashboard</h1>
-            <p>Welcome to your dashboard. From here, you can manage all aspects of your caregiving services effectively.</p>
-
-            <div className="dashboard-options">
-                <Link to="/caregiver/search-jobs">
-                    <button>Search for Jobs</button>
-                </Link>
-            
-                <Link to="/caregiver-jobs">
-                    <button>View & Manage Jobs</button>
-                </Link>
-                <Link to="/caregiver/schedule">
-                    <button>Manage Schedule & Availability</button>
-                </Link>
-                <Link to="/caregiver/tasks">
-                    <button>Task Management</button>
-                </Link>
-                <Link to="/caregiver/history">
-                    <button>Job History</button>
-                </Link>
-                <Link to="/caregiver/conversations">
-                    <button>Conversations</button>
-                </Link>
-                <Link to="/caregiver/listreviews">
-                    <button>View & Manage Reviews</button>
-                </Link>
-                <Link to="/caregiver/payments">
-                    <button>Manage Payments</button>
-                </Link>
-                <Link to="/caregiver/analytics">
-                    <button>View Analytics</button>
-                </Link>
-                <Link to="/caregiver/resources">
-                    <button>Learning & Resources</button>
-                </Link>
-                <Link to="/caregiver/feedback">
-                    <button>Client Feedback</button>
-                </Link>
-                <Link to="/caregiver/emergency-contacts">
-                    <button>Emergency Contacts</button>
-                </Link>
-                <Link to="/caregiver/support">
-                    <button>Support & Help</button>
-                </Link>
-                <Link to="/caregiver/subscriptions">
-                    <button>Manage Subscriptions</button>
-                </Link>
-                <Link to="/caregiver/settings">
-                    <button>Settings</button>
-                </Link>
-            </div>
-
-            <div className="applications-section">
-            <h3>Job Applications</h3>
-                <ul>
-                    {applications.map((application) => (
-                        <li key={application.id}>
-                            <Link to={`/caregiver/applications/${application.job}`}>
-                                <strong>{application.job_title}</strong>
-                            </Link>
-                            <span> - Status: {application.status}</span>
-                            {application.status === 'Accepted' && application.job.proposed_time && (
-                                <p>Proposed Time: {new Date(application.job.proposed_time).toLocaleString()}</p>
-                            )}
-                        </li>
+        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+            {/* Sidebar Drawer */}
+            <Drawer
+                variant="permanent"
+                anchor="left"
+                sx={{ width: 240, flexShrink: 0, '& .MuiDrawer-paper': { width: 240, boxSizing: 'border-box' } }}
+            >
+                <List>
+                    {menuItems.map((item, index) => (
+                        <ListItem key={index} disablePadding>
+                            <ListItemButton component={Link} to={item.link}>
+                                <ListItemText primary={item.text} />
+                            </ListItemButton>
+                        </ListItem>
                     ))}
-                </ul>
-            </div>
-        </div>
+                </List>
+            </Drawer>
+
+            {/* Main Content */}
+            <Box sx={{ flexGrow: 1, padding: 2 }}>
+                <Typography variant="h4" gutterBottom>
+                    Caregiver Dashboard
+                </Typography>
+                <Typography variant="body1" paragraph>
+                    Welcome to your dashboard. From here, you can manage all aspects of your caregiving services effectively.
+                </Typography>
+
+                {/* Job Listings as Social Media-like Posts */}
+                <JobList fetchAll={false} />
+
+                {/* Job Applications Section */}
+                <Box sx={{ marginTop: 5 }}>
+                    <Typography variant="h5">Job Applications</Typography>
+                    <ul>
+                        {applications.map((application) => (
+                            <li key={application.id}>
+                                <Link to={`/caregiver/applications/${application.job}`}>
+                                    <Typography variant="body1"><strong>{application.job_title}</strong></Typography>
+                                </Link>
+                                <Typography variant="body2">Status: {application.status}</Typography>
+                                {application.status === 'Accepted' && application.job.proposed_time && (
+                                    <Typography variant="body2">
+                                        Proposed Time: {new Date(application.job.proposed_time).toLocaleString()}
+                                    </Typography>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </Box>
+            </Box>
+        </Box>
     );
 }
 

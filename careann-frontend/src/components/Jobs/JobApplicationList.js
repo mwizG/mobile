@@ -13,6 +13,8 @@ function JobApplicationList() {
         const fetchApplications = async () => {
             try {
                 const token = localStorage.getItem('token');
+                const currentUserId = localStorage.getItem('user_id');  // Assuming user ID is stored in localStorage
+
                 if (!token) {
                     setError('User not authenticated');
                     return;
@@ -25,10 +27,11 @@ function JobApplicationList() {
                     },
                 });
 
-                // Filter applications by the provided jobId (if it exists)
-                const filteredApplications = jobId
-                    ? response.data.filter(application => application.job === parseInt(jobId))
-                    : response.data;
+                // Filter applications to show only those for jobs posted by the current care seeker
+                const filteredApplications = response.data.filter(application => 
+                    application.job.care_seeker === parseInt(currentUserId) && 
+                    (jobId ? application.job.id === parseInt(jobId) : true)
+                );
 
                 setApplications(filteredApplications);
             } catch (error) {

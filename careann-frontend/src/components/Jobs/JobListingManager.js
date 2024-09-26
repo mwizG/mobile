@@ -15,12 +15,18 @@ function JobListingManager() {
 
         try {
             const token = localStorage.getItem('token');
+            const currentUserId = localStorage.getItem('user_id'); // Assuming user ID is stored in localStorage
+
             const response = await axios.get('http://127.0.0.1:8000/api/jobs/all-jobs/', {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            setJobs(response.data);  // Update jobs state with fetched data
+
+            // Filter the jobs to only include those posted by the current care seeker
+            const filteredJobs = response.data.filter(job => job.care_seeker === parseInt(currentUserId));
+
+            setJobs(filteredJobs);  // Update jobs state with filtered data
         } catch (error) {
             setError('Error fetching jobs.');
             console.error('Error fetching jobs:', error);
@@ -79,7 +85,7 @@ function JobListingManager() {
                             </button>
 
                             <button onClick={() => navigate(`/care-seeker/jobsUp/${job.id}`)}>
-                                Job state Approvals
+                                Job State Approvals
                             </button>
 
                             {/* View Applications */}
