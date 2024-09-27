@@ -1,4 +1,3 @@
-// src/components/Jobs/JobPostingForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -8,7 +7,20 @@ function JobPostingForm() {
     const [location, setLocation] = useState('');
     const [jobType, setJobType] = useState('');
     const [payRate, setPayRate] = useState('');
-    const [proposedTime, setProposedTime] = useState(''); // Changed to proposedTime
+    const [proposedTime, setProposedTime] = useState('');
+
+    // List of job types (matching what you have in Django's choices)
+    const jobTypes = [
+        'Respite Care',
+        'Home Care',
+        'Senior Care',
+        'Child Care',
+        'Disability Care',
+        'Palliative Care',
+        'Post-Surgical Care',
+        'Maternity Care',
+        'Dementia Care',
+    ];
 
     const handlePostJob = async (e) => {
         e.preventDefault();
@@ -18,9 +30,9 @@ function JobPostingForm() {
                 title,
                 description,
                 location,
-                job_type: jobType,
+                job_type: jobType,  // Pass the selected job type
                 pay_rate: payRate,
-                proposed_time: proposedTime, // Changed to proposed_time
+                proposed_time: proposedTime,
             }, {
                 headers: {
                     Authorization: `Token ${token}`,
@@ -54,12 +66,19 @@ function JobPostingForm() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 />
-                <input
-                    type="text"
-                    placeholder="Job Type"
+                
+                {/* Dropdown for Job Type */}
+                <select
                     value={jobType}
                     onChange={(e) => setJobType(e.target.value)}
-                />
+                    required
+                >
+                    <option value="" disabled>Select Job Type</option>
+                    {jobTypes.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                    ))}
+                </select>
+                
                 <input
                     type="number"
                     placeholder="Pay Rate"
@@ -69,8 +88,8 @@ function JobPostingForm() {
                 <input
                     type="datetime-local"
                     placeholder="Proposed Time"
-                    value={proposedTime} // Changed to proposedTime
-                    onChange={(e) => setProposedTime(e.target.value)} // Changed to proposedTime
+                    value={proposedTime}
+                    onChange={(e) => setProposedTime(e.target.value)}
                 />
                 <button type="submit">Post Job</button>
             </form>

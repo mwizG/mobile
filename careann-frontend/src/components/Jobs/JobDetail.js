@@ -71,6 +71,7 @@ function JobDetail() {
     return (
         <div className="job-detail-container">
             <h2>{job.title}</h2>
+            <p><strong>Job Type:</strong> {job.job_type}</p>
             <p><strong>Description:</strong> {job.description}</p>
             <p><strong>Location:</strong> {job.location}</p>
             <p><strong>Pay Rate:</strong> K{job.pay_rate}</p>

@@ -91,6 +91,19 @@ function JobList({ fetchAll = false }) {
                                         marginBottom: 1 
                                     }}
                                 >
+                                
+                                
+                                    {job.job_type}
+                                </Typography>
+                                <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        fontFamily: 'Roboto, sans-serif', 
+                                        color: '#616161', 
+                                        marginBottom: 1 
+                                    }}
+                                >
+
                                     {job.description}
                                 </Typography>
                                 <Typography 
