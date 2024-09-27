@@ -4,6 +4,8 @@ import axios from 'axios';
 
 function AnalyticsDashboard() {
     const [analytics, setAnalytics] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchAnalytics() {
@@ -12,10 +14,21 @@ function AnalyticsDashboard() {
                 setAnalytics(response.data);
             } catch (error) {
                 console.error('Error fetching analytics:', error);
+                setError('Could not load analytics data.');
+            } finally {
+                setLoading(false);
             }
         }
         fetchAnalytics();
     }, []);
+
+    if (loading) {
+        return <div>Loading...</div>; // Display loading state
+    }
+
+    if (error) {
+        return <div>{error}</div>; // Display error message
+    }
 
     return (
         <div>

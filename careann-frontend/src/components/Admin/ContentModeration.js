@@ -1,43 +1,58 @@
-// src/components/Admin/ContentModeration.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// src/pages/ContentModeration.js
+import React, { useEffect, useState } from 'react';
+import { getModerationActions, updateModerationAction } from '../../services/AdminService';
 
 function ContentModeration() {
-    const [content, setContent] = useState([]);
+    const [actions, setActions] = useState([]);
 
     useEffect(() => {
-        async function fetchContent() {
+        const fetchModerationActions = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/admin/moderation/');
-                setContent(response.data);
+                const data = await getModerationActions();
+                setActions(data);
             } catch (error) {
-                console.error('Error fetching content:', error);
+                console.error('Error fetching moderation actions:', error);
             }
-        }
-        fetchContent();
+        };
+
+        fetchModerationActions();
     }, []);
 
-    const moderateContent = async (contentId, action) => {
+    const handleUpdateAction = async (actionId, newStatus) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/admin/moderation/${contentId}/`, { action });
-            setContent(content.filter(c => c.id !== contentId));
+            await updateModerationAction(actionId, newStatus);
+            setActions(actions.map(action => (action.id === actionId ? { ...action, status: newStatus } : action)));
         } catch (error) {
-            console.error('Error moderating content:', error);
+            console.error('Error updating moderation action:', error);
         }
     };
 
     return (
         <div>
             <h2>Content Moderation</h2>
-            <ul>
-                {content.map(item => (
-                    <li key={item.id}>
-                        {item.type}: {item.content}
-                        <button onClick={() => moderateContent(item.id, 'approve')}>Approve</button>
-                        <button onClick={() => moderateContent(item.id, 'reject')}>Reject</button>
-                    </li>
-                ))}
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Action ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {actions.map(action => (
+                        <tr key={action.id}>
+                            <td>{action.id}</td>
+                            <td>{action.type}</td>
+                            <td>{action.status}</td>
+                            <td>
+                                <button onClick={() => handleUpdateAction(action.id, 'approved')}>Approve</button>
+                                <button onClick={() => handleUpdateAction(action.id, 'rejected')}>Reject</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
