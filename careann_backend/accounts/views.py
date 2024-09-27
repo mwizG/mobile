@@ -17,6 +17,8 @@ class CaregiverSearchView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
 
+
+
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer

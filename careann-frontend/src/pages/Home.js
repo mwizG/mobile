@@ -122,7 +122,7 @@ function Home() {
           fullWidth
           sx={{ maxWidth: 500, mx: 'auto', mt: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}
         />
-        <Button variant="contained" sx={{  mt: 3, backgroundColor: '#85CEA8', '&:hover': { backgroundColor: '#388e3c' }, color: '#fff' }}>
+        <Button variant="contained" sx={{ ml:2,  mt: 3, backgroundColor: '#85CEA8', '&:hover': { backgroundColor: '#388e3c' }, color: '#fff' }}>
           Search
         </Button>
       </Box>
@@ -137,7 +137,7 @@ function Home() {
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           <Grid item xs={12} md={4}>
-            <Link to="/search-caregiver">
+            <Link to="/caregivers">
               <Button variant="contained" fullWidth sx={{ backgroundColor: '#95d5b2', '&:hover': { backgroundColor: '#85CEA8' }, color: '#fff' }}>
                 Find a Caregiver
               </Button>

@@ -10,6 +10,7 @@ import CaregiverDashboard from './components/Dashboard/CaregiverDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import Messaging from './components/Messaging/Messaging';
 import CaregiverList from './components/Messaging/CaregiverList';
+import Caregivers from './pages/Caregivers'
 import ConversationList from './components/Messaging/ConversationList';
 import JobPostingForm from './components/Forms/JobPostingForm';
 import CaregiverJobManagement from './components/Jobs/CaregiverJobManagement'; 
@@ -72,6 +73,8 @@ function App() {
 
           {/* Route for conversations */}
           <Route path="/conversations/:conversation_id/messages" element={<Messaging />} />
+          
+          <Route path="/caregivers" element={<Caregivers />} /> 
 
           {/* Care Seeker-specific routes */}
           <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
