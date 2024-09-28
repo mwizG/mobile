@@ -1,4 +1,3 @@
-// src/components/Admin/AnalyticsDashboard.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,12 +8,24 @@ function AnalyticsDashboard() {
 
     useEffect(() => {
         async function fetchAnalytics() {
+            const token = localStorage.getItem('token'); // Retrieve the token
+            if (!token) {
+                console.error('No authentication token found.');
+                setError('No authentication token found.');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/admin/analytics/');
+                const response = await axios.get('http://127.0.0.1:8000/api/admin_panel/analytics/', {
+                    headers: {
+                        Authorization: `Token ${token.replace(/"/g, '')}`, // Add authorization header
+                    },
+                });
                 setAnalytics(response.data);
             } catch (error) {
-                console.error('Error fetching analytics:', error);
-                setError('Could not load analytics data.');
+                console.error('Error fetching analytics:', error.response ? error.response.data : error.message);
+                setError('Could not load analytics data.'); // Set error message
             } finally {
                 setLoading(false);
             }

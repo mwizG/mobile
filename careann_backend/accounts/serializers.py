@@ -18,7 +18,14 @@ class LoginSerializer(serializers.Serializer):
             return {'user': user}  # Return a dictionary with 'user' as the key
         raise serializers.ValidationError("Invalid Credentials")
     
-
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
+            'location', 'bio', 'experience', 'certifications',
+            'availability', 'profile_image'
+        )
 
 class UserSerializer(serializers.ModelSerializer):
     # Define SerializerMethodFields for dynamic data
@@ -44,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_rating_count(self, obj):
         reviews = RatingReview.objects.filter(reviewee=obj)
         return reviews.count()  # Return the count of reviews
+    
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)

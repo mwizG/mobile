@@ -23,6 +23,7 @@ function AdminDashboard() {
             <h2>Admin Dashboard</h2>
             <div className="admin-options">
                 <Link to="/admin/users"><button>User Management</button></Link>
+                <Link to="/admin/user-activity"><button>User Activity</button></Link>
                 <Link to="/admin/content-moderation"><button>Content Moderation</button></Link>
                 <Link to="/admin/payments"><button>Payment Management</button></Link>
                 <Link to="/admin/disputes"><button>Dispute Resolution</button></Link>

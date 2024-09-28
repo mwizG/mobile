@@ -1,17 +1,27 @@
-// src/pages/ContentModeration.js
 import React, { useEffect, useState } from 'react';
 import { getModerationActions, updateModerationAction } from '../../services/AdminService';
 
 function ContentModeration() {
     const [actions, setActions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchModerationActions = async () => {
+            const token = localStorage.getItem('token'); // Retrieve the token
+            if (!token) {
+                setError('No authentication token found.');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const data = await getModerationActions();
+                const data = await getModerationActions(token); // Pass token to the service function
                 setActions(data);
             } catch (error) {
-                console.error('Error fetching moderation actions:', error);
+                setError(error.response ? error.response.data : error.message);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -19,13 +29,27 @@ function ContentModeration() {
     }, []);
 
     const handleUpdateAction = async (actionId, newStatus) => {
+        const token = localStorage.getItem('token'); // Retrieve the token
+        if (!token) {
+            setError('No authentication token found for updating action.');
+            return;
+        }
+
         try {
-            await updateModerationAction(actionId, newStatus);
+            await updateModerationAction(actionId, newStatus, token); // Pass token to the service function
             setActions(actions.map(action => (action.id === actionId ? { ...action, status: newStatus } : action)));
         } catch (error) {
-            console.error('Error updating moderation action:', error);
+            setError(error.response ? error.response.data : error.message);
         }
     };
+
+    if (loading) {
+        return <div>Loading...</div>; // Display loading state
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>; // Display error message
+    }
 
     return (
         <div>
