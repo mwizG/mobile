@@ -39,11 +39,10 @@ function Register() {
     is_caregiver: false,
     location: '',
     bio: '',
-    experience: [],  // Changed to an array for multiple selections
+    experience_categories: [], // Changed to an array for multiple selections
     certifications: '',
     availability: '',
     payment_preference: '',
-    experience_categories: '',
     health_status: '',
     contact_info: '',
     profile_image: null,
@@ -84,7 +83,7 @@ function Register() {
     if (selected.length <= 3) {
       setFormData({
         ...formData,
-        experience: selected,
+        experience_categories: selected, // Updated to experience_categories
       });
     }
   };
@@ -94,9 +93,18 @@ function Register() {
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== null && formData[key] !== undefined) {
-        data.append(key, formData[key]);
+        if (Array.isArray(formData[key])) {
+          formData[key].forEach((item) => data.append(`${key}[]`, item)); // Append each category as an array item
+        } else {
+          data.append(key, formData[key]);
+        }
       }
     });
+
+    // Log the form data for debugging
+    for (const [key, value] of data.entries()) {
+      console.log(`${key}: ${value}`);
+    }
 
     try {
       await axios.post('http://127.0.0.1:8000/api/accounts/register/', data, {
@@ -106,7 +114,17 @@ function Register() {
       });
       navigate('/login');
     } catch (error) {
-      console.error('Registration failed', error);
+      // Capture and log the error response
+      if (error.response) {
+        console.error('Registration failed', error.response.data);
+        alert(`Registration failed: ${error.response.data.detail || 'Unknown error'}`);
+      } else if (error.request) {
+        console.error('No response received', error.request);
+        alert('No response from the server, please try again later.');
+      } else {
+        console.error('Error', error.message);
+        alert(`Error: ${error.message}`);
+      }
     }
   };
 
@@ -237,15 +255,15 @@ function Register() {
               onChange={handleChange}
             />
 
-            {/* Experience Dropdown */}
+            {/* Experience Categories Dropdown */}
             <FormControl fullWidth margin="normal">
-              <InputLabel id="experience-label">Experience (select a max of 3)</InputLabel>
+              <InputLabel id="experience-categories-label">Experience Categories (select a max of 3)</InputLabel>
               <Select
-                labelId="experience-label"
+                labelId="experience-categories-label"
                 multiple
-                value={formData.experience}
+                value={formData.experience_categories}
                 onChange={handleExperienceChange}
-                input={<OutlinedInput label="Experience" />}
+                input={<OutlinedInput label="Experience Categories" />}
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                     {selected.map((value) => (

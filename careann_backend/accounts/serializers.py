@@ -2,11 +2,9 @@
 
 from jobs.models import RatingReview
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, ExperienceCategory
 from django.contrib.auth import authenticate
-from django.db.models import Avg 
-
-
+from django.db.models import Avg
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -17,8 +15,18 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return {'user': user}  # Return a dictionary with 'user' as the key
         raise serializers.ValidationError("Invalid Credentials")
-    
+
+
+class ExperienceCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperienceCategory
+        fields = ('id', 'name')  # Assuming ExperienceCategory has 'id' and 'name'
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
+    # Use a nested serializer for experience_categories
+    experience_categories = ExperienceCategorySerializer(many=True, read_only=True)
+
     class Meta:
         model = CustomUser
         fields = (
@@ -28,29 +36,28 @@ class CustomUserSerializer(serializers.ModelSerializer):
         )
 
 class UserSerializer(serializers.ModelSerializer):
-    # Define SerializerMethodFields for dynamic data
     average_rating = serializers.SerializerMethodField()
     rating_count = serializers.SerializerMethodField()
+    experience_categories = ExperienceCategorySerializer(many=True, read_only=True)  # Use nested serializer
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience_categories', 'certifications', 
+            'location', 'bio', 'experience_categories', 'certifications',
             'availability', 'profile_image', 'average_rating', 'rating_count'
         )
 
-    # Method to get average rating
     def get_average_rating(self, obj):
         reviews = RatingReview.objects.filter(reviewee=obj)
         if reviews.exists():
             return reviews.aggregate(Avg('rating'))['rating__avg']
-        return 0  # Return 0 if there are no reviews
+        return 0
 
-    # Method to get the count of ratings
     def get_rating_count(self, obj):
         reviews = RatingReview.objects.filter(reviewee=obj)
-        return reviews.count()  # Return the count of reviews
+        return reviews.count()
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
@@ -59,8 +66,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     availability = serializers.CharField(required=False)
     profile_image = serializers.ImageField(required=False)
     payment_preference = serializers.CharField(required=False)
-    experience_categories = serializers.ListField(
-        child=serializers.ChoiceField(choices=CustomUser.JOB_TYPE_CHOICES),
+    experience_categories = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(),
+        many=True,
         required=False
     )
     health_status = serializers.CharField(required=False)
@@ -77,6 +85,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        experience_categories_data = validated_data.pop('experience_categories', [])
+
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -89,7 +99,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.certifications = validated_data.get('certifications', '')
             user.availability = validated_data.get('availability', '')
             user.payment_preference = validated_data.get('payment_preference', '')
-            user.experience_categories = ','.join(validated_data.get('experience_categories', []))  # Join the list into a string
 
         if user.is_care_seeker:
             user.health_status = validated_data.get('health_status', '')
@@ -100,4 +109,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.profile_image = validated_data.get('profile_image', None)
 
         user.save()
+
+        # Add experience categories using PrimaryKeyRelatedField
+        if experience_categories_data:
+            user.experience_categories.set(experience_categories_data)  # Link categories to the user
+
         return user

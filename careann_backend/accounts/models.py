@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django_filters import rest_framework as filters
 
-class CustomUser(AbstractUser):
+class ExperienceCategory(models.Model):
     JOB_TYPE_CHOICES = [
         ('Respite Care', 'Respite Care'),
         ('Home Care', 'Home Care'),
@@ -15,6 +15,13 @@ class CustomUser(AbstractUser):
         ('Dementia Care', 'Dementia Care'),
     ]
     
+    name = models.CharField(max_length=255, unique=True)
+    job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)  # Add job_type field with choices
+
+    def __str__(self):
+        return self.name
+
+class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     is_care_seeker = models.BooleanField(default=False)
     is_caregiver = models.BooleanField(default=False)
@@ -25,11 +32,12 @@ class CustomUser(AbstractUser):
     certifications = models.TextField(null=True, blank=True)  # Caregiver-specific
     availability = models.CharField(max_length=255, null=True, blank=True)  # Caregiver-specific
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
-
     payment_preference = models.CharField(max_length=20, null=True, blank=True)
     health_status = models.TextField(null=True, blank=True)
     contact_info = models.CharField(max_length=255, null=True, blank=True)
-    experience_categories = models.CharField(max_length=255, null=True, blank=True, choices=JOB_TYPE_CHOICES)  # This can still hold a single value; consider a ManyToManyField for multiple.
+
+    # Changed this field to ManyToManyField for multiple selections
+    experience_categories = models.ManyToManyField(ExperienceCategory, blank=True)
 
     def __str__(self):
         return self.email
