@@ -15,14 +15,15 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
       const data = { username, password };
       const response = await apiPost('/accounts/login/', data); // Use the API service
-
+  
       localStorage.setItem('token', response.token);
       localStorage.setItem('role', response.role);
-
+      localStorage.setItem('user_id', response.user.id); // Save user ID
+  
       if (response.role === 'care_seeker') {
         navigate('/care-seeker/dashboard');
       } else if (response.role === 'caregiver') {

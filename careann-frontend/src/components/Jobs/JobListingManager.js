@@ -8,6 +8,10 @@ function JobListingManager() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();  // For navigation
 
+    // Debug: Check if the ID is retrieved correctly
+    const currentUserId = parseInt(localStorage.getItem('user_id'), 10);  // Ensure ID is an integer
+    console.log("Current User ID:", currentUserId);  // Debug log
+
     // Fetch jobs posted by the care seeker
     const fetchJobs = async () => {
         setLoading(true);
@@ -15,7 +19,6 @@ function JobListingManager() {
 
         try {
             const token = localStorage.getItem('token');
-            const currentUserId = localStorage.getItem('user_id'); // Assuming user ID is stored in localStorage
 
             const response = await axios.get('http://127.0.0.1:8000/api/jobs/all-jobs/', {
                 headers: {
@@ -23,10 +26,16 @@ function JobListingManager() {
                 },
             });
 
-            // Filter the jobs to only include those posted by the current care seeker
-            const filteredJobs = response.data.filter(job => job.care_seeker === parseInt(currentUserId));
+            console.log("Jobs received:", response.data);  // Log the jobs received from the API
 
-            setJobs(filteredJobs);  // Update jobs state with filtered data
+            // Filter the jobs to only include those posted by the current care seeker
+            if (currentUserId) {
+                const filteredJobs = response.data.filter(job => job.care_seeker.id === currentUserId);
+                setJobs(filteredJobs);  // Update jobs state with filtered data
+            } else {
+                console.error("User ID is null. Cannot filter jobs.");
+                setJobs([]);  // Set jobs to an empty array if user ID is missing
+            }
         } catch (error) {
             setError('Error fetching jobs.');
             console.error('Error fetching jobs:', error);

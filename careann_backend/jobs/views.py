@@ -156,10 +156,32 @@ class OpenJobListView(generics.ListAPIView):
     search_fields = ['location', 'job_type', 'title']
     ordering_fields = ['created_at', 'pay_rate']
 
+class AdminDeletedJobListView(generics.ListAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        # Show only jobs that are marked as 'Deleted'
+        return Job.objects.filter(status='Deleted')
 
 
+# For general job listing with filtering and search capabilities
 class JobListView(generics.ListAPIView):
-    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]  # Anyone can access this view
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['location', 'job_type', 'title']
+    ordering_fields = ['created_at', 'pay_rate']
+
+    def get_queryset(self):
+        """
+        Returns only jobs that are 'Open' and not marked as 'Deleted'.
+        """
+        return Job.objects.filter(status='Open').exclude(status='Deleted')
+
+
+# For fetching all jobs, including non-Open statuses but excluding 'Deleted' jobs
+class AllJobsListView(generics.ListAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -167,25 +189,19 @@ class JobListView(generics.ListAPIView):
     ordering_fields = ['created_at', 'pay_rate']
 
     def get_queryset(self):
-        jobs_queryset = Job.objects.filter(status='Open')  # Fetch only Open jobs
-        
-        return jobs_queryset
-
-
-# For fetching all jobs (without status filtering)
-class AllJobsListView(generics.ListAPIView):
-    queryset = Job.objects.all()  # Fetch all jobs
-    serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['location', 'job_type', 'title']
-    ordering_fields = ['created_at', 'pay_rate']
+        """
+        Return all jobs, excluding those marked as 'Deleted'.
+        """
+        return Job.objects.exclude(status='Deleted')
 
     def list(self, request, *args, **kwargs):
+        """
+        Override the list method to add any custom behavior (if needed).
+        """
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
-       
         return Response(serializer.data)
+    
 
 # For fetching only 'Open' jobs
 class OpenJobsListView(generics.ListAPIView):
@@ -207,11 +223,14 @@ class OpenJobsListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Job.objects.all()
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Job.objects.all()  # Admins can see all jobs
+        return Job.objects.exclude(status='Deleted')  # Regular users can't see deleted jobs
 
     def delete(self, request, *args, **kwargs):
         job = self.get_object()
@@ -220,8 +239,14 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
         if request.user != job.care_seeker and not request.user.is_staff:
             return Response({"error": "You are not authorized to delete this job."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Allow the deletion if the user is the owner or admin
-        return super().delete(request, *args, **kwargs)
+        # Restrict deletion if the job is in 'In Progress' status
+        if job.status == 'In Progress':
+            return Response({"error": "Cannot delete a job that is in progress."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Perform soft delete by updating the status to 'Deleted'
+        job.status = 'Deleted'
+        job.save()
+        return Response({"message": "Job marked as deleted and is now only visible to admins."}, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         job = self.get_object()
@@ -232,8 +257,10 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         # Allow the update if the user is the owner or admin
         return super().update(request, *args, **kwargs)
-    
-    
+
+
+
+
 class JobApplicationCreateView(generics.CreateAPIView):
     queryset = JobApplication.objects.all()
     serializer_class = JobApplicationSerializer
@@ -276,6 +303,16 @@ class JobApplicationListView(generics.ListAPIView):
             return JobApplication.objects.filter(caregiver=user)
         return JobApplication.objects.none()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        response_data = serializer.data  # Get serialized data
+
+        # Log or print the response data
+        print("Response Data:", response_data)  # This will log to your console
+
+        return Response(response_data)  # Return the serialized data as the response
+
 
 
 class JobApplicationUpdateView(generics.RetrieveUpdateAPIView):
@@ -307,6 +344,7 @@ class JobApplicationUpdateView(generics.RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data)
+    
 
 class CaregiverJobsView(generics.ListAPIView):
     serializer_class = JobSerializer

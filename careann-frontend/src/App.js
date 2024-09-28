@@ -42,6 +42,7 @@ import CaregiverDetail from './components/Profile/CareGiverDetail';
 import CareSeekerDetail from './components/Profile/CareSeekerDetail';
 import Review from './components/Reviews/Review';
 import ListReviews from './components/Reviews/ListReviews';   
+import CaregiverProfile from './components/Profile/CaregiverProfile';
 
 function App() {
   const userRole = localStorage.getItem('role');
@@ -98,7 +99,7 @@ function App() {
           {/* Caregiver-specific routes */}
           <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
           <Route path="/caregiver/messaging" element={<Messaging />} />
-          <Route path="/caregiver/profile" element={<CaregiverDashboard />} />
+          <Route path="/caregiver/profile" element={<CaregiverProfile/>} />
           <Route path="/caregiver/search-jobs" element={<CaregiverJobSearch />} />
           <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
           <Route path="caregiver/jobs/:jobId" element={<JobDetail />} />  

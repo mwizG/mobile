@@ -23,7 +23,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience', 'certifications',
+            'location', 'bio', 'experience_categories', 'certifications',
             'availability', 'profile_image'
         )
 
@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience', 'certifications', 
+            'location', 'bio', 'experience_categories', 'certifications', 
             'availability', 'profile_image', 'average_rating', 'rating_count'
         )
 
@@ -51,16 +51,18 @@ class UserSerializer(serializers.ModelSerializer):
     def get_rating_count(self, obj):
         reviews = RatingReview.objects.filter(reviewee=obj)
         return reviews.count()  # Return the count of reviews
-    
+
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)
-    experience = serializers.CharField(required=False)
     certifications = serializers.CharField(required=False)
     availability = serializers.CharField(required=False)
     profile_image = serializers.ImageField(required=False)
     payment_preference = serializers.CharField(required=False)
-    experience_categories = serializers.CharField(required=False)
+    experience_categories = serializers.ListField(
+        child=serializers.ChoiceField(choices=CustomUser.JOB_TYPE_CHOICES),
+        required=False
+    )
     health_status = serializers.CharField(required=False)
     contact_info = serializers.CharField(required=False)
 
@@ -68,8 +70,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'username', 'email', 'password', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience', 'certifications', 'availability', 
-            'profile_image', 'payment_preference', 'experience_categories', 
+            'location', 'bio', 'certifications', 'availability',
+            'profile_image', 'payment_preference', 'experience_categories',
             'health_status', 'contact_info'
         )
         extra_kwargs = {'password': {'write_only': True}}
@@ -84,11 +86,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         if user.is_caregiver:
-            user.experience = validated_data.get('experience', '')
             user.certifications = validated_data.get('certifications', '')
             user.availability = validated_data.get('availability', '')
             user.payment_preference = validated_data.get('payment_preference', '')
-            user.experience_categories = validated_data.get('experience_categories', '')
+            user.experience_categories = ','.join(validated_data.get('experience_categories', []))  # Join the list into a string
 
         if user.is_care_seeker:
             user.health_status = validated_data.get('health_status', '')

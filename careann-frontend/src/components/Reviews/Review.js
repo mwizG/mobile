@@ -75,42 +75,44 @@ function Review() {
     };
 
     return (
-        <div className="review-container">
-            <h2>Submit a Review</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            {reviewee ? (
-                <>
-                    <p>Reviewing: <strong>{reviewee}</strong></p>
-
-                    <label>
-                        Rating (out of 5):
-                        <select value={rating} onChange={(e) => setRating(e.target.value)}>
-                            <option value="0">Select Rating</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </label>
-                    <br />
-                    <label>
-                        Review:
-                        <textarea
-                            value={review}
-                            onChange={(e) => setReview(e.target.value)}
-                            placeholder="Write your review here..."
-                        />
-                    </label>
-                    <br />
-                    <button onClick={submitReview}>Submit Review</button>
-                </>
-            ) : (
-                <p>Loading review information...</p>
-            )}
-        </div>
-    );
+        
+            <div className="review-container">
+                <h2>Submit a Review</h2>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+        
+                {reviewee ? (
+                    <>
+                        <p>Reviewing: <strong>{reviewee.username}</strong></p> {/* Accessing username here */}
+        
+                        <label>
+                            Rating (out of 5):
+                            <select value={rating} onChange={(e) => setRating(e.target.value)}>
+                                <option value="0">Select Rating</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </label>
+                        <br />
+                        <label>
+                            Review:
+                            <textarea
+                                value={review}
+                                onChange={(e) => setReview(e.target.value)}
+                                placeholder="Write your review here..."
+                            />
+                        </label>
+                        <br />
+                        <button onClick={submitReview}>Submit Review</button>
+                    </>
+                ) : (
+                    <p>Loading review information...</p>
+                )}
+            </div>
+        );
+        
 }
 
 export default Review;

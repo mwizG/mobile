@@ -45,7 +45,9 @@ function CaregiverDashboard() {
         { text: "Emergency Contacts", link: "/caregiver/emergency-contacts" },
         { text: "Support & Help", link: "/caregiver/support" },
         { text: "Manage Subscriptions", link: "/caregiver/subscriptions" },
-        { text: "Settings", link: "/caregiver/settings" }
+        { text: "Settings", link: "/caregiver/settings" },
+        { text: "Profile", link: "/caregiver/profile" },
+
     ];
 
     // Function to handle drawer toggle for mobile view

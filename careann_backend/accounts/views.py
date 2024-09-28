@@ -40,6 +40,8 @@ class CareSeekerDetailView(generics.RetrieveAPIView):
         care_seeker_id = self.kwargs['pk']
         return CustomUser.objects.get(id=care_seeker_id, is_care_seeker=True)
 
+
+
 class CaregiverDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
     serializer_class = UserSerializer
