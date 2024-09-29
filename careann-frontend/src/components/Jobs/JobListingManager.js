@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Typography,
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    CircularProgress,
+    Box,
+    Paper,
+} from '@mui/material';
 
 function JobListingManager() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();  // For navigation
+    const navigate = useNavigate(); // For navigation
 
-    // Debug: Check if the ID is retrieved correctly
-    const currentUserId = parseInt(localStorage.getItem('user_id'), 10);  // Ensure ID is an integer
-    console.log("Current User ID:", currentUserId);  // Debug log
+    const currentUserId = parseInt(localStorage.getItem('user_id'), 10); // Ensure ID is an integer
+    console.log("Current User ID:", currentUserId); // Debug log
 
     // Fetch jobs posted by the care seeker
     const fetchJobs = async () => {
         setLoading(true);
-        setError(null);  // Reset error state before fetching
+        setError(null); // Reset error state before fetching
 
         try {
             const token = localStorage.getItem('token');
@@ -26,21 +36,21 @@ function JobListingManager() {
                 },
             });
 
-            console.log("Jobs received:", response.data);  // Log the jobs received from the API
+            console.log("Jobs received:", response.data); // Log the jobs received from the API
 
             // Filter the jobs to only include those posted by the current care seeker
             if (currentUserId) {
                 const filteredJobs = response.data.filter(job => job.care_seeker.id === currentUserId);
-                setJobs(filteredJobs);  // Update jobs state with filtered data
+                setJobs(filteredJobs); // Update jobs state with filtered data
             } else {
                 console.error("User ID is null. Cannot filter jobs.");
-                setJobs([]);  // Set jobs to an empty array if user ID is missing
+                setJobs([]); // Set jobs to an empty array if user ID is missing
             }
         } catch (error) {
             setError('Error fetching jobs.');
             console.error('Error fetching jobs:', error);
         } finally {
-            setLoading(false);  // Stop loading after the fetch is complete
+            setLoading(false); // Stop loading after the fetch is complete
         }
     };
 
@@ -67,55 +77,66 @@ function JobListingManager() {
     };
 
     if (loading) {
-        return <p>Loading jobs...</p>;
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (error) {
-        return <p>{error}</p>;
+        return <Typography color="error">{error}</Typography>;
     }
 
     return (
-        <div className="job-listing-manager-container">
-            <h2>Your Posted Jobs</h2>
+        <Container sx={{ bgcolor: '#f9f9f9', padding: '20px', borderRadius: '8px' }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#4CAF50' }}>
+                Your Posted Jobs
+            </Typography>
 
             {/* If there are no jobs */}
             {jobs.length === 0 ? (
-                <p>No jobs posted yet.</p>
+                <Typography>No jobs posted yet.</Typography>
             ) : (
-                <ul>
-                    {jobs.map(job => (
-                        <li key={job.id} className="job-item">
-                            <p><strong>Title:</strong> {job.title}</p>
-                            <p><strong>Location:</strong> {job.location}</p>
-
-                            {/* View Job Details */}
-                            <button onClick={() => navigate(`/care-seeker/jobs/${job.id}`)}>
-                                View Details
-                            </button>
-
-                            <button onClick={() => navigate(`/care-seeker/jobsUp/${job.id}`)}>
-                                Job State Approvals
-                            </button>
-
-                            {/* View Applications */}
-                            <button onClick={() => navigate(`/care-seeker/jobs/${job.id}/applications`)}>
-                                View Applications
-                            </button>
-
-                            {/* Delete Job */}
-                            <button onClick={() => handleDelete(job.id)}>
-                                Delete Job
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+                <Paper elevation={3} sx={{ padding: '16px', borderRadius: '8px' }}>
+                    <List>
+                        {jobs.map(job => (
+                            <ListItem key={job.id} sx={{ borderBottom: '1px solid #ccc' }}>
+                                <ListItemText
+                                    primary={<strong>{job.title}</strong>}
+                                    secondary={
+                                        <>
+                                            <Typography variant="body2">Location: {job.location}</Typography>
+                                            <Box display="flex" justifyContent="space-between" mt={1}>
+                                                <Button variant="contained" color="primary" onClick={() => navigate(`/care-seeker/jobs/${job.id}`)}>
+                                                    View Details
+                                                </Button>
+                                                <Button variant="outlined" color="secondary" onClick={() => navigate(`/care-seeker/jobsUp/${job.id}`)}>
+                                                    Job State Approvals
+                                                </Button>
+                                                <Button variant="outlined" color="warning" onClick={() => navigate(`/care-seeker/jobs/${job.id}/applications`)}>
+                                                    View Applications
+                                                </Button>
+                                                <Button variant="outlined" color="error" onClick={() => handleDelete(job.id)}>
+                                                    Delete Job
+                                                </Button>
+                                            </Box>
+                                        </>
+                                    }
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Paper>
             )}
 
             {/* Button to post a new job */}
-            <button onClick={() => navigate('/care-seeker/post-job')}>
-                Post a Job
-            </button>
-        </div>
+            <Box mt={2}>
+                <Button variant="contained" color="success" onClick={() => navigate('/care-seeker/post-job')}>
+                    Post a Job
+                </Button>
+            </Box>
+        </Container>
     );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
 
 function JobPostingForm() {
     const [title, setTitle] = useState('');
@@ -9,7 +10,6 @@ function JobPostingForm() {
     const [payRate, setPayRate] = useState('');
     const [proposedTime, setProposedTime] = useState('');
 
-    // List of job types (matching what you have in Django's choices)
     const jobTypes = [
         'Respite Care',
         'Home Care',
@@ -30,7 +30,7 @@ function JobPostingForm() {
                 title,
                 description,
                 location,
-                job_type: jobType,  // Pass the selected job type
+                job_type: jobType,
                 pay_rate: payRate,
                 proposed_time: proposedTime,
             }, {
@@ -45,55 +45,94 @@ function JobPostingForm() {
     };
 
     return (
-        <div>
-            <h2>Post a Job</h2>
+        <Container sx={{ bgcolor: '#e0f2e9', padding: 3, borderRadius: 2 }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#2e7d32' }}>
+                Post a Job
+            </Typography>
             <form onSubmit={handlePostJob}>
-                <input
-                    type="text"
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                />
-                
-                {/* Dropdown for Job Type */}
-                <select
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
-                    required
-                >
-                    <option value="" disabled>Select Job Type</option>
-                    {jobTypes.map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
-                
-                <input
-                    type="number"
-                    placeholder="Pay Rate"
-                    value={payRate}
-                    onChange={(e) => setPayRate(e.target.value)}
-                />
-                <input
-                    type="datetime-local"
-                    placeholder="Proposed Time"
-                    value={proposedTime}
-                    onChange={(e) => setProposedTime(e.target.value)}
-                />
-                <button type="submit">Post Job</button>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Title"
+                            variant="outlined"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            sx={{ bgcolor: '#ffffff' }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Description"
+                            variant="outlined"
+                            multiline
+                            rows={4}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            sx={{ bgcolor: '#ffffff' }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Location"
+                            variant="outlined"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            sx={{ bgcolor: '#ffffff' }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormControl fullWidth>
+                            <InputLabel id="job-type-label">Job Type</InputLabel>
+                            <Select
+                                labelId="job-type-label"
+                                value={jobType}
+                                onChange={(e) => setJobType(e.target.value)}
+                                required
+                                sx={{ bgcolor: '#ffffff' }}
+                            >
+                                <MenuItem value="" disabled>Select Job Type</MenuItem>
+                                {jobTypes.map((type) => (
+                                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Pay Rate"
+                            variant="outlined"
+                            value={payRate}
+                            onChange={(e) => setPayRate(e.target.value)}
+                            sx={{ bgcolor: '#ffffff' }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Proposed Time"
+                            type="datetime-local"
+                            variant="outlined"
+                            value={proposedTime}
+                            onChange={(e) => setProposedTime(e.target.value)}
+                            sx={{ bgcolor: '#ffffff' }}
+                            InputLabelProps={{
+                                shrink: true, // This will keep the label above the input
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" color="primary" type="submit" sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } }}>
+                            Post Job
+                        </Button>
+                    </Grid>
+                </Grid>
             </form>
-        </div>
+        </Container>
     );
 }
 

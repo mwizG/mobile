@@ -13,10 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
 class RatingReviewSerializer(serializers.ModelSerializer):
     reviewer = serializers.ReadOnlyField(source='reviewer.username')
     reviewee = serializers.ReadOnlyField(source='reviewee.username')
-
+    job_title = serializers.ReadOnlyField(source='job.title')
     class Meta:
         model = RatingReview
-        fields = ('id', 'job', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
+        fields = ('id', 'job','job_title', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
 
 class JobApplicationSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Caregiver username
