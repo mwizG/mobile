@@ -37,6 +37,7 @@ import JobApplicationDetails from './components/Jobs/JobApplicationDetails';
 import TaskManagement from './components/Tasks/TaskManagement';  
 import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  
 import JobListingManager from './components/Jobs/JobListingManager';
+import CaregiverList2 from './components/Profile/CaregiverList2'; // Adjust the path as necessary
 
 import CaregiverDetail from './components/Profile/CareGiverDetail'; 
 import CareSeekerDetail from './components/Profile/CareSeekerDetail';
@@ -95,7 +96,8 @@ function App() {
           <Route path="/care-seeker/caregiverlist" element={<CaregiverList />} /> 
           <Route path="/care-seeker/listreviews" element={<ListReviews />} /> 
           <Route path="/jobs/:jobId/review-caregiver" element={<Review />} />
-
+          <Route path="/care-seeker/caregiverlist/:serviceType" element={<CaregiverList2 />} />
+          
           {/* Caregiver-specific routes */}
           <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
           <Route path="/caregiver/messaging" element={<Messaging />} />

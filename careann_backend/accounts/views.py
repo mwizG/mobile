@@ -7,8 +7,10 @@ from .serializers import ExperienceCategorySerializer, UserSerializer, RegisterS
 from . models import CustomUser,CaregiverFilter, ExperienceCategory
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
-from django.db.models import Avg, Count
+from django.db.models import Avg,Q
 from rest_framework import status
+
+
 
 
 
@@ -17,8 +19,6 @@ class CaregiverSearchView(generics.ListAPIView):
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
-
-
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
@@ -130,4 +130,59 @@ class LoginView(ObtainAuthToken):
             'user': UserSerializer(user).data,
             'role': role  # Return role explicitly
         })
-    
+ 
+
+
+
+class CaregiverByJobTypeView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        job_type = self.kwargs['serviceType'].replace('-', ' ')  # Convert to match the database entry
+
+        # Print out the job_type for debugging
+        print(f'Job Type to Filter: "{job_type}"')
+
+        queryset = CustomUser.objects.filter(
+            is_caregiver=True
+        ).filter(
+            Q(experience_cat1__job_type__iexact=job_type) |  # Use iexact for case-insensitive comparison
+            Q(experience_cat2__job_type__iexact=job_type) |
+            Q(experience_cat3__job_type__iexact=job_type)  # Check all experience categories
+        )
+
+        # Print out the queryset for debugging
+        print(f'Queryset for job_type "{job_type}": {queryset}')  
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        print(f'Serialized data before adding ratings and experience categories: {serializer.data}')  # Print serialized data
+
+        # Prepare response data with average ratings and experience categories
+        response_data = []
+        for caregiver_data in serializer.data:
+            caregiver_id = caregiver_data['id']
+            reviews = RatingReview.objects.filter(reviewee_id=caregiver_id)
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+            caregiver_data['average_rating'] = average_rating
+
+            # Serialize experience categories
+            experience_categories = []
+            caregiver = queryset.get(id=caregiver_id)  # Get the full caregiver instance
+            if caregiver.experience_cat1:
+                experience_categories.append(str(caregiver.experience_cat1))
+            if caregiver.experience_cat2:
+                experience_categories.append(str(caregiver.experience_cat2))
+            if caregiver.experience_cat3:
+                experience_categories.append(str(caregiver.experience_cat3))
+
+            caregiver_data['experience_categories'] = experience_categories
+            response_data.append(caregiver_data)  # Collect the updated caregiver data
+
+        print(f'Response data: {response_data}')  # Print final response data
+
+        return Response(response_data)  # Return the modified response data
