@@ -1,6 +1,6 @@
 # In jobs/models.py
 from django.db import models
-from accounts.models import CustomUser
+from accounts.models import CustomUser, ExperienceCategory
 
 class Job(models.Model):
     STATUS_CHOICES = [
@@ -11,24 +11,15 @@ class Job(models.Model):
         ('Deleted', 'Deleted'),  # New status to mark job as deleted
     ]
 
-    JOB_TYPE_CHOICES = [
-        ('Respite Care', 'Respite Care'),
-        ('Home Care', 'Home Care'),
-        ('Senior Care', 'Senior Care'),
-        ('Child Care', 'Child Care'),
-        ('Disability Care', 'Disability Care'),
-        ('Palliative Care', 'Palliative Care'),
-        ('Post-Surgical Care', 'Post-Surgical Care'),
-        ('Maternity Care', 'Maternity Care'),
-        ('Dementia Care', 'Dementia Care'),
-    ]
-
     care_seeker = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='jobs')
     caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assigned_jobs', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255)
-    job_type = models.CharField(max_length=100, choices=JOB_TYPE_CHOICES)
+    
+    # Importing JOB_TYPE_CHOICES from ExperienceCategory
+    job_type = models.CharField(max_length=100, choices=ExperienceCategory.JOB_TYPE_CHOICES)
+    
     pay_rate = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Open')
     scheduled_time = models.DateTimeField(null=True, blank=True)  # Time for the job
@@ -45,6 +36,7 @@ class Job(models.Model):
         permissions = [
             ("view_deleted_job", "Can view deleted job"),
         ]
+
 
     
 

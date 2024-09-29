@@ -51,24 +51,32 @@ class CaregiverDetailView(generics.RetrieveAPIView):
         return CustomUser.objects.get(id=caregiver_id, is_caregiver=True)
 
     def retrieve(self, request, *args, **kwargs):
-        caregiver = self.get_object()
+            caregiver = self.get_object()
 
-        # Fetch all ratings for the caregiver from the RatingReview model
-        reviews = RatingReview.objects.filter(reviewee=caregiver)
-        average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0  # Default to 0 if no reviews
+            # Fetch all ratings for the caregiver from the RatingReview model
+            reviews = RatingReview.objects.filter(reviewee=caregiver)
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0  # Default to 0 if no reviews
 
-        # Get the serialized caregiver data
-        serializer = self.get_serializer(caregiver)
-        caregiver_data = serializer.data
+            # Get the serialized caregiver data
+            serializer = self.get_serializer(caregiver)
+            caregiver_data = serializer.data
 
-        # Manually add experience categories to the response
-        caregiver_data['average_rating'] = average_rating
-        caregiver_data['experience_categories'] = ExperienceCategorySerializer(
-            caregiver.experience_categories.all(), many=True
-        ).data  # Serialize experience categories
+            # Manually add average rating to the response
+            caregiver_data['average_rating'] = average_rating
 
-        return Response(caregiver_data)
+            # Serialize experience categories to avoid non-serializable objects
+            experience_categories = []
+            
+            if caregiver.experience_cat1:
+                experience_categories.append(str(caregiver.experience_cat1))  # Assuming it's a model instance
+            if caregiver.experience_cat2:
+                experience_categories.append(str(caregiver.experience_cat2))
+            if caregiver.experience_cat3:
+                experience_categories.append(str(caregiver.experience_cat3))
 
+            caregiver_data['experience_categories'] = experience_categories
+
+            return Response(caregiver_data)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -77,35 +85,17 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
-        # Create the serializer with incoming data
         serializer = self.get_serializer(data=request.data)
 
         # Check if the serializer data is valid
         if serializer.is_valid():
-            # Save the user instance first
             user = serializer.save()
-            
-            # Get experience category IDs from the request data (it should be a list)
-            experience_category_ids = request.data.get('experience_categories', [])
-            print(f"Received experience categories: {experience_category_ids}")  # Log the received categories
-
-            # If there are experience category IDs provided, add them to the user's profile
-            if experience_category_ids:
-                # Fetch categories based on the received IDs
-                categories = ExperienceCategory.objects.filter(id__in=experience_category_ids)
-                print(f"Fetched categories for IDs {experience_category_ids}: {categories}")  # Log fetched categories
-
-                # Add categories to the user instance's many-to-many relationship
-                user.experience_categories.set(categories)  # Use .set() to avoid duplicates
-
-            # Return the created user's serialized data
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=201)
         else:
             # If the serializer data is not valid, log the errors and return a 400 response
             print("Serializer errors:", serializer.errors)  # Log the errors for debugging
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+            return Response(serializer.errors, status=400)
+        
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer

@@ -8,6 +8,10 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  Avatar,
+  Stack,
+  Divider,
+  Link,
 } from '@mui/material';
 
 function CaregiverDetail() {
@@ -57,18 +61,51 @@ function CaregiverDetail() {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          {caregiver.username}
+        {/* Header Section */}
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+          <Avatar
+            src={caregiver.profile_image}
+            alt={`${caregiver.username}'s profile image`}
+            sx={{ width: 100, height: 100, bgcolor: 'primary.main', fontSize: 40 }}
+          >
+            {caregiver.username.charAt(0)}
+          </Avatar>
+          <Box>
+            <Typography variant="h4" gutterBottom>
+              {caregiver.username}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Email:</strong> {caregiver.email}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Location:</strong> {caregiver.location || 'Not provided'}
+            </Typography>
+          </Box>
+        </Stack>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Caregiver Details Section */}
+        <Typography variant="h6" gutterBottom>
+          About {caregiver.username}
         </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          {caregiver.bio || 'No bio provided.'}
+        </Typography>
+
+        {/* Experience Categories */}
         <Typography variant="body1">
-          <strong>Email:</strong> {caregiver.email}
+          <strong>Experience Categories:</strong>{' '}
+          {[
+            caregiver.experience_cat1,
+            caregiver.experience_cat2,
+            caregiver.experience_cat3,
+          ]
+            .map(cat => (cat && cat.name) || null) // Adjust 'name' to the actual property you want to display
+            .filter(Boolean)
+            .join(', ') || 'No experience categories provided'}
         </Typography>
-        <Typography variant="body1">
-          <strong>Location:</strong> {caregiver.location || 'Not provided'}
-        </Typography>
-        <Typography variant="body1">
-          <strong>Experience Categories:</strong> {caregiver.experience_categories?.map(category => category.name).join(', ') || 'No experience categories provided'}
-        </Typography>
+        
         <Typography variant="body1">
           <strong>Certifications:</strong> {caregiver.certifications || 'No certifications'}
         </Typography>
@@ -76,11 +113,46 @@ function CaregiverDetail() {
           <strong>Availability:</strong> {caregiver.availability || 'Not available'}
         </Typography>
         <Typography variant="body1">
-          <strong>Average Rating:</strong> {caregiver.average_rating ? caregiver.average_rating.toFixed(2) : 'No rating yet'}
+          <strong>Payment Preference:</strong> {caregiver.payment_preference || 'No preference specified'}
+        </Typography>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Ratings Section */}
+        <Typography variant="h6" gutterBottom>
+          Ratings
+        </Typography>
+        <Typography variant="body1">
+          <strong>Average Rating:</strong>{' '}
+          {caregiver.average_rating ? caregiver.average_rating.toFixed(2) : 'No rating yet'}
         </Typography>
         <Typography variant="body1">
           <strong>Number of Ratings:</strong> {caregiver.rating_count || 0}
         </Typography>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Social Links Section */}
+        <Typography variant="h6" gutterBottom>
+          Social Links
+        </Typography>
+        <Box>
+          {caregiver.social_links && caregiver.social_links.length > 0 ? (
+            caregiver.social_links.map((link, index) => (
+              <Link
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ display: 'block', mb: 1, textDecoration: 'none', color: 'primary.main' }}
+              >
+                {link.platform}: {link.url}
+              </Link>
+            ))
+          ) : (
+            <Typography variant="body1">No social links provided.</Typography>
+          )}
+        </Box>
       </Paper>
     </Container>
   );

@@ -14,20 +14,19 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Chip,
-  OutlinedInput,
 } from '@mui/material';
 
+// Experience category options
 const experienceOptions = [
-  'Respite Care',
-  'Home Care',
-  'Senior Care',
-  'Child Care',
-  'Disability Care',
-  'Palliative Care',
-  'Post-Surgical Care',
-  'Maternity Care',
-  'Dementia Care',
+  { id: 1, name: 'Respite Care' },
+  { id: 2, name: 'Home Care' },
+  { id: 3, name: 'Senior Care' },
+  { id: 4, name: 'Child Care' },
+  { id: 5, name: 'Disability Care' },
+  { id: 6, name: 'Palliative Care' },
+  { id: 7, name: 'Post-Surgical Care' },
+  { id: 8, name: 'Maternity Care' },
+  { id: 9, name: 'Dementia Care' },
 ];
 
 function Register() {
@@ -39,7 +38,9 @@ function Register() {
     is_caregiver: false,
     location: '',
     bio: '',
-    experience_categories: [], // Changed to an array for multiple selections
+    experience_cat1: '', // New field for experience category 1
+    experience_cat2: '', // New field for experience category 2
+    experience_cat3: '', // New field for experience category 3
     certifications: '',
     availability: '',
     payment_preference: '',
@@ -73,19 +74,12 @@ function Register() {
     });
   };
 
-  const handleExperienceChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-
-    // Allow maximum of 3 selections
-    const selected = typeof value === 'string' ? value.split(',') : value;
-    if (selected.length <= 3) {
-      setFormData({
-        ...formData,
-        experience_categories: selected, // Updated to experience_categories
-      });
-    }
+  const handleExperienceChange = (field, event) => {
+    const { value } = event.target;
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -93,18 +87,9 @@ function Register() {
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== null && formData[key] !== undefined) {
-        if (Array.isArray(formData[key])) {
-          formData[key].forEach((item) => data.append(`${key}[]`, item)); // Append each category as an array item
-        } else {
-          data.append(key, formData[key]);
-        }
+        data.append(key, formData[key]);
       }
     });
-
-    // Log the form data for debugging
-    for (const [key, value] of data.entries()) {
-      console.log(`${key}: ${value}`);
-    }
 
     try {
       await axios.post('http://127.0.0.1:8000/api/accounts/register/', data, {
@@ -114,7 +99,6 @@ function Register() {
       });
       navigate('/login');
     } catch (error) {
-      // Capture and log the error response
       if (error.response) {
         console.error('Registration failed', error.response.data);
         alert(`Registration failed: ${error.response.data.detail || 'Unknown error'}`);
@@ -255,26 +239,47 @@ function Register() {
               onChange={handleChange}
             />
 
-            {/* Experience Categories Dropdown */}
+            {/* Experience Categories Dropdowns */}
             <FormControl fullWidth margin="normal">
-              <InputLabel id="experience-categories-label">Experience Categories (select a max of 3)</InputLabel>
+              <InputLabel id="experience-cat1-label">Experience Category 1</InputLabel>
               <Select
-                labelId="experience-categories-label"
-                multiple
-                value={formData.experience_categories}
-                onChange={handleExperienceChange}
-                input={<OutlinedInput label="Experience Categories" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value} sx={{ m: 0.5 }} />
-                    ))}
-                  </Box>
-                )}
+                labelId="experience-cat1-label"
+                value={formData.experience_cat1}
+                onChange={(e) => handleExperienceChange('experience_cat1', e)}
               >
                 {experienceOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="experience-cat2-label">Experience Category 2</InputLabel>
+              <Select
+                labelId="experience-cat2-label"
+                value={formData.experience_cat2}
+                onChange={(e) => handleExperienceChange('experience_cat2', e)}
+              >
+                {experienceOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="experience-cat3-label">Experience Category 3</InputLabel>
+              <Select
+                labelId="experience-cat3-label"
+                value={formData.experience_cat3}
+                onChange={(e) => handleExperienceChange('experience_cat3', e)}
+              >
+                {experienceOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
                   </MenuItem>
                 ))}
               </Select>
