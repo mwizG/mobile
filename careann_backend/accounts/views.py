@@ -11,14 +11,12 @@ from django.db.models import Avg,Q
 from rest_framework import status
 
 
-
-
-
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
+
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
@@ -28,6 +26,21 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # Return the profile of the currently authenticated user
         return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        # Print the response data to the console
+        print('Serialized data:', serializer.data)
+
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        # Log the incoming request data
+        print('Request data for update:', request.data)
+
+        return super().update(request, *args, **kwargs)
 
 class CareSeekerDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.filter(is_care_seeker=True)

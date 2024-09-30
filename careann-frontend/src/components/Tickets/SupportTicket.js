@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, TextField, Button, Typography, Grid } from '@mui/material';
@@ -7,7 +6,7 @@ function SupportTicket() {
   const [issue, setIssue] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
+
   const handleCreateTicket = async (e) => {
     e.preventDefault();
     try {
@@ -17,10 +16,13 @@ function SupportTicket() {
         return;
       }
 
+      // Adjust payload to match backend expectations
+      const payload = { issue }; // Ensure this matches your serializer's field names
+
       // Post request to create a support ticket
       const response = await axios.post(
         'http://127.0.0.1:8000/api/admin_panel/ticket/create/',
-        { issue }, // Send the issue field as the request body
+        payload,
         {
           headers: {
             Authorization: `Token ${token}`, // Pass the token in the request header
@@ -35,7 +37,14 @@ function SupportTicket() {
         alert('Support ticket created successfully!');
       }
     } catch (error) {
-      setError('Error creating support ticket. Please try again.');
+      // Log the error response to identify the issue
+      if (error.response && error.response.data) {
+        console.error('Error response:', error.response.data);
+        setError(`Error: ${JSON.stringify(error.response.data)}`);
+      } else {
+        console.error('Error:', error.message);
+        setError('Error creating support ticket. Please try again.');
+      }
     }
   };
 

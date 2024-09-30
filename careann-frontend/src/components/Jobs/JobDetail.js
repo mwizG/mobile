@@ -76,7 +76,10 @@ function JobDetail() {
             </Box>
         );
     }
-
+    const goToCareseekerProfile = (careSeekerId) => {
+        if (careSeekerId) {
+            navigate(`/careseeker/${careSeekerId}`);
+        }};
     return (
         <Box 
             display="flex" 
@@ -101,6 +104,31 @@ function JobDetail() {
                     <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
                         <strong>Job Type:</strong> {job.job_type}
                     </Typography>
+
+                    <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        fontFamily: 'Roboto, sans-serif', 
+                                        color: '#616161', 
+                                        mb: 1, // Shortened marginBottom syntax
+                                        display: 'flex', 
+                                        alignItems: 'center' 
+                                    }}
+                                >
+                                    <strong>Posted by:</strong>{' '}
+                                    <span 
+                                        className="careseeker-link" 
+                                        style={{ 
+                                            color: 'blue', 
+                                            cursor: 'pointer', 
+                                            marginLeft: '4px'  // Added spacing between "Posted by:" and the username
+                                        }} 
+                                        onClick={() => goToCareseekerProfile(job.care_seeker?.id)}
+                                    >
+                                        {job.care_seeker?.username || 'N/A'}
+                                    </span>
+                                </Typography>
+
                     <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
                         <strong>Description:</strong> {job.description}
                     </Typography>

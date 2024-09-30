@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Button, CircularProgress, Grid, Box } from '@mui/material';
 import '@fontsource/poppins'; // Import for creative typography
 import '@fontsource/roboto';  // Additional font for body text
@@ -9,6 +9,7 @@ function JobList({ fetchAll = false }) {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const navigate = useNavigate(); // Added useNavigate hook to navigate to profiles
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -34,6 +35,12 @@ function JobList({ fetchAll = false }) {
         };
         fetchJobs();
     }, [fetchAll]);
+
+    const goToCareseekerProfile = (careSeekerId) => {
+        if (careSeekerId) {
+            navigate(`/careseeker/${careSeekerId}`);
+        }
+    };
 
     if (loading) {
         return <CircularProgress />;
@@ -88,11 +95,33 @@ function JobList({ fetchAll = false }) {
                                     sx={{ 
                                         fontFamily: 'Roboto, sans-serif', 
                                         color: '#616161', 
+                                        mb: 1, // Shortened marginBottom syntax
+                                        display: 'flex', 
+                                        alignItems: 'center' 
+                                    }}
+                                >
+                                    <strong>Posted by:</strong>{' '}
+                                    <span 
+                                        className="careseeker-link" 
+                                        style={{ 
+                                            color: 'blue', 
+                                            cursor: 'pointer', 
+                                            marginLeft: '4px'  // Added spacing between "Posted by:" and the username
+                                        }} 
+                                        onClick={() => goToCareseekerProfile(job.care_seeker?.id)}
+                                    >
+                                        {job.care_seeker?.username || 'N/A'}
+                                    </span>
+                                </Typography>
+
+                                <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        fontFamily: 'Roboto, sans-serif', 
+                                        color: '#616161', 
                                         marginBottom: 1 
                                     }}
                                 >
-                                
-                                
                                     {job.job_type}
                                 </Typography>
                                 <Typography 
@@ -103,7 +132,6 @@ function JobList({ fetchAll = false }) {
                                         marginBottom: 1 
                                     }}
                                 >
-
                                     {job.description}
                                 </Typography>
                                 <Typography 

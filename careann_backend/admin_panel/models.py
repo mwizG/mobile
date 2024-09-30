@@ -4,9 +4,14 @@ from jobs.models import Job, RatingReview
 
 # Updated SupportTicket model
 class SupportTicket(models.Model):
+    status_type=[
+        ('Open','Open'),
+        ('Closed','Closed'),
+    ]
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tickets')
     issue = models.TextField()
-    status = models.CharField(max_length=50, default='Open')  # Status: Open, Resolved
+    status = models.CharField(max_length=50, choices=status_type, default='Open')
+  # Status: Open, Resolved
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='resolved_tickets')  # New field
     resolution_notes = models.TextField(null=True, blank=True)  # New field

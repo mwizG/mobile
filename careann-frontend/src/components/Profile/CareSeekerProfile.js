@@ -1,96 +1,194 @@
-// src/components/CareSeekerProfile.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  CircularProgress,
+  Alert,
+  Stack,
+  Divider,
+  Button,
+  TextField,
+} from '@mui/material';
 
-function CareSeekerProfile() {
-    const [profile, setProfile] = useState({
-        location: '',
-        bio: '',
-        health_status: '',
-        contact_info: '',
-        profile_image: null,
+function CareSeekerDetail() {
+  const [careSeeker, setCareSeeker] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editMode, setEditMode] = useState(false); // State to toggle between view and edit mode
+  const [profile, setProfile] = useState({
+    email: '',
+    location: '',
+    health_status: '',
+    contact_info: '',
+  });
+
+  useEffect(() => {
+    const fetchCareSeeker = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://127.0.0.1:8000/api/accounts/profile/', {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        setCareSeeker(response.data);
+        setProfile(response.data); // Set profile state with fetched care seeker data
+      } catch (error) {
+        setError('Error fetching care seeker details. Please try again later.');
+        console.error('Error fetching care seeker details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCareSeeker();
+  }, []);
+
+  // Handle profile input change
+  const handleChange = (e) => {
+    setProfile({
+      ...profile,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://your-backend-api-url/api/profile/', {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                });
-                setProfile(response.data);
-            } catch (error) {
-                console.error('Error fetching profile', error);
-            }
-        };
+  // Handle form submission for profile update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put('http://127.0.0.1:8000/api/accounts/profile/', profile, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+      alert('Profile updated successfully');
+      setEditMode(false); // Switch back to view mode
+      // Optionally re-fetch updated data to reflect changes immediately
+      const updatedProfile = await axios.get('http://127.0.0.1:8000/api/accounts/profile/', {
+        headers: { Authorization: `Token ${token}` },
+      });
+      setCareSeeker(updatedProfile.data);
+    } catch (error) {
+      console.error('Error updating profile', error);
+      setError('Error updating profile. Please try again.');
+    }
+  };
 
-        fetchProfile();
-    }, []);
-
-    const handleChange = (e) => {
-        setProfile({
-            ...profile,
-            [e.target.name]: e.target.value,
-        });
-    };
-
-    const handleImageChange = (e) => {
-        setProfile({
-            ...profile,
-            profile_image: e.target.files[0],
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            const formData = new FormData();
-            for (let key in profile) {
-                formData.append(key, profile[key]);
-            }
-            await axios.put('http://your-backend-api-url/api/profile/', formData, {
-                headers: {
-                    Authorization: `Token ${token}`,
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            alert('Profile updated successfully');
-        } catch (error) {
-            console.error('Error updating profile', error);
-        }
-    };
-
+  if (loading) {
     return (
-        <div className="profile-container">
-            <h2>Manage Profile</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Location:</label>
-                    <input name="location" value={profile.location} onChange={handleChange} />
-                </div>
-                <div>
-                    <label>Bio:</label>
-                    <textarea name="bio" value={profile.bio} onChange={handleChange} />
-                </div>
-                <div>
-                    <label>Health Status:</label>
-                    <textarea name="health_status" value={profile.health_status} onChange={handleChange} />
-                </div>
-                <div>
-                    <label>Contact Info:</label>
-                    <input name="contact_info" value={profile.contact_info} onChange={handleChange} />
-                </div>
-                <div>
-                    <label>Profile Image:</label>
-                    <input type="file" name="profile_image" onChange={handleImageChange} />
-                </div>
-                <button type="submit">Update Profile</button>
-            </form>
-        </div>
+      <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>Loading care seeker details...</Typography>
+      </Container>
     );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        {/* Header Section */}
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+          <Box>
+            <Typography variant="h4" gutterBottom>
+              {careSeeker.username}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Email:</strong> {careSeeker.email}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Location:</strong> {careSeeker.location || 'Not provided'}
+            </Typography>
+          </Box>
+        </Stack>
+
+        <Divider sx={{ my: 3 }} />
+
+        {editMode ? (
+          <form onSubmit={handleSubmit}>
+            {/* Form fields to update care seeker profile */}
+            <TextField
+              label="Email"
+              name="email"
+              value={profile.email}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Location"
+              name="location"
+              value={profile.location}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Health Status"
+              name="health_status"
+              value={profile.health_status}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Contact Info"
+              name="contact_info"
+              value={profile.contact_info}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+              Save Changes
+            </Button>
+            <Button
+              variant="text"
+              color="secondary"
+              onClick={() => setEditMode(false)} // Cancel edit mode
+              sx={{ mt: 2 }}
+            >
+              Cancel
+            </Button>
+          </form>
+        ) : (
+          <>
+            {/* View mode */}
+            <Typography variant="h6" gutterBottom>
+              About {careSeeker.username}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Email:</strong> {careSeeker.email}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Location:</strong> {careSeeker.location || 'Not provided'}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Health Status:</strong> {careSeeker.health_status || 'No health status provided'}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Contact Info:</strong> {careSeeker.contact_info || 'No contact info provided'}
+            </Typography>
+
+            <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={() => setEditMode(true)}>
+              Edit Profile
+            </Button>
+          </>
+        )}
+      </Paper>
+    </Container>
+  );
 }
 
-export default CareSeekerProfile;
+export default CareSeekerDetail;
