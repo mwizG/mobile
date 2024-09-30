@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Typography,
+    Button,
+    Paper,
+    Alert,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    CircularProgress,
+} from '@mui/material';
+
+const API_URL = 'http://127.0.0.1:8000/api/jobs/';
 
 function JobUpdate() {
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
     const [userRole, setUserRole] = useState('');
     const [error, setError] = useState('');
-    const [status, setStatus] = useState(''); // Job status controlled by the caregiver
+    const [status, setStatus] = useState('');
+    const [loading, setLoading] = useState(true); // For loading state
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -15,19 +30,21 @@ function JobUpdate() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    navigate('/login'); // Redirect to login if no token
+                    navigate('/login');
                     return;
                 }
 
-                const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${jobId}/`, {
+                const response = await axios.get(`${API_URL}${jobId}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
                 });
                 setJob(response.data);
-                setStatus(response.data.status); // Set the initial status
+                setStatus(response.data.status);
             } catch (error) {
                 setError('Error fetching job details.');
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -37,37 +54,33 @@ function JobUpdate() {
         fetchJob();
     }, [jobId, navigate]);
 
-    // Caregiver completes the job, sets status to "Awaiting Approval"
     const completeJob = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/update-status/`, { status: 'Awaiting Approval' }, {
+            await axios.patch(`${API_URL}${jobId}/update-status/`, { status: 'Awaiting Approval' }, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
-            setStatus('Awaiting Approval'); // Update the local state to reflect the new status
+            setStatus('Awaiting Approval');
             alert('Job status updated to "Awaiting Approval". Awaiting care seeker approval.');
         } catch (error) {
             setError('Error updating job status.');
         }
     };
 
-    // Care Seeker approves or rejects job completion
     const updateSeekerStatus = async (newStatus) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/approve-completion/`, { status: newStatus }, {
+            await axios.patch(`${API_URL}${jobId}/approve-completion/`, { status: newStatus }, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
 
             if (newStatus === 'Completed') {
-                // Redirect to review page after approval
-                navigate(`/jobs/${jobId}/review`);
+                navigate(`/jobs/${jobId}/review-caregiver`);
             } else if (newStatus === 'In Progress') {
-                // If rejected, revert to "In Progress"
                 setStatus('In Progress');
             }
         } catch (error) {
@@ -75,50 +88,60 @@ function JobUpdate() {
         }
     };
 
-    // Caregiver reviews the care seeker after the job is marked completed
-    const redirectToReviewCareSeeker = () => {
-        navigate(`/jobs/${jobId}/review-care-seeker`);
-    };
-
-    // Care Seeker reviews the caregiver after the job is marked completed
     const redirectToReviewCaregiver = () => {
         navigate(`/jobs/${jobId}/review-caregiver`);
     };
 
-    if (!job) return <div>Loading job details...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <CircularProgress />;
+    if (error) return <Alert severity="error">{error}</Alert>;
 
     return (
-        <div className="job-detail-container">
-            <h2>{job.title}</h2>
-            <p><strong>Description:</strong> {job.description}</p>
-            <p><strong>Status:</strong> {status}</p>
+        <Container component={Paper} elevation={3} sx={{ padding: '20px', bgcolor: '#f9f9f9' }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#388e3c' }}>
+                Job Details: {job.title}
+            </Typography>
+            <Typography variant="h6">Description:</Typography>
+            <Typography>{job.description}</Typography>
+            <Typography variant="h6">Status:</Typography>
+            <Typography sx={{ fontWeight: 'bold', color: '#388e3c' }}>{status}</Typography>
 
-            {/* Caregiver can click to complete the job and set status to "Awaiting Approval" */}
             {userRole === 'caregiver' && job.status !== 'Completed' && job.status !== 'Awaiting Approval' && (
-                <button onClick={completeJob}>Complete Job</button>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={completeJob}
+                    sx={{ marginTop: '20px' }}
+                >
+                    Complete Job
+                </Button>
             )}
 
-            {/* Care Seeker can choose between "Approve" and "Reject" when job is awaiting approval */}
             {userRole === 'care_seeker' && job.status === 'Awaiting Approval' && (
-                <div>
-                    <label>Approve or Reject Completion:</label>
-                    <select
+                <FormControl variant="outlined" fullWidth sx={{ marginTop: '20px' }}>
+                    <InputLabel>Approve or Reject Completion</InputLabel>
+                    <Select
                         value={status}
                         onChange={(e) => updateSeekerStatus(e.target.value)}
+                        label="Approve or Reject Completion"
                     >
-                        <option value="Completed">Approve (Completed)</option>
-                        <option value="In Progress">Reject (In Progress)</option>
-                    </select>
-                </div>
+                        <MenuItem value="non">-----</MenuItem>
+                        <MenuItem value="Completed">Approve (Completed)</MenuItem>
+                        <MenuItem value="In Progress">Reject (In Progress)</MenuItem>
+                    </Select>
+                </FormControl>
             )}
 
-
-            {/* Care Seeker reviews caregiver after the job is marked completed */}
             {userRole === 'care_seeker' && job.status === 'Completed' && (
-                <button onClick={redirectToReviewCaregiver}>Review Care Giver</button>
+                <Button 
+                    variant="contained" 
+                    color="success" 
+                    onClick={redirectToReviewCaregiver}
+                    sx={{ marginTop: '20px' }}
+                >
+                    Review Caregiver
+                </Button>
             )}
-        </div>
+        </Container>
     );
 }
 

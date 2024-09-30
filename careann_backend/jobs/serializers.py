@@ -2,14 +2,21 @@ from rest_framework import serializers
 from .models import Job
 from .models import JobApplication
 from .models import RatingReview, Task
+from accounts.models import CustomUser
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email']  # Include fields you want to display for the user
+
 
 class RatingReviewSerializer(serializers.ModelSerializer):
     reviewer = serializers.ReadOnlyField(source='reviewer.username')
     reviewee = serializers.ReadOnlyField(source='reviewee.username')
-
+    job_title = serializers.ReadOnlyField(source='job.title')
     class Meta:
         model = RatingReview
-        fields = ('id', 'job', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
+        fields = ('id', 'job','job_title', 'reviewer', 'reviewee', 'rating', 'review', 'created_at')
 
 class JobApplicationSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Caregiver username
@@ -39,10 +46,9 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         validated_data['caregiver'] = caregiver
         return super().create(validated_data)
 
-
 class JobSerializer(serializers.ModelSerializer):
-    care_seeker = serializers.ReadOnlyField(source='care_seeker.username')
-    caregiver = serializers.ReadOnlyField(source='caregiver.username')  # Added to include caregiver's username
+    care_seeker = UserSerializer(read_only=True)  # Use nested UserSerializer
+    caregiver = UserSerializer(read_only=True)  # Use nested UserSerializer
     has_applied = serializers.SerializerMethodField()  # New field to check if the user has applied
 
     class Meta:
@@ -62,7 +68,6 @@ class JobSerializer(serializers.ModelSerializer):
             # Check if the current user (caregiver) has already applied for this job
             return JobApplication.objects.filter(job=obj, caregiver=request.user).exists()
         return False
-    
 
 class TaskSerializer(serializers.ModelSerializer):
     caregiver = serializers.ReadOnlyField(source='caregiver.username')

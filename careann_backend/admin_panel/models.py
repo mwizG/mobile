@@ -2,17 +2,24 @@ from django.db import models
 from accounts.models import CustomUser
 from jobs.models import Job, RatingReview
 
-# Existing SupportTicket model
+# Updated SupportTicket model
 class SupportTicket(models.Model):
+    status_type=[
+        ('Open','Open'),
+        ('Closed','Closed'),
+    ]
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tickets')
     issue = models.TextField()
-    status = models.CharField(max_length=50, default='Open')  # Status: Open, Resolved
+    status = models.CharField(max_length=50, choices=status_type, default='Open')
+  # Status: Open, Resolved
     created_at = models.DateTimeField(auto_now_add=True)
+    resolved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='resolved_tickets')  # New field
+    resolution_notes = models.TextField(null=True, blank=True)  # New field
 
     def __str__(self):
         return f"Ticket from {self.user.username} - {self.status}"
 
-# New Dispute model
+# Updated Dispute model
 class Dispute(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -28,6 +35,8 @@ class Dispute(models.Model):
     resolution = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    resolved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='resolved_disputes')  # New field
+    assigned_moderator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='moderated_disputes')  # New field
 
     def __str__(self):
         return f"Dispute by {self.created_by.username} against {self.against_user.username}"

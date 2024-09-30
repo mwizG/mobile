@@ -1,7 +1,6 @@
 # In jobs/models.py
-
 from django.db import models
-from accounts.models import CustomUser
+from accounts.models import CustomUser, ExperienceCategory
 
 class Job(models.Model):
     STATUS_CHOICES = [
@@ -9,24 +8,35 @@ class Job(models.Model):
         ('In Progress', 'In Progress'),
         ('Completed', 'Completed'),
         ('Declined', 'Declined'),
+        ('Deleted', 'Deleted'),  # New status to mark job as deleted
     ]
-    
+
     care_seeker = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='jobs')
     caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assigned_jobs', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255)
-    job_type = models.CharField(max_length=100)
+    
+    # Importing JOB_TYPE_CHOICES from ExperienceCategory
+    job_type = models.CharField(max_length=100, choices=ExperienceCategory.JOB_TYPE_CHOICES)
+    
     pay_rate = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Open')
     scheduled_time = models.DateTimeField(null=True, blank=True)  # Time for the job
     proposed_time = models.DateTimeField(null=True, blank=True)  # Time proposed by care seeker
     accepted_time = models.DateTimeField(null=True, blank=True)  # Time accepted by caregiver
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set to Zambian time on creation
-    updated_at = models.DateTimeField(auto_now=True)      # Automatically set to Zambian time on update
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        # Add custom permissions for admins
+        permissions = [
+            ("view_deleted_job", "Can view deleted job"),
+        ]
+
 
     
 

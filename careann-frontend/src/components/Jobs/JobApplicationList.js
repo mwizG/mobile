@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Typography,
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    CircularProgress,
+    Box,
+    Paper,
+    Alert,
+} from '@mui/material';
 
 function JobApplicationList() {
-    const { jobId } = useParams();  // Extract jobId from the URL
+    const { jobId } = useParams(); // Extract jobId from the URL
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // For navigation
 
     useEffect(() => {
         const fetchApplications = async () => {
+            setLoading(true);
+            setError(null); // Reset error state before fetching
+
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -30,16 +45,16 @@ function JobApplicationList() {
                     ? response.data.filter(application => application.job === parseInt(jobId))
                     : response.data;
 
-                setApplications(filteredApplications);
+                setApplications(filteredApplications); // Update applications state
             } catch (error) {
                 console.error('Error fetching job applications:', error);
                 setError('Error fetching job applications.');
             } finally {
-                setLoading(false);
+                setLoading(false); // Stop loading after the fetch is complete
             }
         };
 
-        fetchApplications();
+        fetchApplications(); // Fetch applications when the component mounts
     }, [jobId]);
 
     const handleViewDetails = (applicationId) => {
@@ -48,30 +63,54 @@ function JobApplicationList() {
     };
 
     if (loading) {
-        return <p>Loading applications...</p>;
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (error) {
-        return <p>{error}</p>;
+        return <Alert severity="error" style={{ margin: '20px' }}>{error}</Alert>;
     }
 
     return (
-        <div className="job-application-list">
+        <Container sx={{ bgcolor: '#f9f9f9', padding: '20px', borderRadius: '8px' }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#4CAF50' }}>
+                Job Applications
+            </Typography>
+
             {applications.length === 0 ? (
-                <p>No applications found for this job.</p>
+                <Typography>No applications found for this job.</Typography>
             ) : (
-                <ul>
-                    {applications.map((application) => (
-                        <li key={application.id}>
-                            <p><strong>Job:</strong> {application.job_title}</p>
-                            <p><strong>Applicant:</strong> {application.caregiver}</p>
-                            <p><strong>Status:</strong> {application.status}</p>
-                            <button onClick={() => handleViewDetails(application.id)}>View Details</button>
-                        </li>
-                    ))}
-                </ul>
+                <Paper elevation={3} sx={{ padding: '16px', borderRadius: '8px' }}>
+                    <List>
+                        {applications.map((application) => (
+                            <ListItem key={application.id} sx={{ borderBottom: '1px solid #ccc' }}>
+                                <ListItemText
+                                    primary={<strong>{application.job_title}</strong>}
+                                    secondary={
+                                        <>
+                                            <Typography variant="body2"><strong>Applicant:</strong> {application.caregiver}</Typography>
+                                            <Typography variant="body2"><strong>Status:</strong> {application.status}</Typography>
+                                            <Box display="flex" justifyContent="flex-end" mt={1}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    onClick={() => handleViewDetails(application.id)}
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </Box>
+                                        </>
+                                    }
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Paper>
             )}
-        </div>
+        </Container>
     );
 }
 

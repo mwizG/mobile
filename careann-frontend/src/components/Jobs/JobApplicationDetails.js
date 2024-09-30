@@ -1,14 +1,25 @@
+// src/components/JobApplicationDetail.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Typography,
+    Button,
+    Alert,
+    Paper,
+    Box,
+} from '@mui/material';
+
+const API_URL = 'http://127.0.0.1:8000/api/jobs/';
 
 function JobApplicationDetail() {
-    const { id } = useParams(); // Get the job ID from the URL
+    const { id } = useParams();
     const navigate = useNavigate();
     const [job, setJob] = useState(null);
-    const [application, setApplication] = useState(null); // State for the application details
-    const [userRole, setUserRole] = useState(''); // State for the user's role
-    const [error, setError] = useState(''); // Error state for handling issues
+    const [application, setApplication] = useState(null);
+    const [userRole, setUserRole] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchJobAndApplication = async () => {
@@ -20,21 +31,21 @@ function JobApplicationDetail() {
                 }
 
                 // Fetch job details
-                const jobResponse = await axios.get(`http://127.0.0.1:8000/api/jobs/${id}/`, {
+                const jobResponse = await axios.get(`${API_URL}${id}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
                 });
                 setJob(jobResponse.data);
 
-                // Fetch the applications for this job
-                const applicationResponse = await axios.get(`http://127.0.0.1:8000/api/jobs/${id}/applications/`, {
+                // Fetch applications for this job
+                const applicationResponse = await axios.get(`${API_URL}${id}/applications/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                     },
                 });
 
-                // Get the logged-in user's ID from the token (assuming you have an endpoint to fetch user details)
+                // Fetch logged-in user's ID
                 const userResponse = await axios.get('http://127.0.0.1:8000/api/accounts/profile', {
                     headers: {
                         Authorization: `Token ${token}`,
@@ -42,7 +53,7 @@ function JobApplicationDetail() {
                 });
                 const loggedInUserId = userResponse.data.id;
 
-                // Find the application where the logged-in user is the caregiver
+                // Find current application
                 const currentApplication = applicationResponse.data.find(app => app.caregiver_id === loggedInUserId);
                 if (currentApplication) {
                     setApplication(currentApplication);
@@ -65,11 +76,10 @@ function JobApplicationDetail() {
         fetchJobAndApplication();
     }, [id]);
 
-    // Define the handleAcceptJobTime function
     const handleAcceptJobTime = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/accept/`, {}, {
+            await axios.patch(`${API_URL}${id}/accept/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
@@ -82,11 +92,10 @@ function JobApplicationDetail() {
         }
     };
 
-    // Define the handleDeclineJob function
     const handleDeclineJob = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://127.0.0.1:8000/api/jobs/${id}/decline/`, {}, {
+            await axios.patch(`${API_URL}${id}/decline/`, {}, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
@@ -104,28 +113,43 @@ function JobApplicationDetail() {
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <Alert severity="error">{error}</Alert>;
     }
 
     return (
-        <div className="job-detail-container">
-            <h2>{job.title}</h2>
-            <p><strong>Description:</strong> {job.description}</p>
-            <p><strong>Location:</strong> {job.location}</p>
-            <p><strong>Pay Rate:</strong> K{job.pay_rate}</p>
-            <p><strong>Application Status:</strong> {application.status}</p> {/* Show application status */}
-            <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'No proposed time'}</p>
+        <Container component={Paper} elevation={3} sx={{ padding: '20px', borderRadius: '8px', bgcolor: '#f9f9f9' }}>
+            <Typography variant="h4" gutterBottom>
+                {job.title}
+            </Typography>
+            <Typography variant="h6">
+                <strong>Description:</strong> {job.description}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Location:</strong> {job.location}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Pay Rate:</strong> K{job.pay_rate}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Application Status:</strong> {application.status}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'No proposed time'}
+            </Typography>
 
-            <div>
-                {/* Caregiver can only accept or decline jobs based on accepted status */}
+            <Box mt={3}>
                 {userRole === 'caregiver' && application.status === 'Accepted' && (
                     <>
-                        <button onClick={handleAcceptJobTime}>Accept Job</button>
-                        <button onClick={handleDeclineJob}>Decline Job</button>
+                        <Button variant="contained" color="primary" onClick={handleAcceptJobTime} sx={{ mr: 2 }}>
+                            Accept Job
+                        </Button>
+                        <Button variant="contained" color="secondary" onClick={handleDeclineJob}>
+                            Decline Job
+                        </Button>
                     </>
                 )}
-            </div>
-        </div>
+            </Box>
+        </Container>
     );
 }
 

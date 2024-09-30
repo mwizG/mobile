@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../services/api'; // Import the API service
+import { TextField, Button, Typography, Container, CircularProgress, Box } from '@mui/material';
+import '@fontsource/poppins';  // Creative typography import
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -13,14 +15,15 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
       const data = { username, password };
       const response = await apiPost('/accounts/login/', data); // Use the API service
-
+  
       localStorage.setItem('token', response.token);
       localStorage.setItem('role', response.role);
-
+      localStorage.setItem('user_id', response.user.id); // Save user ID
+  
       if (response.role === 'care_seeker') {
         navigate('/care-seeker/dashboard');
       } else if (response.role === 'caregiver') {
@@ -39,29 +42,57 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: '600', color: '#388e3c' }}
+          gutterBottom
+        >
+          Login
+        </Typography>
+        {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+      </Box>
+      
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
+          sx={{ fontFamily: 'Poppins, sans-serif' }}
         />
-        <input
+        <TextField
+          label="Password"
           type="password"
-          placeholder="Password"
+          variant="outlined"
+          fullWidth
+          margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
+          sx={{ fontFamily: 'Poppins, sans-serif' }}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={loading}
+          sx={{ 
+            mt: 2, 
+            fontFamily: 'Poppins, sans-serif', 
+            fontWeight: '600', 
+            backgroundColor: '#81c784',
+            '&:hover': { backgroundColor: '#66bb6a' }
+          }}
+        >
+          {loading ? <CircularProgress size={24} /> : 'Login'}
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 }
 

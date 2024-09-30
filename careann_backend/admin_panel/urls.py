@@ -1,10 +1,9 @@
 from django.urls import path
+# In your urls.py
 from .views import (
-    ToggleUserActiveStatusView, PaymentUpdateView, AnalyticsView,
-    SupportTicketListView, SupportTicketUpdateView,
-    DisputeListView, DisputeDetailView,
-    ModerationActionListView, ModerationActionDetailView,
-    UserActivityListView
+    UserListView, ToggleUserActiveStatusView, PaymentUpdateView, AnalyticsView,
+    SupportTicketListView, SupportTicketUpdateView, DisputeListView, DisputeDetailView,
+    ModerationActionListView, ModerationActionDetailView, UserActivityListView,SupportTicketCreationView,SupportTicketDetailView
 )
 
 urlpatterns = [
@@ -14,6 +13,10 @@ urlpatterns = [
     path('analytics/', AnalyticsView.as_view(), name='analytics'),
     path('tickets/', SupportTicketListView.as_view(), name='ticket-list'),
     path('ticket/<int:pk>/update/', SupportTicketUpdateView.as_view(), name='ticket-update'),
+    path('tickets/<int:pk>/', SupportTicketDetailView.as_view(), name='ticket-detail'),
+    path('ticket/create/', SupportTicketCreationView.as_view(), name='ticket-create'),
+    
+    path('users/', UserListView.as_view(), name='user-list'),
 
     # New Dispute URLs
     path('disputes/', DisputeListView.as_view(), name='dispute-list'),

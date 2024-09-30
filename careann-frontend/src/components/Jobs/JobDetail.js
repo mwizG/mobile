@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, Typography, Button, CircularProgress, Box } from '@mui/material';
 
 function JobDetail() {
     const { jobId } = useParams();
@@ -61,38 +62,138 @@ function JobDetail() {
     };
 
     if (!job) {
-        return <div>Loading job details...</div>;
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <Typography variant="h6" color="error">{error}</Typography>
+            </Box>
+        );
     }
-
+    const goToCareseekerProfile = (careSeekerId) => {
+        if (careSeekerId) {
+            navigate(`/careseeker/${careSeekerId}`);
+        }};
     return (
-        <div className="job-detail-container">
-            <h2>{job.title}</h2>
-            <p><strong>Description:</strong> {job.description}</p>
-            <p><strong>Location:</strong> {job.location}</p>
-            <p><strong>Pay Rate:</strong> K{job.pay_rate}</p>
-            <p><strong>Status:</strong> {job.status}</p>
-            <p><strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}</p>
+        <Box 
+            display="flex" 
+            justifyContent="center" 
+            alignItems="center" 
+            height="100vh" 
+            sx={{ backgroundColor: '#f5f5f5', padding: 4 }}
+        >
+            <Card sx={{ maxWidth: 600, padding: 4, borderRadius: 3, boxShadow: 6 }}>
+                <CardContent>
+                    <Typography 
+                        variant="h4" 
+                        gutterBottom 
+                        sx={{ 
+                            fontFamily: 'Poppins, sans-serif', 
+                            fontWeight: 'bold', 
+                            color: '#388e3c' 
+                        }}
+                    >
+                        {job.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Job Type:</strong> {job.job_type}
+                    </Typography>
 
-            <div>
-                {/* Caregiver can accept proposed time only when the job is accepted and a proposed time exists */}
-                {userRole === 'caregiver' && job.applicatstatus === 'Accepted' && job.proposed_time && (
-                    <button onClick={acceptJobTime}>Accept Proposed Time</button>
-                )}
+                    <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                        fontFamily: 'Roboto, sans-serif', 
+                                        color: '#616161', 
+                                        mb: 1, // Shortened marginBottom syntax
+                                        display: 'flex', 
+                                        alignItems: 'center' 
+                                    }}
+                                >
+                                    <strong>Posted by:</strong>{' '}
+                                    <span 
+                                        className="careseeker-link" 
+                                        style={{ 
+                                            color: 'blue', 
+                                            cursor: 'pointer', 
+                                            marginLeft: '4px'  // Added spacing between "Posted by:" and the username
+                                        }} 
+                                        onClick={() => goToCareseekerProfile(job.care_seeker?.id)}
+                                    >
+                                        {job.care_seeker?.username || 'N/A'}
+                                    </span>
+                                </Typography>
 
-                {/* Caregiver can apply for open jobs only if they haven't applied yet */}
-                {userRole === 'caregiver' && job.status === 'Open' && (
-                    !job.has_applied ? (
-                        <button onClick={handleApplyClick}>Apply for Job</button>
-                    ) : (
-                        <p>You've already applied for this job.</p>
-                    )
-                )}
-            </div>
-        </div>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Description:</strong> {job.description}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Location:</strong> {job.location}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Pay Rate:</strong> K{job.pay_rate}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Status:</strong> {job.status}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', marginBottom: 1 }}>
+                        <strong>Proposed Time:</strong> {job.proposed_time ? new Date(job.proposed_time).toLocaleString() : 'N/A'}
+                    </Typography>
+
+                    {/* Conditional rendering for Caregiver actions */}
+                    {userRole === 'caregiver' && (
+                        <Box sx={{ mt: 2 }}>
+                            {/* Accept Proposed Time Button */}
+                            {job.applicatstatus === 'Accepted' && job.proposed_time && (
+                                <Button
+                                    variant="contained"
+                                    fullWidth
+                                    sx={{ 
+                                        mt: 1, 
+                                        backgroundColor: '#4caf50', 
+                                        '&:hover': { 
+                                            backgroundColor: '#388e3c' 
+                                        } 
+                                    }}
+                                    onClick={acceptJobTime}
+                                >
+                                    Accept Proposed Time
+                                </Button>
+                            )}
+
+                            {/* Apply for Job Button */}
+                            {job.status === 'Open' && !job.has_applied ? (
+                                <Button
+                                    variant="contained"
+                                    fullWidth
+                                    sx={{ 
+                                        mt: 2, 
+                                        backgroundColor: '#81c784', 
+                                        '&:hover': { 
+                                            backgroundColor: '#66bb6a' 
+                                        } 
+                                    }}
+                                    onClick={handleApplyClick}
+                                >
+                                    Apply for Job
+                                </Button>
+                            ) : (
+                                job.status === 'Open' && (
+                                    <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 2 }}>
+                                        You've already applied for this job.
+                                    </Typography>
+                                )
+                            )}
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
+        </Box>
     );
 }
 

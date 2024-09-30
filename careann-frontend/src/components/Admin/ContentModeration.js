@@ -1,43 +1,82 @@
-// src/components/Admin/ContentModeration.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { getModerationActions, updateModerationAction } from '../../services/AdminService';
 
 function ContentModeration() {
-    const [content, setContent] = useState([]);
+    const [actions, setActions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        async function fetchContent() {
-            try {
-                const response = await axios.get('http://127.0.0.1:8000/api/admin/moderation/');
-                setContent(response.data);
-            } catch (error) {
-                console.error('Error fetching content:', error);
+        const fetchModerationActions = async () => {
+            const token = localStorage.getItem('token'); // Retrieve the token
+            if (!token) {
+                setError('No authentication token found.');
+                setLoading(false);
+                return;
             }
-        }
-        fetchContent();
+
+            try {
+                const data = await getModerationActions(token); // Pass token to the service function
+                setActions(data);
+            } catch (error) {
+                setError(error.response ? error.response.data : error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchModerationActions();
     }, []);
 
-    const moderateContent = async (contentId, action) => {
+    const handleUpdateAction = async (actionId, newStatus) => {
+        const token = localStorage.getItem('token'); // Retrieve the token
+        if (!token) {
+            setError('No authentication token found for updating action.');
+            return;
+        }
+
         try {
-            await axios.post(`http://127.0.0.1:8000/api/admin/moderation/${contentId}/`, { action });
-            setContent(content.filter(c => c.id !== contentId));
+            await updateModerationAction(actionId, newStatus, token); // Pass token to the service function
+            setActions(actions.map(action => (action.id === actionId ? { ...action, status: newStatus } : action)));
         } catch (error) {
-            console.error('Error moderating content:', error);
+            setError(error.response ? error.response.data : error.message);
         }
     };
+
+    if (loading) {
+        return <div>Loading...</div>; // Display loading state
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>; // Display error message
+    }
 
     return (
         <div>
             <h2>Content Moderation</h2>
-            <ul>
-                {content.map(item => (
-                    <li key={item.id}>
-                        {item.type}: {item.content}
-                        <button onClick={() => moderateContent(item.id, 'approve')}>Approve</button>
-                        <button onClick={() => moderateContent(item.id, 'reject')}>Reject</button>
-                    </li>
-                ))}
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Action ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {actions.map(action => (
+                        <tr key={action.id}>
+                            <td>{action.id}</td>
+                            <td>{action.type}</td>
+                            <td>{action.status}</td>
+                            <td>
+                                <button onClick={() => handleUpdateAction(action.id, 'approved')}>Approve</button>
+                                <button onClick={() => handleUpdateAction(action.id, 'rejected')}>Reject</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
