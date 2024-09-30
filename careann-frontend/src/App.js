@@ -38,7 +38,9 @@ import TaskManagement from './components/Tasks/TaskManagement';
 import TaskManagementDetail from './components/Tasks/TaskManagementDetail';  
 import JobListingManager from './components/Jobs/JobListingManager';
 import CaregiverList2 from './components/Profile/CaregiverList2'; // Adjust the path as necessary
-
+import TicketUpdate from './components/Tickets/TicketUpdate';
+import SupportTicket from './components/Tickets/SupportTicket';
+import TicketsPage from './components/Tickets/TicketsPage';
 import CaregiverDetail from './components/Profile/CareGiverDetail'; 
 import CareSeekerDetail from './components/Profile/CareSeekerDetail';
 import Review from './components/Reviews/Review';
@@ -77,7 +79,9 @@ function App() {
           <Route path="/conversations/:conversation_id/messages" element={<Messaging />} />
           
           <Route path="/caregivers" element={<Caregivers />} /> 
-
+          <Route path="/support" element={<SupportTicket/>}/>
+          <Route path="/Tickets" element={<TicketsPage/>}/>
+          <Route path="/ticket-update/:ticketId" element={<TicketUpdate />} />
           {/* Care Seeker-specific routes */}
           <Route path="/care-seeker/dashboard" element={<CareSeekerDashboard />} />
           <Route path="/care-seeker/messaging" element={<Messaging />} />

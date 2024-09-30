@@ -47,6 +47,7 @@ function CaregiverDashboard() {
         { text: "Manage Subscriptions", link: "/caregiver/subscriptions" },
         { text: "Settings", link: "/caregiver/settings" },
         { text: "Profile", link: "/caregiver/profile" },
+        { text: "Support", link: "/Tickets" },
 
     ];
 

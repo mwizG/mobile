@@ -9,14 +9,40 @@ from accounts.serializers import CustomUserSerializer
 
 # Support Ticket Views
 class SupportTicketListView(generics.ListCreateAPIView):
-    queryset = SupportTicket.objects.all()
     serializer_class = SupportTicketSerializer
-    permission_classes = [permissions.IsAdminUser]  # Use admin-only permission here
+    permission_classes = [permissions.IsAuthenticated]  # Allow authenticated users to access
+
+    def get_queryset(self):
+        # Only return tickets for the authenticated user
+        return SupportTicket.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Set the user to the currently authenticated user
+        serializer.save(user=self.request.user)
+
 
 class SupportTicketUpdateView(generics.UpdateAPIView):
     queryset = SupportTicket.objects.all()
     serializer_class = SupportTicketSerializer
     permission_classes = [permissions.IsAdminUser]  # Use admin-only permission here
+
+class SupportTicketDetailView(generics.RetrieveUpdateAPIView):
+    queryset = SupportTicket.objects.all()
+    serializer_class = SupportTicketSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Allow authenticated users to access
+
+    def get_queryset(self):
+        # Only return tickets for the authenticated user
+        return SupportTicket.objects.filter(user=self.request.user)
+
+class SupportTicketCreationView(generics.CreateAPIView):
+    queryset = SupportTicket.objects.all()
+    serializer_class = SupportTicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Set the user to the currently authenticated user
+        serializer.save(user=self.request.user)
 
 # Enhanced Toggle User Active Status View with UserActivity logging
 class ToggleUserActiveStatusView(generics.UpdateAPIView):

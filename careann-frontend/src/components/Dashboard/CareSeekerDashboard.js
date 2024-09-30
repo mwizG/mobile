@@ -72,6 +72,10 @@ function CareSeekerDashboard() {
                         <Link to="/care-seeker/settings">
                             <Button color="inherit">Settings</Button>
                         </Link>
+
+                        <Link to="//Tickets">
+                            <Button color="inherit">Support</Button>
+                        </Link>
                     </Box>
                 </Toolbar>
             </AppBar>
