@@ -61,7 +61,7 @@ const Login = () => {
   return (
     
     <View className="flex-1 p-6 bg-gray-200 justify-center">
-      <StatusBar barStyle="dark-content" />
+      <StatusBar backgroundColor='white' barStyle="dark-content" />
       <Text className="text-4xl font-bold mb-8 text-center text-green-500">Login</Text>
       {error && <Text className="text-red-500 mb-4 text-center">{error}</Text>}
       <TextInput
