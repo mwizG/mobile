@@ -13,7 +13,7 @@ import {
   TextField,
 } from '@mui/material';
 
-function CareSeekerDetail() {
+function CareSeekerProfile() {
   const [careSeeker, setCareSeeker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -221,4 +221,4 @@ function CareSeekerDetail() {
   );
 }
 
-export default CareSeekerDetail;
+export default CareSeekerProfile;

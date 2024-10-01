@@ -104,41 +104,48 @@ function CaregiverProfile() {
       profile_image: e.target.files[0],
     });
   };
-
-  // Handle form submission for profile update
-  const handleSubmit = async (e) => {
+// Handle form submission for profile update
+const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-
+  
+      // Define existingProfileImage based on caregiver data
+      const existingProfileImage = caregiver ? caregiver.profile_image : null;
+  
       // Append each profile field to the FormData
       for (let key in profile) {
+        // Only append fields that are not null, empty, or different from existing data
         if (profile[key] !== null && profile[key] !== '') {
+          // Skip profile_image if it hasn't changed
+          if (key === 'profile_image' && profile[key] === existingProfileImage) {
+            continue;
+          }
           formData.append(key, profile[key]);
         }
       }
-
+  
       const response = await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
         headers: {
           Authorization: `Token ${token}`,
           // Remove 'Content-Type' header, let browser set it
         },
       });
-
+  
       alert('Profile updated successfully');
       setEditMode(false);
-
+  
       // Optionally re-fetch updated data
       const updatedProfile = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/`, {
         headers: { Authorization: `Token ${token}` },
       });
       setCaregiver(updatedProfile.data);
-      
+  
       // Update the role based on new data
       const userRole = updatedProfile.data.is_caregiver ? 'caregiver' : updatedProfile.data.is_care_seeker ? 'care_seeker' : '';
       setRole(userRole);
-      
+  
     } catch (error) {
       // Log the error response from the server
       if (error.response) {
@@ -150,6 +157,7 @@ function CaregiverProfile() {
       }
     }
   };
+  
 
   if (loading) {
     return (

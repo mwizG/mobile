@@ -27,7 +27,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     experience_cat1 = ExperienceCategorySerializer(read_only=True)
     experience_cat2 = ExperienceCategorySerializer(read_only=True)
     experience_cat3 = ExperienceCategorySerializer(read_only=True)
-
+    
     class Meta:
         model = CustomUser
         fields = (
@@ -88,16 +88,21 @@ class UserSerializer(serializers.ModelSerializer):
         is_caregiver = validated_data.pop('is_caregiver', instance.is_caregiver)
         is_care_seeker = validated_data.pop('is_care_seeker', instance.is_care_seeker)
 
+        # Only update profile_image if it is present in validated_data
+        if 'profile_image' in validated_data:
+            instance.profile_image = validated_data.pop('profile_image')
+
         # Update other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
         # Set caregiver and seeker status
         instance.is_caregiver = is_caregiver
         instance.is_care_seeker = is_care_seeker
 
         instance.save()
         return instance
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
