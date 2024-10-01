@@ -47,6 +47,7 @@ function CaregiverProfile() {
     experience_cat3: '',
     profile_image: null,
   });
+  const [role, setRole] = useState(''); // State for role
 
   useEffect(() => {
     const fetchCaregiver = async () => {
@@ -57,7 +58,10 @@ function CaregiverProfile() {
             Authorization: `Token ${token}`,
           },
         });
+        
         setCaregiver(response.data);
+        
+        // Set profile state
         setProfile({
           email: response.data.email || '',
           username: response.data.username || '',
@@ -69,6 +73,11 @@ function CaregiverProfile() {
           experience_cat3: response.data.experience_cat3?.id || '',
           profile_image: response.data.profile_image || null,
         });
+
+        // Determine role based on is_care_seeker and is_caregiver
+        const userRole = response.data.is_caregiver ? 'caregiver' : response.data.is_care_seeker ? 'care_seeker' : '';
+        setRole(userRole);
+
       } catch (error) {
         setError('Error fetching caregiver details. Please try again later.');
         console.error('Error fetching caregiver details:', error);
@@ -125,6 +134,11 @@ function CaregiverProfile() {
         headers: { Authorization: `Token ${token}` },
       });
       setCaregiver(updatedProfile.data);
+      
+      // Update the role based on new data
+      const userRole = updatedProfile.data.is_caregiver ? 'caregiver' : updatedProfile.data.is_care_seeker ? 'care_seeker' : '';
+      setRole(userRole);
+      
     } catch (error) {
       // Log the error response from the server
       if (error.response) {
@@ -175,6 +189,9 @@ function CaregiverProfile() {
             </Typography>
             <Typography variant="body1">
               <strong>Location:</strong> {caregiver.location || 'Not provided'}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Role:</strong> {role || 'Not assigned'}
             </Typography>
           </Box>
         </Stack>
@@ -279,48 +296,29 @@ function CaregiverProfile() {
               </Select>
             </FormControl>
 
-            {/* Profile Image Upload */}
-            <Box sx={{ mt: 2 }}>
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="profile-image"
-                type="file"
-                onChange={handleImageChange}
-              />
-              <label htmlFor="profile-image">
-                <Button variant="contained" component="span">
-                  Upload Profile Image
-                </Button>
-              </label>
-            </Box>
-
-            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-              Save Changes
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => setEditMode(false)}
-              sx={{ mt: 2, ml: 2 }}
-            >
-              Cancel
-            </Button>
+            <input
+              accept="image/*"
+              type="file"
+              onChange={handleImageChange}
+              style={{ marginTop: '16px' }}
+            />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }}>Update Profile</Button>
+            <Button onClick={() => setEditMode(false)} variant="outlined" sx={{ mt: 2, ml: 2 }}>Cancel</Button>
           </form>
         ) : (
           <Box>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Bio:</strong> {caregiver.bio || 'Not provided'}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Certifications:</strong> {caregiver.certifications || 'Not provided'}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              <strong>Experience Categories:</strong> {caregiver.experience_cat1?.name || 'N/A'}, {caregiver.experience_cat2?.name || 'N/A'}, {caregiver.experience_cat3?.name || 'N/A'}
+            <Typography variant="h6">Bio:</Typography>
+            <Typography>{caregiver.bio || 'Not provided'}</Typography>
+            <Typography variant="h6">Certifications:</Typography>
+            <Typography>{caregiver.certifications || 'Not provided'}</Typography>
+            <Typography variant="h6">Experience Categories:</Typography>
+            <Typography>
+              {profile.experience_cat1 && <span>{experienceOptions.find(option => option.id === profile.experience_cat1)?.name || ''}</span>}
+              {profile.experience_cat2 && <span>, {experienceOptions.find(option => option.id === profile.experience_cat2)?.name || ''}</span>}
+              {profile.experience_cat3 && <span>, {experienceOptions.find(option => option.id === profile.experience_cat3)?.name || ''}</span>}
             </Typography>
 
-            {/* Button to edit profile */}
-            <Button variant="outlined" onClick={() => setEditMode(true)}>
+            <Button variant="outlined" sx={{ mt: 2 }} onClick={() => setEditMode(true)}>
               Edit Profile
             </Button>
           </Box>

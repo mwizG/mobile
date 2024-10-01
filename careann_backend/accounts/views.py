@@ -16,36 +16,43 @@ class CaregiverSearchView(generics.ListAPIView):
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
-
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        # Return the profile of the currently authenticated user
         return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-
-        # Print the response data to the console
         print('Serialized data:', serializer.data)
-
         return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        
         # Log the incoming request data
         print('Request data for update:', request.data)
 
-        # Call the superclass update method
-        response = super().update(request, *args, **kwargs)
+        # Create a mutable copy of request.data
+        updated_data = request.data.copy()
+
+        # Include caregiver status if it's not provided in the request
+        updated_data['is_caregiver'] = updated_data.get('is_caregiver', user.is_caregiver)
+        updated_data['is_care_seeker'] = updated_data.get('is_care_seeker', user.is_care_seeker)
+
+        # Pass the updated data to the serializer
+        serializer = self.get_serializer(user, data=updated_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
         # Log the response data after the update
-        print('Updated data:', response.data)
+        print('Updated data:', serializer.data)
 
-        return response
+        return Response(serializer.data)
+
 
 
 class CareSeekerDetailView(generics.RetrieveAPIView):

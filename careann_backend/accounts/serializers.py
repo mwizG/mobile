@@ -23,7 +23,7 @@ class ExperienceCategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    # Assuming you want this for other purposes, keep it as it is.
+    # Use a nested serializer for experience_categories
     experience_cat1 = ExperienceCategorySerializer(read_only=True)
     experience_cat2 = ExperienceCategorySerializer(read_only=True)
     experience_cat3 = ExperienceCategorySerializer(read_only=True)
@@ -35,6 +35,70 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
             'certifications', 'availability', 'profile_image'
         )
+
+class UserSerializer(serializers.ModelSerializer):
+    average_rating = serializers.SerializerMethodField()
+    rating_count = serializers.SerializerMethodField()
+    
+    experience_cat1 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
+    experience_cat2 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
+    experience_cat3 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
+            'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
+            'certifications', 'availability', 'profile_image', 'average_rating', 
+            'rating_count', 'health_status', 'contact_info'
+        )
+
+    def get_average_rating(self, obj):
+        reviews = RatingReview.objects.filter(reviewee=obj)
+        return reviews.aggregate(Avg('rating'))['rating__avg'] if reviews.exists() else 0
+
+    def get_rating_count(self, obj):
+        return RatingReview.objects.filter(reviewee=obj).count()
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['experience_cat1'] = OrderedDict({
+            'id': instance.experience_cat1.id,
+            'name': instance.experience_cat1.name
+        }) if instance.experience_cat1 else None
+        representation['experience_cat2'] = OrderedDict({
+            'id': instance.experience_cat2.id,
+            'name': instance.experience_cat2.name
+        }) if instance.experience_cat2 else None
+        representation['experience_cat3'] = OrderedDict({
+            'id': instance.experience_cat3.id,
+            'name': instance.experience_cat3.name
+        }) if instance.experience_cat3 else None
+        
+        return representation
+
+    def update(self, instance, validated_data):
+        # Retain existing values for is_caregiver and is_care_seeker
+        is_caregiver = validated_data.pop('is_caregiver', instance.is_caregiver)
+        is_care_seeker = validated_data.pop('is_care_seeker', instance.is_care_seeker)
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # Set caregiver and seeker status
+        instance.is_caregiver = is_caregiver
+        instance.is_care_seeker = is_care_seeker
+
+        instance.save()
+        return instance
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
