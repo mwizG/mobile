@@ -19,6 +19,9 @@ function CaregiverDetail() {
   const [caregiver, setCaregiver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [credentials, setCredentials] = useState([]); // State to hold credentials
+  const [credentialError, setCredentialError] = useState(null); // State to hold credential errors
+  const [credentialLoading, setCredentialLoading] = useState(true); // State for loading credentials
 
   useEffect(() => {
     const fetchCaregiver = async () => {
@@ -40,6 +43,30 @@ function CaregiverDetail() {
 
     fetchCaregiver();
   }, [caregiverId]);
+
+  // Fetch credentials for the caregiver
+  useEffect(() => {
+    
+    const fetchCredentials = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://127.0.0.1:8000/api/accounts/caregivers/${caregiverId}/credentials/`, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        setCredentials(response.data);
+      } catch (error) {
+        setCredentialError('Error fetching caregiver credentials. Please try again later.');
+        console.error('Error fetching caregiver credentials:', error);
+      } finally {
+        setCredentialLoading(false);
+      }
+    };
+    
+      fetchCredentials();
+    }, [caregiverId]); // Add caregiverId as a dependency
+    
 
   if (loading) {
     return (
@@ -153,6 +180,31 @@ function CaregiverDetail() {
             <Typography variant="body1">No social links provided.</Typography>
           )}
         </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Credentials Section */}
+        <Typography variant="h6" gutterBottom>
+          Credentials
+        </Typography>
+        {credentialLoading ? (
+          <CircularProgress />
+        ) : credentialError ? (
+          <Alert severity="error">{credentialError}</Alert>
+        ) : (
+          <Box sx={{ mt: 3 }}>
+          {credentials.length > 0 ? (
+            credentials.map((credential, index) => (
+              <Box key={index} sx={{ mb: 1 }}>
+                <Typography variant="body1">{credential.name} (Uploaded at: {new Date(credential.uploaded_at).toLocaleDateString()})</Typography>
+                <a href={credential.file} target="_blank" rel="noopener noreferrer">View Document</a>
+              </Box>
+              ))
+            ) : (
+              <Typography variant="body1">No credentials available.</Typography>
+            )}
+          </Box>
+        )}
       </Paper>
     </Container>
   );

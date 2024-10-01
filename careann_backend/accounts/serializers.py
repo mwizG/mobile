@@ -16,10 +16,17 @@ class LoginSerializer(serializers.Serializer):
             return {'user': user}  # Return a dictionary with 'user' as the key
         raise serializers.ValidationError("Invalid Credentials")
 
+class CredentialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser  # Assuming credentials are part of CustomUser
+        fields = ['id', 'name', 'file', 'uploaded_at']  # Adjust the fields as necessary
+
+
+
 class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification
-        fields = ['name', 'file']
+        fields = ['id', 'name', 'file', 'uploaded_at']
 
     def validate_file(self, value):
         if not value.name.endswith('.pdf'):

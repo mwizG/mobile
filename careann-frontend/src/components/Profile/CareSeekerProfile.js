@@ -261,17 +261,7 @@ function CareSeekerProfile() {
               Edit Profile
             </Button>
 
-            <Box>
-              {careSeeker.profile_image ? (
-                <img
-                  src={careSeeker.profile_image}
-                  alt="Profile"
-                  style={{ width: 100, height: 100, borderRadius: '50%' }}
-                />
-              ) : (
-                <Typography variant="body2" color="textSecondary">No profile image available.</Typography>
-              )}
-            </Box>
+            
           </>
         )}
       </Paper>

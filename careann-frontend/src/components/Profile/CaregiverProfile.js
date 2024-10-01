@@ -356,14 +356,15 @@ function CaregiverProfile() {
             onChange={handleFileChange}
           />
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleUploadCertificate}
-          sx={{ mt: 2, ml: 1 }}
-          disabled={!file}
-        >
-          Submit
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleUploadCertificate(file ? file.name : '', file)}
+            sx={{ mt: 2, ml: 1 }}
+            disabled={!file}
+          >
+            Submit
+      </Button>
+
         
         <Box sx={{ mt: 3 }}>
           {credentials.length > 0 ? (

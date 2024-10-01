@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .serializers import CertificationSerializer, ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
+from .serializers import CertificationSerializer, CredentialSerializer, ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
 from . models import Certification, CustomUser,CaregiverFilter, ExperienceCategory
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
@@ -11,6 +11,8 @@ from django.db.models import Avg,Q
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import transaction
+from django.http import Http404  # Import Http404
+
 
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
@@ -26,7 +28,60 @@ class UploadCredentialsView(generics.CreateAPIView):
     def perform_create(self, serializer):
         # Save the certification with the associated user
         serializer.save(user=self.request.user)
-        
+
+
+
+class CaregiverCredentialsView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        # Assuming you want to get the caregiver by ID from the URL
+        caregiver_id = self.kwargs['caregiver_id']
+        try:
+            return CustomUser.objects.get(id=caregiver_id, is_caregiver=True)
+        except CustomUser.DoesNotExist:
+            raise Http404("Caregiver not found.")
+    
+    def get(self, request, *args, **kwargs):
+        caregiver = self.get_object()
+        serializer = CredentialSerializer(caregiver)
+        return Response(serializer.data)
+
+
+class CertificationListView(generics.ListCreateAPIView):
+    """
+    View to handle retrieving and creating user certifications.
+    GET: Retrieves a list of certifications for the authenticated user.
+    POST: Uploads a new certification for the authenticated user.
+    """
+    serializer_class = CertificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Certification.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class CertificationDetailView(generics.RetrieveDestroyAPIView):
+    """
+    View to handle retrieving or deleting a specific certification.
+    """
+    queryset = Certification.objects.all()
+    serializer_class = CertificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Certification.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        certification = self.get_object()
+        if certification.user != request.user:
+            return Response({'detail': 'You do not have permission to delete this file.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().delete(request, *args, **kwargs)
+
+
+
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
