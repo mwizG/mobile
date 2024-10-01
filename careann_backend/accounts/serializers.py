@@ -30,7 +30,7 @@ class CertificationSerializer(serializers.ModelSerializer):
 
     def validate_file(self, value):
         if not value.name.endswith('.pdf'):
-            raise serializers.ValidationError("Only PDF files are allowed.")
+            raise serializers.ValidationError("Only PDF file are allowed.")
         return value
 
 class ExperienceCategorySerializer(serializers.ModelSerializer):
