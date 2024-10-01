@@ -34,6 +34,8 @@ function Register() {
     username: '',
     email: '',
     password: '',
+    first_name: '', // New field for first name
+    last_name: '',  // New field for last name
     is_care_seeker: false,
     is_caregiver: false,
     location: '',
@@ -42,8 +44,6 @@ function Register() {
     experience_cat2: '', // New field for experience category 2
     experience_cat3: '', // New field for experience category 3
     certifications: '',
-    availability: '',
-    payment_preference: '',
     health_status: '',
     contact_info: '',
     profile_image: null,
@@ -122,6 +122,24 @@ function Register() {
       </Typography>
 
       <form onSubmit={handleSubmit}>
+        {/* First Name and Last Name */}
+        <TextField
+          label="First Name"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          name="first_name"
+          onChange={handleChange}
+        />
+        <TextField
+          label="Last Name"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          name="last_name"
+          onChange={handleChange}
+        />
+
         {/* Username, Email, Password */}
         <TextField
           label="Username"
@@ -222,22 +240,6 @@ function Register() {
               name="certifications"
               onChange={handleChange}
             />
-            <TextField
-              label="Availability"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              name="availability"
-              onChange={handleChange}
-            />
-            <TextField
-              label="Payment Preference"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              name="payment_preference"
-              onChange={handleChange}
-            />
 
             {/* Experience Categories Dropdowns */}
             <FormControl fullWidth margin="normal">
@@ -315,27 +317,28 @@ function Register() {
         )}
 
         {/* Profile Image Upload */}
-        <Button
-          variant="contained"
-          component="label"
-          fullWidth
-          sx={{ mt: 2, mb: 3, backgroundColor: '#81c784', '&:hover': { backgroundColor: '#66bb6a' } }}
-        >
-          Upload Profile Image
+        <Box sx={{ mt: 2 }}>
           <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            id="profile-image"
             type="file"
-            hidden
-            name="profile_image"
             onChange={handleFileChange}
           />
-        </Button>
+          <label htmlFor="profile-image">
+            <Button variant="contained" component="span" sx={{ backgroundColor: '#388e3c' }}>
+              Upload Profile Image
+            </Button>
+          </label>
+        </Box>
 
-        {/* Register Button */}
+        {/* Submit Button */}
         <Button
           type="submit"
           variant="contained"
+          color="primary"
           fullWidth
-          sx={{ mt: 2, fontFamily: 'Poppins, sans-serif', fontWeight: '600', backgroundColor: '#388e3c', '&:hover': { backgroundColor: '#2e7d32' } }}
+          sx={{ mt: 4, backgroundColor: '#388e3c' }}
         >
           Register
         </Button>

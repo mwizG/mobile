@@ -17,7 +17,6 @@ class CaregiverSearchView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
 
-
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
@@ -40,7 +39,14 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         # Log the incoming request data
         print('Request data for update:', request.data)
 
-        return super().update(request, *args, **kwargs)
+        # Call the superclass update method
+        response = super().update(request, *args, **kwargs)
+
+        # Log the response data after the update
+        print('Updated data:', response.data)
+
+        return response
+
 
 class CareSeekerDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.filter(is_care_seeker=True)

@@ -20,14 +20,15 @@ import {
 
 // Updated experience options with IDs
 const experienceOptions = [
-  { id: 1, name: 'Respite Care' },
-  { id: 2, name: 'Home Care' },
-  { id: 3, name: 'Child Care' },
-  { id: 4, name: 'Disability Care' },
-  { id: 5, name: 'Palliative Care' },
-  { id: 6, name: 'Post-Surgical Care' },
-  { id: 7, name: 'Maternity Care' },
-  { id: 8, name: 'Dementia Care' },
+    { id: 1, name: 'Respite Care' },
+    { id: 2, name: 'Home Care' },
+    { id: 3, name: 'Senior Care' },
+    { id: 4, name: 'Child Care' },
+    { id: 5, name: 'Disability Care' },
+    { id: 6, name: 'Palliative Care' },
+    { id: 7, name: 'Post-Surgical Care' },
+    { id: 8, name: 'Maternity Care' },
+    { id: 9, name: 'Dementia Care' },
 ];
 
 function CaregiverProfile() {
@@ -41,8 +42,6 @@ function CaregiverProfile() {
     location: '',
     bio: '',
     certifications: '',
-    availability: '',
-    payment_preference: '',
     experience_cat1: '',
     experience_cat2: '',
     experience_cat3: '',
@@ -65,8 +64,6 @@ function CaregiverProfile() {
           location: response.data.location || '',
           bio: response.data.bio || '',
           certifications: response.data.certifications || '',
-          availability: response.data.availability || '',
-          payment_preference: response.data.payment_preference || '',
           experience_cat1: response.data.experience_cat1?.id || '',
           experience_cat2: response.data.experience_cat2?.id || '',
           experience_cat3: response.data.experience_cat3?.id || '',
@@ -105,29 +102,38 @@ function CaregiverProfile() {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
+
+      // Append each profile field to the FormData
       for (let key in profile) {
-        formData.append(key, profile[key]);
+        if (profile[key] !== null && profile[key] !== '') {
+          formData.append(key, profile[key]);
+        }
       }
 
-      // Perform the PUT request to update the profile
-      await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
+      const response = await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
         headers: {
           Authorization: `Token ${token}`,
-          'Content-Type': 'multipart/form-data',
+          // Remove 'Content-Type' header, let browser set it
         },
       });
-      console.log("Updated caregiver data fetched:", updatedProfile.data);
-      alert('Profile updated successfully');
-      setEditMode(false); // Switch back to view mode
 
-      // Optionally re-fetch updated data to reflect changes immediately
+      alert('Profile updated successfully');
+      setEditMode(false);
+
+      // Optionally re-fetch updated data
       const updatedProfile = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/`, {
         headers: { Authorization: `Token ${token}` },
       });
       setCaregiver(updatedProfile.data);
     } catch (error) {
-      console.error('Error updating profile', error);
-      setError('Error updating profile. Please try again.');
+      // Log the error response from the server
+      if (error.response) {
+        console.error('Error updating profile:', error.response.data);
+        setError('Error updating profile: ' + error.response.data.detail || 'Please try again.');
+      } else {
+        console.error('Error updating profile', error);
+        setError('Error updating profile. Please try again.');
+      }
     }
   };
 
@@ -201,6 +207,7 @@ function CaregiverProfile() {
               onChange={handleChange}
               fullWidth
               margin="normal"
+              placeholder="Optional"
             />
             <TextField
               label="Bio"
@@ -208,9 +215,10 @@ function CaregiverProfile() {
               value={profile.bio}
               onChange={handleChange}
               fullWidth
+              margin="normal"
               multiline
               rows={4}
-              margin="normal"
+              placeholder="Optional"
             />
             <TextField
               label="Certifications"
@@ -219,26 +227,11 @@ function CaregiverProfile() {
               onChange={handleChange}
               fullWidth
               margin="normal"
-            />
-            <TextField
-              label="Availability"
-              name="availability"
-              value={profile.availability}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Payment Preference"
-              name="payment_preference"
-              value={profile.payment_preference}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
+              placeholder="Optional"
             />
 
-            {/* Experience Category 1 Dropdown */}
-            <FormControl fullWidth sx={{ mb: 2 }} margin="normal">
+            {/* Experience Categories Dropdowns */}
+            <FormControl fullWidth margin="normal">
               <InputLabel id="experience-cat1-label">Experience Category 1</InputLabel>
               <Select
                 labelId="experience-cat1-label"
@@ -254,8 +247,7 @@ function CaregiverProfile() {
               </Select>
             </FormControl>
 
-            {/* Experience Category 2 Dropdown */}
-            <FormControl fullWidth sx={{ mb: 2 }}>
+            <FormControl fullWidth margin="normal">
               <InputLabel id="experience-cat2-label">Experience Category 2</InputLabel>
               <Select
                 labelId="experience-cat2-label"
@@ -271,7 +263,7 @@ function CaregiverProfile() {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth sx={{ mb: 2 }}>
+            <FormControl fullWidth margin="normal">
               <InputLabel id="experience-cat3-label">Experience Category 3</InputLabel>
               <Select
                 labelId="experience-cat3-label"
@@ -287,49 +279,48 @@ function CaregiverProfile() {
               </Select>
             </FormControl>
 
-            <div>
-              <label>Profile Image:</label>
-              <input type="file" name="profile_image" onChange={handleImageChange} />
-            </div>
-
-            {/* Save and Cancel Buttons */}
+            {/* Profile Image Upload */}
             <Box sx={{ mt: 2 }}>
-              <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
-                Save
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setEditMode(false)}
-              >
-                Cancel
-              </Button>
+              <input
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="profile-image"
+                type="file"
+                onChange={handleImageChange}
+              />
+              <label htmlFor="profile-image">
+                <Button variant="contained" component="span">
+                  Upload Profile Image
+                </Button>
+              </label>
             </Box>
+
+            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+              Save Changes
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => setEditMode(false)}
+              sx={{ mt: 2, ml: 2 }}
+            >
+              Cancel
+            </Button>
           </form>
         ) : (
           <Box>
-            <Typography variant="h6" gutterBottom>
-              Bio: {caregiver.bio || 'Not provided'}
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Bio:</strong> {caregiver.bio || 'Not provided'}
             </Typography>
-            <Typography variant="h6" gutterBottom>
-              Certifications: {caregiver.certifications || 'Not provided'}
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Certifications:</strong> {caregiver.certifications || 'Not provided'}
             </Typography>
-            <Typography variant="h6" gutterBottom>
-              Availability: {caregiver.availability || 'Not provided'}
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              <strong>Experience Categories:</strong> {caregiver.experience_cat1?.name || 'N/A'}, {caregiver.experience_cat2?.name || 'N/A'}, {caregiver.experience_cat3?.name || 'N/A'}
             </Typography>
-            <Typography variant="h6" gutterBottom>
-              Payment Preference: {caregiver.payment_preference || 'Not provided'}
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Experience Categories:
-            </Typography>
-            <ul>
-              <li>Category 1: {caregiver.experience_cat1?.name || 'Not provided'}</li>
-              <li>Category 2: {caregiver.experience_cat2?.name || 'Not provided'}</li>
-              <li>Category 3: {caregiver.experience_cat3?.name || 'Not provided'}</li>
-            </ul>
 
-            {/* Edit Button */}
-            <Button variant="contained" color="primary" onClick={() => setEditMode(true)}>
+            {/* Button to edit profile */}
+            <Button variant="outlined" onClick={() => setEditMode(true)}>
               Edit Profile
             </Button>
           </Box>

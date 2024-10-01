@@ -17,8 +17,9 @@ function CareSeekerDetail() {
   const [careSeeker, setCareSeeker] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editMode, setEditMode] = useState(false); // State to toggle between view and edit mode
+  const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({
+    username: '', // Include username in the profile state
     email: '',
     location: '',
     health_status: '',
@@ -60,21 +61,42 @@ function CareSeekerDetail() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://127.0.0.1:8000/api/accounts/profile/', profile, {
+      
+      // Include the username in the update data
+      const updatedProfileData = {
+        username: profile.username, // Include username
+        email: profile.email,
+        location: profile.location,
+        health_status: profile.health_status,
+        contact_info: profile.contact_info,
+      };
+
+      const response = await axios.put('http://127.0.0.1:8000/api/accounts/profile/', updatedProfileData, {
         headers: {
           Authorization: `Token ${token}`,
         },
       });
+
+      // Log the response for debugging
+      console.log('Profile updated response:', response.data);
+
       alert('Profile updated successfully');
       setEditMode(false); // Switch back to view mode
+
       // Optionally re-fetch updated data to reflect changes immediately
       const updatedProfile = await axios.get('http://127.0.0.1:8000/api/accounts/profile/', {
         headers: { Authorization: `Token ${token}` },
       });
       setCareSeeker(updatedProfile.data);
     } catch (error) {
-      console.error('Error updating profile', error);
-      setError('Error updating profile. Please try again.');
+      // Log the error response from the server
+      if (error.response) {
+        console.error('Error updating profile:', error.response.data);
+        setError('Error updating profile: ' + (error.response.data.detail || 'Please try again.'));
+      } else {
+        console.error('Error updating profile', error);
+        setError('Error updating profile. Please try again.');
+      }
     }
   };
 
@@ -118,6 +140,14 @@ function CareSeekerDetail() {
         {editMode ? (
           <form onSubmit={handleSubmit}>
             {/* Form fields to update care seeker profile */}
+            <TextField
+              label="Username"
+              name="username"
+              value={profile.username}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
             <TextField
               label="Email"
               name="email"

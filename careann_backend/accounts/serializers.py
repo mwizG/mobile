@@ -1,10 +1,10 @@
-# In accounts/serializers.py
-
 from jobs.models import RatingReview
 from rest_framework import serializers
 from .models import CustomUser, ExperienceCategory
 from django.contrib.auth import authenticate
 from django.db.models import Avg
+from collections import OrderedDict 
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -23,7 +23,7 @@ class ExperienceCategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    # Use a nested serializer for experience_categories
+    # Assuming you want this for other purposes, keep it as it is.
     experience_cat1 = ExperienceCategorySerializer(read_only=True)
     experience_cat2 = ExperienceCategorySerializer(read_only=True)
     experience_cat3 = ExperienceCategorySerializer(read_only=True)
@@ -36,14 +36,20 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'certifications', 'availability', 'profile_image'
         )
 
+
 class UserSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     rating_count = serializers.SerializerMethodField()
-    
-    # Use nested serializer for each experience category field
-    experience_cat1 = ExperienceCategorySerializer(read_only=True)
-    experience_cat2 = ExperienceCategorySerializer(read_only=True)
-    experience_cat3 = ExperienceCategorySerializer(read_only=True)
+
+    experience_cat1 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
+    experience_cat2 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
+    experience_cat3 = serializers.PrimaryKeyRelatedField(
+        queryset=ExperienceCategory.objects.all(), required=False
+    )
 
     class Meta:
         model = CustomUser
@@ -63,6 +69,26 @@ class UserSerializer(serializers.ModelSerializer):
         reviews = RatingReview.objects.filter(reviewee=obj)
         return reviews.count()
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # Serialize experience categories to OrderedDict
+        representation['experience_cat1'] = OrderedDict({
+            'id': instance.experience_cat1.id,
+            'name': instance.experience_cat1.name
+        }) if instance.experience_cat1 else None
+
+        representation['experience_cat2'] = OrderedDict({
+            'id': instance.experience_cat2.id,
+            'name': instance.experience_cat2.name
+        }) if instance.experience_cat2 else None
+
+        representation['experience_cat3'] = OrderedDict({
+            'id': instance.experience_cat3.id,
+            'name': instance.experience_cat3.name
+        }) if instance.experience_cat3 else None
+
+        return representation
 
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
@@ -114,9 +140,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Set additional care seeker-specific fields if applicable
         if user.is_care_seeker:
             user.health_status = validated_data.get('health_status', '')
-            user.contact_info = validated_data.get('contact_info', '')
 
-        # Set general fields
+        # Set general fields that apply to all user types
+        user.contact_info = validated_data.get('contact_info', '')
         user.location = validated_data.get('location', '')
         user.bio = validated_data.get('bio', '')
         user.profile_image = validated_data.get('profile_image', None)
