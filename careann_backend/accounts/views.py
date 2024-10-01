@@ -3,25 +3,39 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .serializers import ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
-from . models import CustomUser,CaregiverFilter, ExperienceCategory
+from .serializers import CertificationSerializer, ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
+from . models import Certification, CustomUser,CaregiverFilter, ExperienceCategory
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
 from django.db.models import Avg,Q
 from rest_framework import status
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.db import transaction
 
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CaregiverFilter
+
+
+class UploadCredentialsView(generics.CreateAPIView):
+    serializer_class = CertificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Save the certification with the associated user
+        serializer.save(user=self.request.user)
+        
+
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Enable file handling for certification uploads
 
     def get_object(self):
+        # Returns the currently authenticated user
         return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
@@ -30,14 +44,20 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         print('Serialized data:', serializer.data)
         return Response(serializer.data)
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
         user = self.get_object()
-        
-        # Log the incoming request data
-        print('Request data for update:', request.data)
-
-        # Create a mutable copy of request.data
         updated_data = request.data.copy()
+
+        # Handling certifications upload
+        if 'certifications' in request.FILES:
+            certification_files = request.FILES.getlist('certifications')
+            Certification.objects.filter(user=user).delete()  # Optionally delete old certifications
+
+            for file in certification_files:
+                # Extracting the document type from the filename or based on user input
+                document_type = file.name.split('.')[-1]  # e.g., pdf, cv, etc.
+                Certification.objects.create(user=user, file=file, name=file.name, document_type=document_type)
 
         # Include caregiver status if it's not provided in the request
         updated_data['is_caregiver'] = updated_data.get('is_caregiver', user.is_caregiver)
@@ -48,12 +68,24 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        # Handle file uploads for certifications only if they are provided in the request
+        if 'certifications' in request.FILES:
+            certification_files = request.FILES.getlist('certifications')
+
+            # Log the certification files to be uploaded
+            print('Certification files:', certification_files)
+
+            # Delete old certifications if necessary or handle them as needed
+            Certification.objects.filter(user=user).delete()
+
+            # Create new certification instances
+            for file in certification_files:
+                Certification.objects.create(user=user, file=file, name=file.name)
+
         # Log the response data after the update
         print('Updated data:', serializer.data)
 
         return Response(serializer.data)
-
-
 
 class CareSeekerDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.filter(is_care_seeker=True)

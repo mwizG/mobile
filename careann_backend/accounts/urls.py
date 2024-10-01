@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import RegisterView, LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
+from .views import RegisterView,UploadCredentialsView,LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -10,6 +10,6 @@ urlpatterns = [
     path('careseekers/<int:pk>/', CareSeekerDetailView.as_view(), name='careseeker-detail'),  # Add this line for care seekers
 
     path('caregivers/service/<str:serviceType>/', CaregiverByJobTypeView.as_view(), name='caregivers-by-service'),
-
+    path('upload_credentials/', UploadCredentialsView.as_view(), name='upload_credentials'),
     path('caregivers/search/', CaregiverSearchView.as_view(), name='caregiver-search'),
 ]

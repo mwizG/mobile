@@ -20,15 +20,15 @@ import {
 
 // Updated experience options with IDs
 const experienceOptions = [
-    { id: 1, name: 'Respite Care' },
-    { id: 2, name: 'Home Care' },
-    { id: 3, name: 'Senior Care' },
-    { id: 4, name: 'Child Care' },
-    { id: 5, name: 'Disability Care' },
-    { id: 6, name: 'Palliative Care' },
-    { id: 7, name: 'Post-Surgical Care' },
-    { id: 8, name: 'Maternity Care' },
-    { id: 9, name: 'Dementia Care' },
+  { id: 1, name: 'Respite Care' },
+  { id: 2, name: 'Home Care' },
+  { id: 3, name: 'Senior Care' },
+  { id: 4, name: 'Child Care' },
+  { id: 5, name: 'Disability Care' },
+  { id: 6, name: 'Palliative Care' },
+  { id: 7, name: 'Post-Surgical Care' },
+  { id: 8, name: 'Maternity Care' },
+  { id: 9, name: 'Dementia Care' },
 ];
 
 function CaregiverProfile() {
@@ -41,13 +41,14 @@ function CaregiverProfile() {
     username: '',
     location: '',
     bio: '',
-    certifications: '',
     experience_cat1: '',
     experience_cat2: '',
     experience_cat3: '',
     profile_image: null,
   });
   const [role, setRole] = useState(''); // State for role
+  const [credentials, setCredentials] = useState([]); // State for credentials
+  const [file, setFile] = useState(null); // State for file upload
 
   useEffect(() => {
     const fetchCaregiver = async () => {
@@ -58,26 +59,21 @@ function CaregiverProfile() {
             Authorization: `Token ${token}`,
           },
         });
-        
+
         setCaregiver(response.data);
-        
-        // Set profile state
         setProfile({
           email: response.data.email || '',
           username: response.data.username || '',
           location: response.data.location || '',
           bio: response.data.bio || '',
-          certifications: response.data.certifications || '',
           experience_cat1: response.data.experience_cat1?.id || '',
           experience_cat2: response.data.experience_cat2?.id || '',
           experience_cat3: response.data.experience_cat3?.id || '',
           profile_image: response.data.profile_image || null,
         });
 
-        // Determine role based on is_care_seeker and is_caregiver
         const userRole = response.data.is_caregiver ? 'caregiver' : response.data.is_care_seeker ? 'care_seeker' : '';
         setRole(userRole);
-
       } catch (error) {
         setError('Error fetching caregiver details. Please try again later.');
         console.error('Error fetching caregiver details:', error);
@@ -86,7 +82,22 @@ function CaregiverProfile() {
       }
     };
 
+    const fetchCredentials = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://127.0.0.1:8000/api/accounts/credentials/`, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        setCredentials(response.data);
+      } catch (error) {
+        console.error('Error fetching credentials:', error);
+      }
+    };
+
     fetchCaregiver();
+    fetchCredentials();
   }, []);
 
   // Handle profile input change
@@ -104,50 +115,44 @@ function CaregiverProfile() {
       profile_image: e.target.files[0],
     });
   };
-// Handle form submission for profile update
-const handleSubmit = async (e) => {
+
+  // Handle file input change
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  // Handle form submission for profile update
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-  
-      // Define existingProfileImage based on caregiver data
       const existingProfileImage = caregiver ? caregiver.profile_image : null;
-  
-      // Append each profile field to the FormData
+
       for (let key in profile) {
-        // Only append fields that are not null, empty, or different from existing data
         if (profile[key] !== null && profile[key] !== '') {
-          // Skip profile_image if it hasn't changed
           if (key === 'profile_image' && profile[key] === existingProfileImage) {
             continue;
           }
           formData.append(key, profile[key]);
         }
       }
-  
-      const response = await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
+
+      await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
         headers: {
           Authorization: `Token ${token}`,
-          // Remove 'Content-Type' header, let browser set it
         },
       });
-  
+
       alert('Profile updated successfully');
       setEditMode(false);
-  
-      // Optionally re-fetch updated data
       const updatedProfile = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/`, {
         headers: { Authorization: `Token ${token}` },
       });
       setCaregiver(updatedProfile.data);
-  
-      // Update the role based on new data
       const userRole = updatedProfile.data.is_caregiver ? 'caregiver' : updatedProfile.data.is_care_seeker ? 'care_seeker' : '';
       setRole(userRole);
-  
     } catch (error) {
-      // Log the error response from the server
       if (error.response) {
         console.error('Error updating profile:', error.response.data);
         setError('Error updating profile: ' + error.response.data.detail || 'Please try again.');
@@ -157,7 +162,30 @@ const handleSubmit = async (e) => {
       }
     }
   };
-  
+
+  const handleUploadCertificate = async (fileName, file) => {
+    const formData = new FormData();
+    formData.append('name', fileName);
+    formData.append('file', file);
+
+    try {
+        const token = localStorage.getItem('token'); // Retrieve token here
+        const response = await axios.post('http://127.0.0.1:8000/api/accounts/upload_credentials/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Token ${token}`, // Use the token here
+            }
+        });
+        console.log('File uploaded successfully:', response.data);
+    } catch (error) {
+        if (error.response) {
+            console.error('Error uploading file:', error.response.data);
+        } else {
+            console.error('Error uploading file:', error);
+        }
+    }
+};
+
 
   if (loading) {
     return (
@@ -243,23 +271,12 @@ const handleSubmit = async (e) => {
               margin="normal"
               multiline
               rows={4}
-              placeholder="Optional"
+              placeholder="Tell us about yourself"
             />
-            <TextField
-              label="Certifications"
-              name="certifications"
-              value={profile.certifications}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              placeholder="Optional"
-            />
-
-            {/* Experience Categories Dropdowns */}
+            {/* Experience Categories Selection */}
             <FormControl fullWidth margin="normal">
-              <InputLabel id="experience-cat1-label">Experience Category 1</InputLabel>
+              <InputLabel>Experience Category 1</InputLabel>
               <Select
-                labelId="experience-cat1-label"
                 name="experience_cat1"
                 value={profile.experience_cat1}
                 onChange={handleChange}
@@ -271,11 +288,9 @@ const handleSubmit = async (e) => {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl fullWidth margin="normal">
-              <InputLabel id="experience-cat2-label">Experience Category 2</InputLabel>
+              <InputLabel>Experience Category 2</InputLabel>
               <Select
-                labelId="experience-cat2-label"
                 name="experience_cat2"
                 value={profile.experience_cat2}
                 onChange={handleChange}
@@ -287,11 +302,9 @@ const handleSubmit = async (e) => {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl fullWidth margin="normal">
-              <InputLabel id="experience-cat3-label">Experience Category 3</InputLabel>
+              <InputLabel>Experience Category 3</InputLabel>
               <Select
-                labelId="experience-cat3-label"
                 name="experience_cat3"
                 value={profile.experience_cat3}
                 onChange={handleChange}
@@ -303,34 +316,67 @@ const handleSubmit = async (e) => {
                 ))}
               </Select>
             </FormControl>
-
+            {/* Profile Image Upload */}
             <input
-              accept="image/*"
               type="file"
+              accept="image/*"
               onChange={handleImageChange}
-              style={{ marginTop: '16px' }}
+              style={{ marginTop: 16 }}
             />
-            <Button type="submit" variant="contained" sx={{ mt: 2 }}>Update Profile</Button>
-            <Button onClick={() => setEditMode(false)} variant="outlined" sx={{ mt: 2, ml: 2 }}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+              Save Changes
+            </Button>
+            <Button variant="outlined" onClick={() => setEditMode(false)} sx={{ mt: 2, ml: 1 }}>
+              Cancel
+            </Button>
           </form>
         ) : (
           <Box>
             <Typography variant="h6">Bio:</Typography>
-            <Typography>{caregiver.bio || 'Not provided'}</Typography>
-            <Typography variant="h6">Certifications:</Typography>
-            <Typography>{caregiver.certifications || 'Not provided'}</Typography>
-            <Typography variant="h6">Experience Categories:</Typography>
-            <Typography>
-              {profile.experience_cat1 && <span>{experienceOptions.find(option => option.id === profile.experience_cat1)?.name || ''}</span>}
-              {profile.experience_cat2 && <span>, {experienceOptions.find(option => option.id === profile.experience_cat2)?.name || ''}</span>}
-              {profile.experience_cat3 && <span>, {experienceOptions.find(option => option.id === profile.experience_cat3)?.name || ''}</span>}
+            <Typography variant="body1">{caregiver.bio || 'No bio provided.'}</Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>Experience:</Typography>
+            <Typography variant="body1">
+              {caregiver.experience_cat1?.name || 'N/A'}, {caregiver.experience_cat2?.name || 'N/A'}, {caregiver.experience_cat3?.name || 'N/A'}
             </Typography>
-
-            <Button variant="outlined" sx={{ mt: 2 }} onClick={() => setEditMode(true)}>
+            <Button variant="outlined" onClick={() => setEditMode(true)} sx={{ mt: 2 }}>
               Edit Profile
             </Button>
           </Box>
         )}
+
+        <Divider sx={{ my: 3 }} />
+
+        <Typography variant="h5">Credentials</Typography>
+        <Button variant="outlined" component="label" sx={{ mt: 2 }}>
+          Upload Certificate/CV/ID
+          <input
+            type="file"
+            accept="application/pdf"
+            hidden
+            onChange={handleFileChange}
+          />
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleUploadCertificate}
+          sx={{ mt: 2, ml: 1 }}
+          disabled={!file}
+        >
+          Submit
+        </Button>
+        
+        <Box sx={{ mt: 3 }}>
+          {credentials.length > 0 ? (
+            credentials.map((credential, index) => (
+              <Box key={index} sx={{ mb: 1 }}>
+                <Typography variant="body1">{credential.name} (Uploaded at: {new Date(credential.uploaded_at).toLocaleDateString()})</Typography>
+                <a href={credential.file} target="_blank" rel="noopener noreferrer">View Document</a>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body1">No credentials uploaded yet.</Typography>
+          )}
+        </Box>
       </Paper>
     </Container>
   );

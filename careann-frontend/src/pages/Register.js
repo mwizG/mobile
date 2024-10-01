@@ -232,14 +232,6 @@ function Register() {
         {/* Conditional Fields for Caregivers */}
         {formData.is_caregiver && (
           <>
-            <TextField
-              label="Certifications"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              name="certifications"
-              onChange={handleChange}
-            />
 
             {/* Experience Categories Dropdowns */}
             <FormControl fullWidth margin="normal">

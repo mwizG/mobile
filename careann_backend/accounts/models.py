@@ -30,7 +30,7 @@ class CustomUser(AbstractUser):
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     location = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    certifications = models.TextField(null=True, blank=True)
+   
     availability = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     payment_preference = models.CharField(max_length=20, null=True, blank=True)
@@ -44,6 +44,16 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class Certification(models.Model):
+    user = models.ForeignKey(CustomUser, related_name='certifications', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to='certifications/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    document_type = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"Certification ({self.name}) for {self.user.username}"
 
 class CaregiverFilter(filters.FilterSet):
     care_type = filters.CharFilter(field_name="experience_categories")

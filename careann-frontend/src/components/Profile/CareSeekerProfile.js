@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
+  Avatar,
   Container,
   Typography,
   Box,
@@ -19,11 +20,12 @@ function CareSeekerProfile() {
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState({
-    username: '', // Include username in the profile state
+    username: '',
     email: '',
     location: '',
     health_status: '',
     contact_info: '',
+    profile_image: null,
   });
 
   useEffect(() => {
@@ -36,7 +38,16 @@ function CareSeekerProfile() {
           },
         });
         setCareSeeker(response.data);
-        setProfile(response.data); // Set profile state with fetched care seeker data
+        
+        setProfile({
+          email: response.data.email || '',
+          username: response.data.username || '',
+          location: response.data.location || '',
+          bio: response.data.bio || '',
+          health_status: response.data.health_status || '',
+          contact_info: response.data.contact_info || '',
+          profile_image: response.data.profile_image || null,
+        });
       } catch (error) {
         setError('Error fetching care seeker details. Please try again later.');
         console.error('Error fetching care seeker details:', error);
@@ -48,6 +59,15 @@ function CareSeekerProfile() {
     fetchCareSeeker();
   }, []);
 
+  // Get initials from username
+  const getInitials = (username) => {
+    if (!username) return '?';
+    const nameParts = username.split(' ');
+    return nameParts.length > 1
+      ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase() // First initials of first and last name
+      : nameParts[0][0].toUpperCase(); // First initial of the single name
+  };
+
   // Handle profile input change
   const handleChange = (e) => {
     setProfile({
@@ -56,24 +76,37 @@ function CareSeekerProfile() {
     });
   };
 
+  // Handle image input change
+  const handleImageChange = (e) => {
+    setProfile({
+      ...profile,
+      profile_image: e.target.files[0],
+    });
+  };
+  
   // Handle form submission for profile update
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(); // Create FormData to handle file uploads
+
+    // Append fields to FormData
+    formData.append('username', profile.username);
+    formData.append('email', profile.email);
+    formData.append('location', profile.location);
+    formData.append('health_status', profile.health_status);
+    formData.append('contact_info', profile.contact_info);
+
+    // Append the profile image if it exists
+    if (profile.profile_image) {
+      formData.append('profile_image', profile.profile_image);
+    }
+
     try {
       const token = localStorage.getItem('token');
-      
-      // Include the username in the update data
-      const updatedProfileData = {
-        username: profile.username, // Include username
-        email: profile.email,
-        location: profile.location,
-        health_status: profile.health_status,
-        contact_info: profile.contact_info,
-      };
-
-      const response = await axios.put('http://127.0.0.1:8000/api/accounts/profile/', updatedProfileData, {
+      const response = await axios.put('http://127.0.0.1:8000/api/accounts/profile/', formData, {
         headers: {
           Authorization: `Token ${token}`,
+          'Content-Type': 'multipart/form-data', // Set the correct content type for file uploads
         },
       });
 
@@ -123,6 +156,13 @@ function CareSeekerProfile() {
         {/* Header Section */}
         <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
           <Box>
+            <Avatar
+                src={careSeeker.profile_image}
+                alt={`${careSeeker.username}'s profile image`}
+                sx={{ width: 100, height: 100, bgcolor: 'primary.main', fontSize: 40 }}
+            >
+                {careSeeker.username.charAt(0) || getInitials(careSeeker.username)}
+            </Avatar>
             <Typography variant="h4" gutterBottom>
               {careSeeker.username}
             </Typography>
@@ -180,6 +220,12 @@ function CareSeekerProfile() {
               fullWidth
               margin="normal"
             />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ margin: '16px 0' }} // Add some margin for aesthetics
+            />
             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
               Save Changes
             </Button>
@@ -214,6 +260,18 @@ function CareSeekerProfile() {
             <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={() => setEditMode(true)}>
               Edit Profile
             </Button>
+
+            <Box>
+              {careSeeker.profile_image ? (
+                <img
+                  src={careSeeker.profile_image}
+                  alt="Profile"
+                  style={{ width: 100, height: 100, borderRadius: '50%' }}
+                />
+              ) : (
+                <Typography variant="body2" color="textSecondary">No profile image available.</Typography>
+              )}
+            </Box>
           </>
         )}
       </Paper>

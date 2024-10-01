@@ -1,6 +1,6 @@
 from jobs.models import RatingReview
 from rest_framework import serializers
-from .models import CustomUser, ExperienceCategory
+from .models import CustomUser, ExperienceCategory,Certification
 from django.contrib.auth import authenticate
 from django.db.models import Avg
 from collections import OrderedDict 
@@ -16,6 +16,15 @@ class LoginSerializer(serializers.Serializer):
             return {'user': user}  # Return a dictionary with 'user' as the key
         raise serializers.ValidationError("Invalid Credentials")
 
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = ['name', 'file']
+
+    def validate_file(self, value):
+        if not value.name.endswith('.pdf'):
+            raise serializers.ValidationError("Only PDF files are allowed.")
+        return value
 
 class ExperienceCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,10 +45,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'certifications', 'availability', 'profile_image'
         )
 
+
 class UserSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     rating_count = serializers.SerializerMethodField()
-    
+
     experience_cat1 = serializers.PrimaryKeyRelatedField(
         queryset=ExperienceCategory.objects.all(), required=False
     )
@@ -55,7 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
-            'certifications', 'availability', 'profile_image', 'average_rating', 
+            'certifications', 'availability', 'profile_image', 'average_rating',
             'rating_count', 'health_status', 'contact_info'
         )
 
@@ -68,14 +78,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        
+        # Adjust how you access experience categories
         representation['experience_cat1'] = OrderedDict({
             'id': instance.experience_cat1.id,
             'name': instance.experience_cat1.name
         }) if instance.experience_cat1 else None
+        
         representation['experience_cat2'] = OrderedDict({
             'id': instance.experience_cat2.id,
             'name': instance.experience_cat2.name
         }) if instance.experience_cat2 else None
+        
         representation['experience_cat3'] = OrderedDict({
             'id': instance.experience_cat3.id,
             'name': instance.experience_cat3.name
@@ -145,12 +159,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             is_care_seeker=validated_data.get('is_care_seeker', False),
             is_caregiver=validated_data.get('is_caregiver', False)
         )
-
-        # Set additional caregiver-specific fields if applicable
-        if user.is_caregiver:
-            user.certifications = validated_data.get('certifications', '')
-            user.availability = validated_data.get('availability', '')
-            user.payment_preference = validated_data.get('payment_preference', '')
 
         # Set additional care seeker-specific fields if applicable
         if user.is_care_seeker:
