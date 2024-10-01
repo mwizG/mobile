@@ -36,60 +36,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'certifications', 'availability', 'profile_image'
         )
 
-
-class UserSerializer(serializers.ModelSerializer):
-    average_rating = serializers.SerializerMethodField()
-    rating_count = serializers.SerializerMethodField()
-
-    experience_cat1 = serializers.PrimaryKeyRelatedField(
-        queryset=ExperienceCategory.objects.all(), required=False
-    )
-    experience_cat2 = serializers.PrimaryKeyRelatedField(
-        queryset=ExperienceCategory.objects.all(), required=False
-    )
-    experience_cat3 = serializers.PrimaryKeyRelatedField(
-        queryset=ExperienceCategory.objects.all(), required=False
-    )
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
-            'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
-            'certifications', 'availability', 'profile_image', 'average_rating', 'rating_count'
-        )
-
-    def get_average_rating(self, obj):
-        reviews = RatingReview.objects.filter(reviewee=obj)
-        if reviews.exists():
-            return reviews.aggregate(Avg('rating'))['rating__avg']
-        return 0
-
-    def get_rating_count(self, obj):
-        reviews = RatingReview.objects.filter(reviewee=obj)
-        return reviews.count()
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        # Serialize experience categories to OrderedDict
-        representation['experience_cat1'] = OrderedDict({
-            'id': instance.experience_cat1.id,
-            'name': instance.experience_cat1.name
-        }) if instance.experience_cat1 else None
-
-        representation['experience_cat2'] = OrderedDict({
-            'id': instance.experience_cat2.id,
-            'name': instance.experience_cat2.name
-        }) if instance.experience_cat2 else None
-
-        representation['experience_cat3'] = OrderedDict({
-            'id': instance.experience_cat3.id,
-            'name': instance.experience_cat3.name
-        }) if instance.experience_cat3 else None
-
-        return representation
-
 class RegisterSerializer(serializers.ModelSerializer):
     location = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)
