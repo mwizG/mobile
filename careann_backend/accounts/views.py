@@ -14,6 +14,10 @@ from django.db import transaction
 from django.http import Http404  # Import Http404
 
 
+class ExperienceCategoryListView(generics.ListAPIView):
+    queryset = ExperienceCategory.objects.all()
+    serializer_class = ExperienceCategorySerializer
+
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
     serializer_class = UserSerializer
@@ -38,6 +42,8 @@ class CaregiverCredentialsView(generics.ListAPIView):
     def get_queryset(self):
         caregiver_id = self.kwargs.get('caregiver_id')
         return Certification.objects.filter(user_id=caregiver_id)
+
+
 
 class CertificationListView(generics.ListCreateAPIView):
     """
