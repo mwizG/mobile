@@ -18,9 +18,8 @@ class LoginSerializer(serializers.Serializer):
 
 class CredentialSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser  # Assuming credentials are part of CustomUser
-        fields = ['id', 'name', 'file', 'uploaded_at']  # Adjust the fields as necessary
-
+        model = Certification
+        fields = ['id', 'name', 'file', 'uploaded_at'] 
 
 
 class CertificationSerializer(serializers.ModelSerializer):

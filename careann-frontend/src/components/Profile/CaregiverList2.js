@@ -12,7 +12,7 @@ import {
     Box
 } from '@mui/material';
 
-function CaregiverList() {
+function CaregiverList2() {
     const { serviceType } = useParams(); // Get service type from URL
     const [caregivers, setCaregivers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,6 +37,11 @@ function CaregiverList() {
 
         fetchCaregivers();
     }, [serviceType]);
+
+    // Navigate to the caregiver's detail page
+    const goToCaregiverProfile = (caregiverId) => {
+        navigate(`/caregiver/${caregiverId}`);
+    };
 
     const startConversation = async (caregiverUsername) => {
         try {
@@ -99,7 +104,14 @@ function CaregiverList() {
                                         style={{ objectFit: 'cover' }} // Ensure the image covers the entire area
                                     />
                                     <CardContent>
-                                        <Typography variant="h6">{caregiver.username}</Typography>
+                                        {/* Caregiver Username */}
+                                        <Typography 
+                                            variant="h6" 
+                                            sx={{ cursor: 'pointer', color: 'blue' }}
+                                            onClick={() => goToCaregiverProfile(caregiver.id)}
+                                        >
+                                            {caregiver.username}
+                                        </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             {caregiver.bio || "No description available."}
                                         </Typography>
@@ -127,4 +139,4 @@ function CaregiverList() {
     );
 }
 
-export default CaregiverList;
+export default CaregiverList2;

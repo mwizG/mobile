@@ -31,22 +31,13 @@ class UploadCredentialsView(generics.CreateAPIView):
 
 
 
-class CaregiverCredentialsView(generics.RetrieveAPIView):
+class CaregiverCredentialsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    
-    def get_object(self):
-        # Assuming you want to get the caregiver by ID from the URL
-        caregiver_id = self.kwargs['caregiver_id']
-        try:
-            return CustomUser.objects.get(id=caregiver_id, is_caregiver=True)
-        except CustomUser.DoesNotExist:
-            raise Http404("Caregiver not found.")
-    
-    def get(self, request, *args, **kwargs):
-        caregiver = self.get_object()
-        serializer = CredentialSerializer(caregiver)
-        return Response(serializer.data)
+    serializer_class = CredentialSerializer
 
+    def get_queryset(self):
+        caregiver_id = self.kwargs.get('caregiver_id')
+        return Certification.objects.filter(user_id=caregiver_id)
 
 class CertificationListView(generics.ListCreateAPIView):
     """

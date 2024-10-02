@@ -34,21 +34,22 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    first_name: '', // New field for first name
-    last_name: '',  // New field for last name
+    first_name: '',
+    last_name: '',
     is_care_seeker: false,
     is_caregiver: false,
     location: '',
     bio: '',
-    experience_cat1: '', // New field for experience category 1
-    experience_cat2: '', // New field for experience category 2
-    experience_cat3: '', // New field for experience category 3
+    experience_cat1: '',
+    experience_cat2: '',
+    experience_cat3: '',
     certifications: '',
     health_status: '',
     contact_info: '',
     profile_image: null,
   });
 
+  const [imagePreview, setImagePreview] = useState(null); // State to manage the image preview
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -68,10 +69,17 @@ function Register() {
   };
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0];
     setFormData({
       ...formData,
-      profile_image: e.target.files[0],
+      profile_image: file,
     });
+
+    // Generate an image preview
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreview(imageUrl);
+    }
   };
 
   const handleExperienceChange = (field, event) => {
@@ -232,7 +240,6 @@ function Register() {
         {/* Conditional Fields for Caregivers */}
         {formData.is_caregiver && (
           <>
-
             {/* Experience Categories Dropdowns */}
             <FormControl fullWidth margin="normal">
               <InputLabel id="experience-cat1-label">Experience Category 1</InputLabel>
@@ -309,29 +316,23 @@ function Register() {
         )}
 
         {/* Profile Image Upload */}
-        <Box sx={{ mt: 2 }}>
-          <input
-            accept="image/*"
-            style={{ display: 'none' }}
-            id="profile-image"
-            type="file"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="profile-image">
-            <Button variant="contained" component="span" sx={{ backgroundColor: '#388e3c' }}>
-              Upload Profile Image
-            </Button>
-          </label>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>Profile Image</Typography>
+          <Button variant="outlined" component="label">
+            Upload Image
+            <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+          </Button>
         </Box>
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 4, backgroundColor: '#388e3c' }}
-        >
+        {/* Image Preview */}
+        {imagePreview && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1" sx={{ mb: 1 }}>Image Preview:</Typography>
+            <img src={imagePreview} alt="Profile Preview" style={{ width: '150px', height: '150px', borderRadius: '50%' }} />
+          </Box>
+        )}
+
+        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 4, py: 1.5 }}>
           Register
         </Button>
       </form>
