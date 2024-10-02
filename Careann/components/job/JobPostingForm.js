@@ -4,17 +4,54 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { postJob } from '../../services/jobService'; // Assuming postJob is imported correctly
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Picker } from '@react-native-picker/picker';
+import 'nativewind';
+
+const jobTypes = [
+    'Respite Care',
+    'Home Care',
+    'Senior Care',
+    'Child Care',
+    'Disability Care',
+    'Palliative Care',
+    'Post-Surgical Care',
+    'Maternity Care',
+    'Dementia Care',
+  ];
+
+const JobTypeDropdown = ({ selectedJobType, setSelectedJobType }) => {
+
+    return (
+      <View className="mb-2">
+        <Text className="text-lg mb-2">Select Job Type:</Text>
+  
+        <View className="border border-gray-300 rounded-lg">
+          <Picker
+            placeholder='Select Job Type'
+            selectedValue={selectedJobType}
+            onValueChange={(itemValue) => setSelectedJobType(itemValue)}
+            className=""
+          >
+            {jobTypes.map((job, index) => (
+              <Picker.Item label={job} value={job} key={index} />
+            ))}
+          </Picker>
+        </View>
+      </View>
+    );
+  };
 
 const JobPostingForm = ({ navigation }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
-    const [jobType, setJobType] = useState('');
     const [payRate, setPayRate] = useState('');
     const [scheduledDate, setScheduledDate] = useState(new Date()); // Default to current date/time
     const [scheduledTime, setScheduledTime] = useState(new Date()); // For time selection
     const [showDatePicker, setShowDatePicker] = useState(false); // To show/hide date picker
     const [showTimePicker, setShowTimePicker] = useState(false); // To show/hide time picker
+    
+    const [selectedJobType, setSelectedJobType] = useState('');
 
     const handlePostJob = async () => {
         try {
@@ -37,7 +74,7 @@ const JobPostingForm = ({ navigation }) => {
                 title,
                 description,
                 location,
-                job_type: jobType,
+                job_type: selectedJobType,
                 pay_rate: payRate,
                 scheduled_time: scheduledDateTime.toISOString(), // Convert to ISO string
             };
@@ -67,43 +104,50 @@ const JobPostingForm = ({ navigation }) => {
         }
     };
 
+    const onChangePay = (input) => {
+        // Remove any non-numeric characters except for a decimal point
+        const formattedInput = input.replace(/[^0-9.]/g, '');
+    
+        // Set formatted value
+        setPayRate(formattedInput);
+      };
+
     return (
         <SafeAreaView className="flex-1 flex-row p-4">
         <View className="flex-1">
             <TextInput
-                style={styles.input}
+                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
                 placeholder="Title"
                 value={title}
                 onChangeText={setTitle}
             />
             <TextInput
-                style={styles.input}
+                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
                 placeholder="Description"
                 value={description}
                 onChangeText={setDescription}
             />
             <TextInput
-                style={styles.input}
+                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
                 placeholder="Location"
                 value={location}
                 onChangeText={setLocation}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Job Type"
-                value={jobType}
-                onChangeText={setJobType}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Pay Rate"
-                value={payRate}
-                onChangeText={setPayRate}
+            <JobTypeDropdown selectedJobType={selectedJobType} setSelectedJobType={setSelectedJobType} />
+            
+            <View className="border border-gray-300 rounded-lg flex flex-row items-center px-3 mb-2">
+                <Text className="text-lg text-gray-700">ZMW</Text>
+                <TextInput
+                className="flex-1 text-lg p-3 text-black"
                 keyboardType="numeric"
-            />
+                placeholder='Enter pay rate'
+                value={payRate}
+                onChangeText={onChangePay}
+                />
+            </View>
             
             <View style={styles.datePickerContainer}>
-                <Button title="Select Scheduled Date" onPress={() => setShowDatePicker(true)} />
+                <Button title="Select Proposed Date" onPress={() => setShowDatePicker(true)} />
                 {showDatePicker && (
                     <DateTimePicker
                         value={scheduledDate}
@@ -116,7 +160,7 @@ const JobPostingForm = ({ navigation }) => {
                     Scheduled Date: {scheduledDate.toLocaleDateString()}
                 </Text>
 
-                <Button title="Select Scheduled Time" onPress={() => setShowTimePicker(true)} />
+                <Button title="Select Proposed Time" onPress={() => setShowTimePicker(true)} />
                 {showTimePicker && (
                     <DateTimePicker
                         value={scheduledTime}

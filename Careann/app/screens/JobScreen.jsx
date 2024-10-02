@@ -3,20 +3,25 @@ import { StatusBar,Pressable,View, Text, Button, StyleSheet, ScrollView } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
+import { styled } from 'nativewind';
+
+const StyledPressable = styled(Pressable)
 
 
 
 const CardComponent = ({title,image,onPress}) =>{
   return (
-    <Pressable onPress={onPress} className="flex-col w-32 h-48 bg-white shadow-2xl rounded-md items-center justify-center">
+    <StyledPressable onPress={onPress} className="flex-col w-32 h-48 bg-lime-300 shadow rounded-md items-center justify-center">
       <Text className=" p-2 text-xl text-center">
         {title}
       </Text>
-    </Pressable>
-  );
+    </StyledPressable>
+  ); 
 }
+
   
 export default function JobScreen() {
+  
   const navigation = useNavigation();
   const [clicked, setClicked] = useState('');
   return (

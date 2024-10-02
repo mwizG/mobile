@@ -8,7 +8,7 @@ import { TextInput } from 'react-native-paper';
 
 const CardComponent = ({title,image,onPress}) =>{
   return (
-    <Pressable onPress={onPress} className="flex-col w-32 h-48 bg-white shadow-2xl rounded-md items-center justify-center">
+    <Pressable onPress={onPress} className="flex-col w-32 h-48 bg-green-400 shadow rounded-md items-center justify-center">
       <Text className=" p-2 text-xl text-center">
         {title}
       </Text>
