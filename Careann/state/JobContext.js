@@ -16,6 +16,7 @@ export const JobProvider = ({ children }) => {
     try {
       const response = await get('/jobs/search/'); // Use the `get` function from api.js
       setJobs(response.data);
+      console.log(response.data);
     } catch (error) {
       setError('Error fetching jobs');
       console.error('Error fetching jobs:', error);

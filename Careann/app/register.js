@@ -3,6 +3,19 @@ import { View, Text, TextInput, TouchableOpacity, Button, ScrollView, StatusBar 
 import { useNavigation } from '@react-navigation/native';
 import { styled } from 'nativewind'; // NativeWind for styling
 import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
+
+const experienceOptions = [
+  { id: 1, name: 'Respite Care' },
+  { id: 2, name: 'Home Care' },
+  { id: 3, name: 'Senior Care' },
+  { id: 4, name: 'Child Care' },
+  { id: 5, name: 'Disability Care' },
+  { id: 6, name: 'Palliative Care' },
+  { id: 7, name: 'Post-Surgical Care' },
+  { id: 8, name: 'Maternity Care' },
+  { id: 9, name: 'Dementia Care' },
+];
 
 // Styled components with NativeWind
 const Container = styled(View, 'flex-1 items-center bg-gray-100 p-4');
@@ -15,22 +28,24 @@ const Input = styled(TextInput, 'border p-3 w-full mb-4 rounded-lg text-gray-700
 const Register = () => {
   const [activeTab, setActiveTab] = useState('care_seeker'); // Track active tab
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+    username: '',
     email: '',
     password: '',
+    first_name: '',
+    last_name: '',
     is_care_seeker: true,
     is_caregiver: false,
     location: '',
     bio: '',
-    experience: '',
+    experience_cat1: '',
+    experience_cat2: '',
+    experience_cat3: '',
     certifications: '',
-    availability: '',
-    payment_preference: '',
-    experience_categories: '',
     health_status: '',
     contact_info: '',
+    profile_image: null,
   });
+  
   const [error, setError] = useState('');
   const navigation = useNavigation();
 
@@ -51,16 +66,38 @@ const Register = () => {
       is_caregiver: role === 'caregiver',
     });
   };
-
-  const handleSubmit = () => {
-    // Handle form submission
+  const handleSubmit = async () => {
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] !== null && formData[key] !== undefined) {
+        data.append(key, formData[key]);
+      }
+    });
     if (!formData.first_name || !formData.last_name || !formData.email || !formData.password) {
       setError('Please fill out all fields');
       return;
     }
     setError('');
-    console.log(formData);
-    // Navigate or send the formData to the backend
+
+    try {
+      await axios.post('http://127.0.0.1:8000/api/accounts/register/', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      navigation.navigate('login');
+    } catch (error) {
+      if (error.response) {
+        console.error('Registration failed', error.response.data);
+        alert(`Registration failed: ${error.response.data.detail || 'Unknown error'}`);
+      } else if (error.request) {
+        console.error('No response received', error.request);
+        alert('No response from the server, please try again later.');
+      } else {
+        console.error('Error', error.message);
+        alert(`Error: ${error.message}`);
+      }
+    }
   };
 
   return (
