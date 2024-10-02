@@ -132,15 +132,8 @@ function CaregiverDetail() {
             .filter(Boolean)
             .join(', ') || 'No experience categories provided'}
         </Typography>
-        
-        <Typography variant="body1">
-          <strong>Certifications:</strong> {caregiver.certifications || 'No certifications'}
-        </Typography>
         <Typography variant="body1">
           <strong>Availability:</strong> {caregiver.availability || 'Not available'}
-        </Typography>
-        <Typography variant="body1">
-          <strong>Payment Preference:</strong> {caregiver.payment_preference || 'No preference specified'}
         </Typography>
 
         <Divider sx={{ my: 3 }} />

@@ -23,7 +23,6 @@ function SearchCaregiversForm() {
   const [location, setLocation] = useState('');
   const [serviceType, setServiceType] = useState('');
   const [availability, setAvailability] = useState('');
-  const [experience, setExperience] = useState('');
   const [caregivers, setCaregivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [experienceCategories, setExperienceCategories] = useState([]);
@@ -96,7 +95,7 @@ function SearchCaregiversForm() {
           location,
           service_type: serviceType,
           availability,
-          experience,
+          
         },
       });
       setCaregivers(response.data);
@@ -166,16 +165,6 @@ function SearchCaregiversForm() {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Experience (Years)"
-                value={experience}
-                onChange={(e) => setExperience(e.target.value)}
-                variant="outlined"
-              />
-            </Grid>
           </Grid>
 
           <Box sx={{ mt: 4, textAlign: 'center' }}>
@@ -236,9 +225,7 @@ function SearchCaregiversForm() {
                     <Typography variant="body2">
                       Experience Category: {caregiver.experience_cat1 ? caregiver.experience_cat1.name : 'No Category'}
                     </Typography>
-                    <Typography variant="body2">
-                      Years of Experience: {caregiver.experience || 'Not provided'}
-                    </Typography>
+                    
                   </CardContent>
                   <CardActions sx={{ justifyContent: 'center' }}>
                     <Button
