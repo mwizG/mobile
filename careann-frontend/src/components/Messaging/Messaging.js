@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import {
+    Container,
+    Grid,
+    Typography,
+    Button,
+    TextField,
+    List,
+    ListItem,
+    ListItemText,
+    CircularProgress,
+    Paper,
+} from '@mui/material';
 
 const Messaging = () => {
     const [conversations, setConversations] = useState([]);
@@ -7,6 +19,7 @@ const Messaging = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const messageEndRef = useRef(null);
+    const [loading, setLoading] = useState(true);
 
     // Fetch conversations when component mounts
     useEffect(() => {
@@ -27,12 +40,13 @@ const Messaging = () => {
                 }
             } catch (error) {
                 console.error('Error fetching conversations:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchConversations();
     }, []);
-     // Fetch messages for the selected conversation with polling
-    
+
     // Fetch messages for the selected conversation
     const fetchMessages = async (conversationId) => {
         try {
@@ -44,22 +58,20 @@ const Messaging = () => {
             });
             setMessages(response.data);
             setSelectedConversation(conversationId);
-
-            // Save the selected conversation ID to localStorage
             localStorage.setItem('selectedConversation', conversationId);
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
     };
-     
+
     useEffect(() => {
         if (selectedConversation) {
             // Polling every 5 seconds for new messages
             const intervalId = setInterval(() => {
                 fetchMessages(selectedConversation);
-            }, 5000); // 5000ms = 5 seconds
-    
-            return () => clearInterval(intervalId); // Clean up on unmount
+            }, 5000);
+
+            return () => clearInterval(intervalId);
         }
     }, [selectedConversation]);
 
@@ -100,56 +112,71 @@ const Messaging = () => {
     };
 
     return (
-        <div className="messaging-container" style={{ display: 'flex', height: '100vh' }}>
-            <div className="conversation-list" style={{ flex: 1, padding: '20px', borderRight: '1px solid #ccc' }}>
-                <h2>Your Conversations</h2>
-                <ul>
-                    {conversations.map((conversation) => (
-                        <li key={conversation.id}>
-                            <button onClick={() => fetchMessages(conversation.id)}>
-                                Conversation with {conversation.participants.join(', ')}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className="message-area" style={{ flex: 2, padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                {selectedConversation ? (
-                    <>
-                        <h2>Messages</h2>
-                        <div className="message-list" style={{ flex: 1, overflowY: 'auto' }}>
-                            {messages.length === 0 ? (
-                                <p>No messages yet.</p>
-                            ) : (
-                                <ul>
-                                    {messages.map((message) => (
-                                        <li key={message.id} style={{ margin: '10px 0' }}>
-                                            <strong>{message.sender}:</strong> {message.content}
-                                        </li>
-                                    ))}
+        <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', height: '80vh' }}>
+            <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                <Grid item xs={4} sx={{ borderRight: '1px solid #ccc', padding: 2 }}>
+                    <Typography variant="h5" gutterBottom>
+                        Your Conversations
+                    </Typography>
+                    {loading ? (
+                        <CircularProgress />
+                    ) : (
+                        <List>
+                            {conversations.map((conversation) => (
+                                <ListItem 
+                                    button 
+                                    key={conversation.id} 
+                                    onClick={() => fetchMessages(conversation.id)} 
+                                    sx={{ backgroundColor: selectedConversation === conversation.id ? '#f0f0f0' : 'inherit' }}
+                                >
+                                    <ListItemText primary={`Conversation with ${conversation.participants.join(', ')}`} />
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
+                </Grid>
+                <Grid item xs={8} sx={{ padding: 2 }}>
+                    {selectedConversation ? (
+                        <Paper elevation={3} sx={{ padding: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <Typography variant="h5" gutterBottom>
+                                Messages
+                            </Typography>
+                            <div style={{ flex: 1, overflowY: 'auto', maxHeight: '60vh' }}>
+                                <List>
+                                    {messages.length === 0 ? (
+                                        <Typography variant="body2">No messages yet.</Typography>
+                                    ) : (
+                                        messages.map((message) => (
+                                            <ListItem key={message.id}>
+                                                <ListItemText 
+                                                    primary={<strong>{message.sender}:</strong>} 
+                                                    secondary={message.content} 
+                                                />
+                                            </ListItem>
+                                        ))
+                                    )}
                                     <div ref={messageEndRef}></div>
-                                </ul>
-                            )}
-                        </div>
-                        <div className="message-input" style={{ display: 'flex', marginTop: '10px' }}>
-                            <input
-                                type="text"
-                                placeholder="Type a message"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                style={{ flex: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
-                            />
-                            <button onClick={handleSendMessage} style={{ marginLeft: '10px', padding: '10px 20px' }}>
-                                Send
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <p>Select a conversation to view messages</p>
-                )}
-            </div>
-        </div>
+                                </List>
+                            </div>
+                            <div style={{ display: 'flex', marginTop: 2 }}>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder="Type a message"
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    sx={{ flex: 1, marginRight: 2 }}
+                                />
+                                <Button variant="contained" onClick={handleSendMessage}>
+                                    Send
+                                </Button>
+                            </div>
+                        </Paper>
+                    ) : (
+                        <Typography variant="body2">Select a conversation to view messages</Typography>
+                    )}
+                </Grid>
+            </Grid>
+        </Container>
     );
 }
 

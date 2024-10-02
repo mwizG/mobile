@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Typography,
+    Card,
+    CardContent,
+    CardActions,
+    Button,
+    Grid,
+    CircularProgress,
+    Alert,
+} from '@mui/material';
 
 function ConversationList() {
     const [conversations, setConversations] = useState([]);
@@ -39,40 +50,62 @@ function ConversationList() {
     };
 
     if (loading) {
-        return <p>Loading conversations...</p>;
+        return (
+            <Container maxWidth="md" sx={{ mt: 4, textAlign: 'center' }}>
+                <CircularProgress />
+                <Typography variant="h6" sx={{ mt: 2 }}>Loading conversations...</Typography>
+            </Container>
+        );
     }
 
     if (error) {
-        return <p>{error}</p>;
+        return (
+            <Container maxWidth="md" sx={{ mt: 4 }}>
+                <Alert severity="error">{error}</Alert>
+            </Container>
+        );
     }
 
     return (
-        <div className="conversation-list-container">
-            <h2>Your Conversations</h2>
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+            <Typography variant="h4" gutterBottom>
+                Your Conversations
+            </Typography>
 
             {/* Check if there are conversations */}
             {conversations.length === 0 ? (
-                <p>No conversations yet.</p>
+                <Typography variant="body1">No conversations yet.</Typography>
             ) : (
-                <ul>
+                <Grid container spacing={3}>
                     {conversations.map((conversation) => (
-                        <li key={conversation.id} className="conversation-item">
-                            <p>
-                                <strong>Participants:</strong> 
-                                {conversation.participants && conversation.participants.length > 0 
-                                    ? conversation.participants.join(', ') 
-                                    : 'No participants found'}
-                            </p>
-
-                            {/* View Conversation */}
-                            <button onClick={() => handleConversationClick(conversation.id)}>
-                                View Messages
-                            </button>
-                        </li>
+                        <Grid item xs={12} sm={6} md={4} key={conversation.id}>
+                            <Card sx={{ height: '100%' }}>
+                                <CardContent>
+                                    <Typography variant="h6" component="div">
+                                        Participants
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {conversation.participants && conversation.participants.length > 0 
+                                            ? conversation.participants.join(', ') 
+                                            : 'No participants found'}
+                                    </Typography>
+                                </CardContent>
+                                <CardActions>
+                                    <Button 
+                                        variant="contained" 
+                                        color="primary" 
+                                        onClick={() => handleConversationClick(conversation.id)} 
+                                        fullWidth
+                                    >
+                                        View Messages
+                                    </Button>
+                                </CardActions>
+                            </Card>
+                        </Grid>
                     ))}
-                </ul>
+                </Grid>
             )}
-        </div>
+        </Container>
     );
 }
 
