@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import CaregiverCredentialsView, CertificationDetailView, CertificationListView, ExperienceCategoryListView, RegisterView,UploadCredentialsView,LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
+from .views import CaregiverCredentialsView, CertificationDetailView, CertificationListView, ExperienceCategoryListView, LocationListView, RegisterView,UploadCredentialsView,LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -8,7 +8,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('caregivers/<int:pk>/', CaregiverDetailView.as_view(), name='caregiver-detail'),
     path('careseekers/<int:pk>/', CareSeekerDetailView.as_view(), name='careseeker-detail'),  # Add this line for care seekers
-
+    path('locations/', LocationListView.as_view(), name='location-list'),
     path('caregivers/service/<str:serviceType>/', CaregiverByJobTypeView.as_view(), name='caregivers-by-service'),
     path('upload_credentials/', UploadCredentialsView.as_view(), name='upload_credentials'),
     path('caregivers/search/', CaregiverSearchView.as_view(), name='caregiver-search'),

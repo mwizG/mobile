@@ -3,6 +3,19 @@ from django.db import models
 from django_filters import rest_framework as filters
 
 
+ZAMBIA_LOCATIONS = [
+    ('Lusaka', 'Lusaka'),
+    ('Ndola', 'Ndola'),
+    ('Kitwe', 'Kitwe'),
+    ('Livingstone', 'Livingstone'),
+    ('Chipata', 'Chipata'),
+    ('Mansa', 'Mansa'),
+    ('Kabwe', 'Kabwe'),
+    ('Solwezi', 'Solwezi'),
+    # Add more cities or regions as needed
+]
+
+
 class ExperienceCategory(models.Model):
     JOB_TYPE_CHOICES = [
         ('Respite Care', 'Respite Care'),
@@ -28,7 +41,7 @@ class CustomUser(AbstractUser):
     is_caregiver = models.BooleanField(default=False)
     rating_count = models.PositiveIntegerField(default=0)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
-    location = models.CharField(max_length=255, null=True, blank=True)
+    location = models.CharField(max_length=50, choices=ZAMBIA_LOCATIONS, default='Lusaka')
     bio = models.TextField(null=True, blank=True)
    
     availability = models.CharField(max_length=255, null=True, blank=True)

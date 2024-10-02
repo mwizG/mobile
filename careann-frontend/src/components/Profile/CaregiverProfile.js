@@ -49,6 +49,35 @@ function CaregiverProfile() {
   const [role, setRole] = useState(''); // State for role
   const [credentials, setCredentials] = useState([]); // State for credentials
   const [file, setFile] = useState(null); // State for file upload
+  const [locations, setLocations] = useState([]);
+
+
+  // Fetch locations for the dropdown with Authorization header
+    useEffect(() => {
+        const fetchLocations = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+              console.error('User is not logged in. Please log in to continue.');
+              return;
+            }
+  
+            const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
+              headers: {
+                Authorization: `Token ${token}`,
+              },
+            });
+            setLocations(response.data);
+          } catch (error) {
+            console.error('Error fetching locations', error);
+          }
+        };
+  
+        fetchLocations(); // Fetch locations on component mount
+      }, []);
+
+
+
 
   useEffect(() => {
     const fetchCaregiver = async () => {
@@ -253,15 +282,27 @@ function CaregiverProfile() {
               fullWidth
               margin="normal"
             />
-            <TextField
-              label="Location"
-              name="location"
-              value={profile.location}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              placeholder="Optional"
-            />
+            {/* Dropdown for location */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="location-label">Location</InputLabel>
+              <Select
+                labelId="location-label"
+                name="location" // Use name to match formData
+                value={profile.location} // Use profile.location as value
+                onChange={handleChange} // Use handleChange to update location
+                displayEmpty
+                variant="outlined"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {locations.map((loc) => (
+                  <MenuItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Bio"
               name="bio"

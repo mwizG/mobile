@@ -22,6 +22,10 @@ class CredentialSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'file', 'uploaded_at'] 
 
 
+class LocationSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=50)
+
+
 class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification
@@ -46,7 +50,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
+            'id','first_name','last_name', 'username', 'email', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
             'certifications', 'availability', 'profile_image'
         )
@@ -69,7 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id', 'username', 'email', 'is_care_seeker', 'is_caregiver',
+            'id','first_name','last_name', 'username', 'email', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'experience_cat1', 'experience_cat2', 'experience_cat3',
             'certifications', 'availability', 'profile_image', 'average_rating',
             'rating_count', 'health_status', 'contact_info'
@@ -149,7 +153,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'username', 'email', 'password', 'is_care_seeker', 'is_caregiver',
+            'username','first_name','last_name', 'email', 'password', 'is_care_seeker', 'is_caregiver',
             'location', 'bio', 'certifications', 'availability',
             'profile_image', 'payment_preference', 'experience_cat1',
             'experience_cat2', 'experience_cat3', 'health_status', 'contact_info'
@@ -162,6 +166,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),  # Include first_name
+            last_name=validated_data.get('last_name', ''),    # Include last_name
             is_care_seeker=validated_data.get('is_care_seeker', False),
             is_caregiver=validated_data.get('is_caregiver', False)
         )

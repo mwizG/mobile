@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .serializers import CertificationSerializer, CredentialSerializer, ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
+from .serializers import CertificationSerializer, CredentialSerializer, CustomUserSerializer,LocationSerializer,ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
 from . models import Certification, CustomUser,CaregiverFilter, ExperienceCategory
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
@@ -12,11 +12,19 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import transaction
 from django.http import Http404  # Import Http404
-
+from .models import ZAMBIA_LOCATIONS
 
 class ExperienceCategoryListView(generics.ListAPIView):
     queryset = ExperienceCategory.objects.all()
     serializer_class = ExperienceCategorySerializer
+
+class LocationListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LocationSerializer
+
+    def get_queryset(self):
+        # Convert ZAMBIA_LOCATIONS to a list of dictionaries to use with the serializer
+        return [{'name': location[1]} for location in ZAMBIA_LOCATIONS]
 
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)
@@ -200,12 +208,15 @@ class RegisterView(generics.CreateAPIView):
         # Check if the serializer data is valid
         if serializer.is_valid():
             user = serializer.save()
-            return Response(serializer.data, status=201)
+
+            # Use CustomUserSerializer to serialize the created user data
+            user_data = CustomUserSerializer(user).data
+            
+            return Response(user_data, status=201)
         else:
             # If the serializer data is not valid, log the errors and return a 400 response
             print("Serializer errors:", serializer.errors)  # Log the errors for debugging
             return Response(serializer.errors, status=400)
-        
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer

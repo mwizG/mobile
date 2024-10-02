@@ -12,6 +12,10 @@ import {
   Divider,
   Button,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 
 function CareSeekerProfile() {
@@ -27,6 +31,34 @@ function CareSeekerProfile() {
     contact_info: '',
     profile_image: null,
   });
+  
+
+  const [locations, setLocations] = useState([]);
+  // Fetch locations for the dropdown with Authorization header
+    useEffect(() => {
+        const fetchLocations = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+              console.error('User is not logged in. Please log in to continue.');
+              return;
+            }
+  
+            const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
+              headers: {
+                Authorization: `Token ${token}`,
+              },
+            });
+            setLocations(response.data);
+          } catch (error) {
+            console.error('Error fetching locations', error);
+          }
+        };
+  
+        fetchLocations(); // Fetch locations on component mount
+      }, []);
+  
+
 
   useEffect(() => {
     const fetchCareSeeker = async () => {
@@ -48,6 +80,9 @@ function CareSeekerProfile() {
           contact_info: response.data.contact_info || '',
           profile_image: response.data.profile_image || null,
         });
+
+
+       
       } catch (error) {
         setError('Error fetching care seeker details. Please try again later.');
         console.error('Error fetching care seeker details:', error);
@@ -96,8 +131,8 @@ function CareSeekerProfile() {
     formData.append('health_status', profile.health_status);
     formData.append('contact_info', profile.contact_info);
 
-    // Append the profile image if it exists
-    if (profile.profile_image) {
+    // Only append the profile image if it exists and is a valid file
+    if (profile.profile_image && profile.profile_image instanceof File) {
       formData.append('profile_image', profile.profile_image);
     }
 
@@ -196,14 +231,27 @@ function CareSeekerProfile() {
               fullWidth
               margin="normal"
             />
-            <TextField
-              label="Location"
-              name="location"
-              value={profile.location}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+            {/* Dropdown for location */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="location-label">Location</InputLabel>
+              <Select
+                labelId="location-label"
+                name="location" // Use name to match formData
+                value={profile.location} // Use profile.location as value
+                onChange={handleChange} // Use handleChange to update location
+                displayEmpty
+                variant="outlined"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {locations.map((loc) => (
+                  <MenuItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Health Status"
               name="health_status"

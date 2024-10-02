@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -51,6 +51,33 @@ function Register() {
 
   const [imagePreview, setImagePreview] = useState(null); // State to manage the image preview
   const navigate = useNavigate();
+  const [locations, setLocations] = useState([]);
+// Fetch locations for the dropdown with Authorization header
+  useEffect(() => {
+      const fetchLocations = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            console.error('User is not logged in. Please log in to continue.');
+            return;
+          }
+
+          const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          });
+          setLocations(response.data);
+        } catch (error) {
+          console.error('Error fetching locations', error);
+        }
+      };
+
+      fetchLocations(); // Fetch locations on component mount
+    }, []);
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -200,14 +227,27 @@ function Register() {
         {/* Conditional Fields for Care Seekers */}
         {formData.is_care_seeker && (
           <>
-            <TextField
-              label="Location"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              name="location"
-              onChange={handleChange}
-            />
+            
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="location-label">Location</InputLabel>
+              <Select
+                labelId="location-label"
+                name="location" // Use name to match formData
+                value={formData.location} // Use formData.location as value
+                onChange={handleChange} // Use handleChange to update location
+                displayEmpty
+                variant="outlined"
+              >
+                <MenuItem value="">
+                  
+                </MenuItem>
+                {locations.map((loc) => (
+                  <MenuItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Health Status"
               variant="outlined"
@@ -286,14 +326,26 @@ function Register() {
               </Select>
             </FormControl>
 
-            <TextField
-              label="Location"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              name="location"
-              onChange={handleChange}
-            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="location-label">Location</InputLabel>
+              <Select
+                labelId="location-label"
+                name="location" // Use name to match formData
+                value={formData.location} // Use formData.location as value
+                onChange={handleChange} // Use handleChange to update location
+                displayEmpty
+                variant="outlined"
+              >
+                <MenuItem value="">
+                  
+                </MenuItem>
+                {locations.map((loc) => (
+                  <MenuItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Contact Info"
               variant="outlined"

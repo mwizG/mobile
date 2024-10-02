@@ -27,10 +27,35 @@ function SearchCaregiversForm() {
   const [caregivers, setCaregivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [experienceCategories, setExperienceCategories] = useState([]);
+  const [locations, setLocations] = useState([]); // Moved location state here
   const navigate = useNavigate();
 
+  // Fetch locations for the dropdown with Authorization header
   useEffect(() => {
-    // Fetch experience categories for the dropdown with Authorization header
+    const fetchLocations = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('User is not logged in. Please log in to continue.');
+          return;
+        }
+
+        const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        setLocations(response.data);
+      } catch (error) {
+        console.error('Error fetching locations', error);
+      }
+    };
+
+    fetchLocations(); // Fetch locations on component mount
+  }, []);
+
+  // Fetch experience categories for the dropdown with Authorization header
+  useEffect(() => {
     const fetchExperienceCategories = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -49,9 +74,8 @@ function SearchCaregiversForm() {
         console.error('Error fetching experience categories', error);
       }
     };
-    fetchExperienceCategories();
 
-    
+    fetchExperienceCategories(); // Fetch experience categories on component mount
   }, []);
 
   const handleSearch = async (e) => {
@@ -98,13 +122,22 @@ function SearchCaregiversForm() {
         <Box component="form" onSubmit={handleSearch} sx={{ mt: 4 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <Select
                 fullWidth
-                label="Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={location} // Use location as the value
+                onChange={(e) => setLocation(e.target.value)} // Update the location on change
+                displayEmpty
                 variant="outlined"
-              />
+              >
+                <MenuItem value="">
+                  <em>Select Location</em>
+                </MenuItem>
+                {locations.map((loc) => (
+                  <MenuItem key={loc.id} value={loc.name}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
+              </Select>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Select
