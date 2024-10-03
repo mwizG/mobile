@@ -17,7 +17,8 @@ from .serializers import TaskSerializer
 from rest_framework.views import APIView
 from .models import ZAMBIA_LOCATIONS
 from django_filters import rest_framework as filters
-
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 class LocationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -84,6 +85,7 @@ class CompleteJobView(APIView):
         job.save()
 
         return Response({"message": "Job marked as completed."}, status=status.HTTP_200_OK)
+    
 
 class ProposeJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
@@ -94,6 +96,7 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         print(f"Request Data: {request.data}")
         print(f"Job ID: {kwargs['pk']}")
         job = self.get_object()
+
         if request.user != job.care_seeker:
             return Response({"error": "You are not authorized to propose a time for this job."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -101,12 +104,33 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         if not proposed_time:
             return Response({"error": "Proposed time is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Convert the proposed time to a datetime object and ensure it is timezone-aware
+        proposed_time = timezone.make_aware(timezone.datetime.fromisoformat(proposed_time))
+
+        # Check for scheduling conflicts with the caregiver's other jobs
+        caregiver_jobs = Job.objects.filter(caregiver=job.caregiver).exclude(id=job.id)
+
+        for caregiver_job in caregiver_jobs:
+            if caregiver_job.scheduled_time:
+                # Ensure that caregiver_job.scheduled_time is timezone-aware
+                if caregiver_job.scheduled_time.tzinfo is None:
+                    caregiver_job.scheduled_time = timezone.make_aware(caregiver_job.scheduled_time)
+
+                # Calculate the time difference
+                time_difference = abs(caregiver_job.scheduled_time - proposed_time)
+
+                # Check if the time difference is less than or equal to 2 hours
+                if time_difference <= timedelta(hours=2):
+                    return Response({
+                        "error": "Scheduling conflict: Caregiver has another job scheduled within 2 hours of this time. Please propose a different time."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+        # If no conflicts, proceed to update the job's proposed time
         job.proposed_time = proposed_time
         job.save()
 
         return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
-
-
+    
 class CreateRatingReviewView(generics.CreateAPIView):
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -237,6 +261,8 @@ class OpenJobsListView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         print(f"Response data for Open jobs: {serializer.data}")
         return Response(serializer.data)
+
+
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -373,29 +399,57 @@ class AcceptJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # You need to override the get_queryset method
     def get_queryset(self):
-        # Return only jobs that are open
         return Job.objects.filter(status='Open')
 
     def update(self, request, *args, **kwargs):
-        job = self.get_object()  # This now uses the queryset from get_queryset()
-        
-        # Ensure the caregiver is accepting the job
+        job = self.get_object()
+
+        # Print the incoming request data
+        print("Request Data:", request.data)
+
         if job.caregiver != request.user:
             return Response({"error": "You are not authorized to accept this job."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Only allow the job to be accepted if it is still open
         if job.status != 'Open':
             return Response({"error": "Job is no longer available."}, status=400)
 
-        # Caregiver accepts the job and the status changes to "In Progress"
+        # Extract the scheduled time from request data
+        scheduled_time = request.data.get('scheduled_time')
+        
+        # Ensure that scheduled_time is present in the request data
+        if not scheduled_time:
+            return Response({"error": "Scheduled time is required."}, status=400)
+
+        # Convert scheduled_time to a timezone-aware datetime object
+        proposed_time = timezone.datetime.fromisoformat(scheduled_time)
+
+        # Check for scheduling conflicts
+        caregiver_jobs = Job.objects.filter(caregiver=request.user).exclude(id=job.id)
+        
+        for caregiver_job in caregiver_jobs:
+            if caregiver_job.scheduled_time:
+                time_difference = abs(caregiver_job.scheduled_time - proposed_time)
+                # Check if the time difference is less than or equal to 2 hours
+                if time_difference <= timedelta(hours=2):
+                    return Response({"error": "Scheduling conflict: You have another job scheduled within 2 hours of this time."}, status=400)
+
+        # If no conflicts, proceed to accept the job
         job.status = 'In Progress'
-        job.scheduled_time = request.data.get('scheduled_time')  # Optional scheduled time
+        job.scheduled_time = proposed_time
+        job.accepted_time = proposed_time
+        
+        # Log the job data before saving
+        print("Job Data Before Save:", JobSerializer(job).data)
+
         job.save()
 
+        # Log the job data after saving
+        print("Job Data After Save:", JobSerializer(job).data)
+
         return Response(JobSerializer(job).data)
- 
+
+
 
 class AcceptJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
@@ -405,6 +459,9 @@ class AcceptJobTimeView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         job = self.get_object()
 
+        # Print incoming request data
+        print("Request Data:", request.data)
+
         # Ensure the job has an assigned caregiver
         if job.caregiver != request.user:
             return Response({"error": "You are not authorized to accept the proposed time for this job."}, status=status.HTTP_403_FORBIDDEN)
@@ -413,9 +470,15 @@ class AcceptJobTimeView(generics.UpdateAPIView):
         if not job.proposed_time:
             return Response({"error": "No proposed time to accept."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Log the current state of the job before updating
+        print("Job before update:", JobSerializer(job).data)
+
         # Accept the proposed time
         job.accepted_time = job.proposed_time
         job.save()
+
+        # Log the updated state of the job after saving
+        print("Job after update:", JobSerializer(job).data)
 
         return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
 
@@ -425,21 +488,19 @@ class DeclineJobView(generics.UpdateAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # Add get_queryset to filter only 'Open' jobs
     def get_queryset(self):
         return Job.objects.filter(status='Open')
 
     def update(self, request, *args, **kwargs):
-        job = self.get_object()  # This now uses the queryset from get_queryset()
+        job = self.get_object()
 
         if job.status != 'Open':
-            return Response({"error": "Job is no longer available."}, status=400)
+            return Response({"error": "Job is no longer available."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Ensure only the caregiver can decline the job
         if job.caregiver != request.user:
             return Response({"error": "You are not authorized to decline this job."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Set job status to 'Declined'
+        # Update job status and application status
         job.status = 'Declined'
         job.save()
 

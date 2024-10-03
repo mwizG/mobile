@@ -77,17 +77,35 @@ function JobApplicationDetail() {
     }, [id]);
 
     const handleAcceptJobTime = async () => {
+        if (!job || !job.proposed_time) {
+            setError('Proposed time not found. Cannot accept the job.');
+            return;
+        }
+    
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}${id}/accept/`, {}, {
+            
+            // Create the payload with proposed time as both scheduled_time and accepted_time
+            const payload = {
+                scheduled_time: job.proposed_time,
+                accepted_time: job.proposed_time,
+            };
+    
+            // Send the PATCH request to accept the job with scheduled_time and accepted_time
+            await axios.patch(`${API_URL}${id}/accept/`, payload, {
                 headers: {
                     Authorization: `Token ${token}`,
                 },
             });
+    
             alert('Job accepted successfully!');
             navigate('/caregiver-jobs');
         } catch (error) {
-            setError('Error accepting the job');
+            if (error.response && error.response.data.error) {
+                setError(error.response.data.error);  // Set the error message from the response
+            } else {
+                setError('Error accepting the job');
+            }
             console.error('Error accepting the job:', error);
         }
     };

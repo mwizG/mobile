@@ -31,29 +31,29 @@ const JobApplicationUpdate = () => {
     const [userRole, setUserRole] = useState('');
 
     useEffect(() => {
-        const fetchApplication = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const role = localStorage.getItem('role');
-                setUserRole(role);
-
-                const appResponse = await axios.get(`${API_URL}/applications/${pk}/`, {
-                    headers: { Authorization: `Token ${token}` },
-                });
-                setApplication(appResponse.data);
-                setStatus(appResponse.data.status);
-
-                const jobResponse = await axios.get(`${API_URL}/${appResponse.data.job}/`, {
-                    headers: { Authorization: `Token ${token}` },
-                });
-                setJob(jobResponse.data);
-            } catch (err) {
-                handleError(err, 'fetching application or job details');
-            }
-        };
-
         fetchApplication();
     }, [pk]);
+
+    const fetchApplication = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            setUserRole(role);
+
+            const appResponse = await axios.get(`${API_URL}/applications/${pk}/`, {
+                headers: { Authorization: `Token ${token}` },
+            });
+            setApplication(appResponse.data);
+            setStatus(appResponse.data.status);
+
+            const jobResponse = await axios.get(`${API_URL}/${appResponse.data.job}/`, {
+                headers: { Authorization: `Token ${token}` },
+            });
+            setJob(jobResponse.data);
+        } catch (err) {
+            handleError(err, 'fetching application or job details');
+        }
+    };
 
     const handleError = (error, action) => {
         console.error(`Error ${action}`, error);
@@ -74,14 +74,29 @@ const JobApplicationUpdate = () => {
 
     const proposeTimeUpdate = async () => {
         const proposedTime = proposeNewTime ? newProposedTime : job.proposed_time;
+        console.log("Proposing Time Update:", { proposedTime });
+
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}/${application.job}/propose-time/`, { proposed_time: proposedTime }, {
+            const response = await axios.patch(`${API_URL}/${application.job}/propose-time/`, { proposed_time: proposedTime }, {
                 headers: { Authorization: `Token ${token}` },
             });
+
+            // Re-fetch job details to get the updated proposed time
+            const updatedJobResponse = await axios.get(`${API_URL}/${application.job}/`, {
+                headers: { Authorization: `Token ${token}` },
+            });
+            setJob(updatedJobResponse.data);  // Update the job state with new proposed time
+
+            console.log("Response from proposing time update:", response.data);
             alert("Job time updated successfully!");
         } catch (error) {
-            handleError(error, 'updating proposed time');
+            console.error("Error proposing time update:", error);
+            if (error.response) {
+                setError(error.response.data.error);
+            } else {
+                handleError(error, 'updating proposed time');
+            }
         }
     };
 
