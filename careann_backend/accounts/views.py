@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .serializers import CertificationSerializer, CredentialSerializer, CustomUserSerializer,LocationSerializer,ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
+from .serializers import CertificationSerializer, CredentialSerializer,JobTypeSerializer, CustomUserSerializer,LocationSerializer,ExperienceCategorySerializer, UserSerializer, RegisterSerializer, LoginSerializer
 from . models import Certification, CustomUser,CaregiverFilter, ExperienceCategory
 from django_filters.rest_framework import DjangoFilterBackend
 from jobs.models import RatingReview
@@ -25,6 +25,13 @@ class LocationListView(generics.ListAPIView):
     def get_queryset(self):
         # Convert ZAMBIA_LOCATIONS to a list of dictionaries to use with the serializer
         return [{'name': location[1]} for location in ZAMBIA_LOCATIONS]
+
+class JobTypeListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = JobTypeSerializer
+
+    def get_queryset(self):
+        return ExperienceCategory.objects.all()
 
 class CaregiverSearchView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_caregiver=True)

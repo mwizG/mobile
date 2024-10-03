@@ -2,6 +2,21 @@
 from django.db import models
 from accounts.models import CustomUser, ExperienceCategory
 
+
+
+ZAMBIA_LOCATIONS = [
+    ('Lusaka', 'Lusaka'),
+    ('Ndola', 'Ndola'),
+    ('Kitwe', 'Kitwe'),
+    ('Livingstone', 'Livingstone'),
+    ('Chipata', 'Chipata'),
+    ('Mansa', 'Mansa'),
+    ('Kabwe', 'Kabwe'),
+    ('Solwezi', 'Solwezi'),
+    # Add more cities or regions as needed
+]
+
+
 class Job(models.Model):
     STATUS_CHOICES = [
         ('Open', 'Open'),
@@ -15,7 +30,7 @@ class Job(models.Model):
     caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assigned_jobs', null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=50, choices=ZAMBIA_LOCATIONS, default='Lusaka')
     
     # Importing JOB_TYPE_CHOICES from ExperienceCategory
     job_type = models.CharField(max_length=100, choices=ExperienceCategory.JOB_TYPE_CHOICES)

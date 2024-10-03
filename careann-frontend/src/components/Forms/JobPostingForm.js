@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
+import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid, IconButton, InputAdornment } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 
 function JobPostingForm() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
+    const [locations, setLocations] = useState([]); // State to hold location options
     const [jobType, setJobType] = useState('');
     const [payRate, setPayRate] = useState('');
     const [proposedTime, setProposedTime] = useState('');
@@ -21,6 +23,41 @@ function JobPostingForm() {
         'Maternity Care',
         'Dementia Care',
     ];
+
+    // Fetch locations from the backend when the component mounts
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+              const token = localStorage.getItem('token');
+              if (!token) {
+                console.error('User is not logged in. Please log in to continue.');
+                return;
+              }
+      
+              const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
+                headers: {
+                  Authorization: `Token ${token}`,
+                },
+              });
+              setLocations(response.data);
+            } catch (error) {
+              console.error('Error fetching locations', error);
+            }
+          };
+      
+          fetchLocations();
+    }, []);
+
+
+    // Function to increment the pay rate
+    const handleIncrement = () => {
+        setPayRate((prevRate) => Number(prevRate) + 1);
+    };
+
+    // Function to decrement the pay rate
+    const handleDecrement = () => {
+        setPayRate((prevRate) => (prevRate > 0 ? Number(prevRate) - 1 : 0)); // Ensure it doesn't go below 0
+    };
 
     const handlePostJob = async (e) => {
         e.preventDefault();
@@ -45,7 +82,7 @@ function JobPostingForm() {
     };
 
     return (
-        <Container sx={{ bgcolor: '#e0f2e9', padding: 3, borderRadius: 2 }}>
+        <Container sx={{ bgcolor: '#e0f2e9', padding: 3, borderRadius: 2, boxShadow: 2, mt: 4 }}>
             <Typography variant="h4" gutterBottom sx={{ color: '#2e7d32' }}>
                 Post a Job
             </Typography>
@@ -74,14 +111,21 @@ function JobPostingForm() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Location"
-                            variant="outlined"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            sx={{ bgcolor: '#ffffff' }}
-                        />
+                        <FormControl fullWidth>
+                            <InputLabel id="location-label">Location</InputLabel>
+                            <Select
+                                labelId="location-label"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                required
+                                sx={{ bgcolor: '#ffffff' }}
+                            >
+                                <MenuItem value="" disabled>Select Location</MenuItem>
+                                {locations.map((loc) => (
+                                    <MenuItem key={loc.id} value={loc.name}>{loc.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid item xs={12}>
                         <FormControl fullWidth>
@@ -100,6 +144,8 @@ function JobPostingForm() {
                             </Select>
                         </FormControl>
                     </Grid>
+                    
+                     {/* Pay Rate Field with Increment and Decrement Buttons */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -108,9 +154,30 @@ function JobPostingForm() {
                             variant="outlined"
                             value={payRate}
                             onChange={(e) => setPayRate(e.target.value)}
+                            InputProps={{
+                                inputProps: { min: 0 }, // Prevent negative numbers
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <IconButton onClick={handleDecrement} disabled={payRate <= 0}>
+                                            <Remove />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={handleIncrement}>
+                                            <Add />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
                             sx={{ bgcolor: '#ffffff' }}
                         />
                     </Grid>
+
+                       
+
+
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -126,7 +193,12 @@ function JobPostingForm() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" color="primary" type="submit" sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } }}
+                        >
                             Post Job
                         </Button>
                     </Grid>

@@ -26,6 +26,12 @@ class LocationSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=50)
 
 
+class JobTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperienceCategory
+        fields = ['id', 'name']
+
+
 class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification

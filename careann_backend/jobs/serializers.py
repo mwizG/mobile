@@ -10,6 +10,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']  # Include fields you want to display for the user
 
 
+class LocationSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=50)
+
+
 class RatingReviewSerializer(serializers.ModelSerializer):
     reviewer = serializers.ReadOnlyField(source='reviewer.username')
     reviewee = serializers.ReadOnlyField(source='reviewee.username')

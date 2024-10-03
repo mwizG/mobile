@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import TaskCreateView,JobApplicationListByJobView,UpdateJobStatusView,CompleteJobView,ApproveJobCompletionView,TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
+from .views import TaskCreateView,JobTypeListView,LocationListView,JobApplicationListByJobView,UpdateJobStatusView,CompleteJobView,ApproveJobCompletionView,TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -8,6 +8,8 @@ urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
     path('all-jobs/', AllJobsListView.as_view(), name='all-jobs'),
     path('open-jobs/', OpenJobsListView.as_view(), name='open-jobs'),
+    path('locations/', LocationListView.as_view(), name='location-list'),
+     path('job-types/', JobTypeListView.as_view(), name='job-type-list'),
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
     path('<int:job_id>/apply/', JobApplicationCreateView.as_view(), name='job-apply'),
     path('applications/', JobApplicationListView.as_view(), name='job-applications'),

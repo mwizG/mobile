@@ -1,19 +1,29 @@
 # In jobs/views.py
 
+from accounts.models import ExperienceCategory
+from accounts.serializers import JobTypeSerializer
 from rest_framework import generics, permissions, filters
 from .models import Job,JobApplication
 from .serializers import JobSerializer, JobApplicationSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import RatingReview
-from .serializers import RatingReviewSerializer
+from .serializers import RatingReviewSerializer,LocationSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import Task
 from .serializers import TaskSerializer
 from rest_framework.views import APIView
+from .models import ZAMBIA_LOCATIONS
 
 
+class LocationListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LocationSerializer
+
+    def get_queryset(self):
+        # Convert ZAMBIA_LOCATIONS to a list of dictionaries to use with the serializer
+        return [{'name': location[1]} for location in ZAMBIA_LOCATIONS]
 
 class TaskCreateView(generics.CreateAPIView):
     queryset = Task.objects.all()
@@ -179,6 +189,12 @@ class JobListView(generics.ListAPIView):
         """
         return Job.objects.filter(status='Open').exclude(status='Deleted')
 
+class JobTypeListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = JobTypeSerializer
+
+    def get_queryset(self):
+        return ExperienceCategory.objects.all()
 
 # For fetching all jobs, including non-Open statuses but excluding 'Deleted' jobs
 class AllJobsListView(generics.ListAPIView):

@@ -26,10 +26,22 @@ function SearchCaregiversForm() {
   const [caregivers, setCaregivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [experienceCategories, setExperienceCategories] = useState([]);
-  const [locations, setLocations] = useState([]); // Moved location state here
+  const [locations, setLocations] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch locations for the dropdown with Authorization header
+  // Load search results and form values from local storage when component mounts
+  useEffect(() => {
+    const savedLocation = localStorage.getItem('search_location');
+    const savedServiceType = localStorage.getItem('search_service_type');
+    const savedAvailability = localStorage.getItem('search_availability');
+    const savedCaregivers = localStorage.getItem('search_caregivers');
+
+    if (savedLocation) setLocation(savedLocation);
+    if (savedServiceType) setServiceType(savedServiceType);
+    if (savedAvailability) setAvailability(savedAvailability);
+    if (savedCaregivers) setCaregivers(JSON.parse(savedCaregivers));
+  }, []);
+
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -50,10 +62,41 @@ function SearchCaregiversForm() {
       }
     };
 
-    fetchLocations(); // Fetch locations on component mount
+    fetchLocations();
   }, []);
 
-  // Fetch experience categories for the dropdown with Authorization header
+  const startConversation = async (caregiverUsername) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+
+      const existingConversation = conversationsResponse.data.find(conversation =>
+        conversation.participants.includes(caregiverUsername)
+      );
+
+      if (existingConversation) {
+        navigate(`/conversations/${existingConversation.id}/messages`);
+      } else {
+        const response = await axios.post('http://127.0.0.1:8000/api/messaging/conversations/', {
+          participants: [caregiverUsername],
+        }, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+
+        navigate(`/conversations/${response.data.id}/messages`);
+      }
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchExperienceCategories = async () => {
       try {
@@ -74,8 +117,16 @@ function SearchCaregiversForm() {
       }
     };
 
-    fetchExperienceCategories(); // Fetch experience categories on component mount
+    fetchExperienceCategories();
   }, []);
+
+  // Save search form values to local storage
+  useEffect(() => {
+    localStorage.setItem('search_location', location);
+    localStorage.setItem('search_service_type', serviceType);
+    localStorage.setItem('search_availability', availability);
+    localStorage.setItem('search_caregivers', JSON.stringify(caregivers));
+  }, [location, serviceType, availability, caregivers]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -95,7 +146,6 @@ function SearchCaregiversForm() {
           location,
           service_type: serviceType,
           availability,
-          
         },
       });
       setCaregivers(response.data);
@@ -106,7 +156,6 @@ function SearchCaregiversForm() {
     }
   };
 
-  // Navigate to the caregiver's detail page
   const goToCaregiverProfile = (caregiverId) => {
     navigate(`/caregiver/${caregiverId}`);
   };
@@ -123,8 +172,8 @@ function SearchCaregiversForm() {
             <Grid item xs={12} sm={6}>
               <Select
                 fullWidth
-                value={location} // Use location as the value
-                onChange={(e) => setLocation(e.target.value)} // Update the location on change
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 displayEmpty
                 variant="outlined"
               >
@@ -200,41 +249,28 @@ function SearchCaregiversForm() {
           <Grid container spacing={3}>
             {caregivers.map((caregiver) => (
               <Grid item xs={12} sm={6} md={4} key={caregiver.id}>
-                <Card
-                  elevation={2}
-                  sx={{
-                    p: 2,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    border: '1px solid #e0e0e0',
-                  }}
-                >
+                <Card elevation={2} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2, textAlign: 'center' }}>
                   <CardContent>
-                    <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
-                      <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                        {caregiver.username.charAt(0)}
-                      </Avatar>
-                      <Typography
-                        variant="h6"
-                        sx={{ cursor: 'pointer', color: 'primary.main' }}
-                        onClick={() => goToCaregiverProfile(caregiver.id)}
-                      >
-                        {caregiver.username}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2">
-                      Experience Category: {caregiver.experience_cat1 ? caregiver.experience_cat1.name : 'No Category'}
+                    <Avatar src={caregiver.avatar} alt={caregiver.username} sx={{ width: 100, height: 100, mx: 'auto', mb: 2 }} />
+                    <Typography variant="h6">{caregiver.first_name} {caregiver.last_name}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {caregiver.service_type} - {caregiver.location}
                     </Typography>
-                    
                   </CardContent>
                   <CardActions sx={{ justifyContent: 'center' }}>
                     <Button
                       size="small"
                       variant="outlined"
-                      sx={{ color: 'primary.main' }}
                       onClick={() => goToCaregiverProfile(caregiver.id)}
                     >
                       View Profile
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => startConversation(caregiver.username)}
+                    >
+                      Start Conversation
                     </Button>
                   </CardActions>
                 </Card>
