@@ -25,6 +25,7 @@ function SearchCaregiversForm() {
   const [availability, setAvailability] = useState('');
   const [caregivers, setCaregivers] = useState([]);
   const [loading, setLoading] = useState(false);
+  
   const [experienceCategories, setExperienceCategories] = useState([]);
   const [locations, setLocations] = useState([]);
   const navigate = useNavigate();
@@ -101,28 +102,30 @@ function SearchCaregiversForm() {
 
   useEffect(() => {
     const fetchExperienceCategories = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('User is not logged in. Please log in to continue.');
-          return;
-        }
+        try {
+            const token = localStorage.getItem('token'); // or however you store your token
+            if (!token) {
+                console.error('User is not logged in. Please log in to continue.');
+                return;
+            }
 
-        const response = await axios.get('http://127.0.0.1:8000/api/accounts/experience-categories/', {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-        console.log('the service types: ',response.data)
-        setExperienceCategories(response.data);
-      } catch (error) {
-        console.error('Error fetching experience categories', error);
-      }
+            const response = await axios.get('http://127.0.0.1:8000/api/accounts/experience-categories/', {
+                headers: {
+                    'Authorization': `Token ${token}` // Use the correct token format
+                }
+            });
+            console.log('Fetched experience categories:', response.data);
+            setExperienceCategories(response.data); // Ensure this line is executed correctly
+        } catch (error) {
+            console.error('Error fetching experience categories:', error);
+        }
     };
 
     fetchExperienceCategories();
-  }, []);
+}, []);
 
+
+  console.log('the service types: ', experienceCategories);
   // Save search form values to local storage
   useEffect(() => {
     localStorage.setItem('search_location', location);
@@ -140,7 +143,6 @@ function SearchCaregiversForm() {
         console.error('User is not logged in. Please log in to continue.');
         return;
       }
-
       const response = await axios.get('http://127.0.0.1:8000/api/accounts/caregivers/search/', {
         headers: {
           Authorization: `Token ${token}`,

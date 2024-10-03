@@ -18,6 +18,16 @@ class ExperienceCategoryListView(generics.ListAPIView):
     queryset = ExperienceCategory.objects.all()
     serializer_class = ExperienceCategorySerializer
 
+    def list(self, request, *args, **kwargs):
+        # Call the parent class's list method to get the response
+        response = super().list(request, *args, **kwargs)
+
+        # Print the serialized data for logging
+        print(response.data)  # Log the data to the console
+
+        # Return the response
+        return response
+    
 class LocationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LocationSerializer
@@ -34,10 +44,34 @@ class JobTypeListView(generics.ListAPIView):
         return ExperienceCategory.objects.all()
 
 class CaregiverSearchView(generics.ListAPIView):
-    queryset = CustomUser.objects.filter(is_caregiver=True)
-    serializer_class = UserSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = CaregiverFilter
+    serializer_class = CustomUserSerializer
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.filter(is_caregiver=True)
+        
+        # Extract the query parameters from the request
+        location = self.request.query_params.get('location', None)
+        service_type = self.request.query_params.get('service_type', None)
+        availability = self.request.query_params.get('availability', None)
+
+        # Filter by location if it's provided
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        
+        # Filter by service type if it's provided
+        if service_type:
+            # Assuming service_type maps to experience categories in your model
+            queryset = queryset.filter(
+                Q(experience_cat1__name=service_type) |
+                Q(experience_cat2__name=service_type) |
+                Q(experience_cat3__name=service_type)
+            )
+
+        # Filter by availability if it's provided
+        if availability:
+            queryset = queryset.filter(availability__icontains=availability)
+
+        return queryset
 
 
 class UploadCredentialsView(generics.CreateAPIView):

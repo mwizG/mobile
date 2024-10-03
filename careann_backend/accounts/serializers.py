@@ -45,7 +45,7 @@ class CertificationSerializer(serializers.ModelSerializer):
 class ExperienceCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperienceCategory
-        fields = ('id', 'name')
+        fields = ('id', 'name','job_type')
 
 class CustomUserSerializer(serializers.ModelSerializer):
     # Use a nested serializer for experience_categories
