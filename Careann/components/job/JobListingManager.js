@@ -16,53 +16,42 @@ const JobListingManager = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={jobs}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.jobItem}>
-            <Text style={styles.jobTitle}>{item.title}</Text>
-            <Text>{item.location}</Text>
+    <View className="flex-1 p-4">
+      {jobs.length > 0 ? (
+        <FlatList
+          data={jobs}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View className="p-4 border-b border-gray-300">
+              <Text className="font-bold">{item.title}</Text>
+              <Text>{item.location}</Text>
 
-            {/* View Job Details */}
-            <TouchableOpacity onPress={() => navigation.navigate('JobDetails', { jobId: item.id })}>
-              <Text style={styles.linkText}>View Details</Text>
-            </TouchableOpacity>
+              {/* View Job Details */}
+              <TouchableOpacity onPress={() => navigation.navigate('JobDetails', { jobId: item.id })}>
+                <Text className="text-blue-500 mt-2">View Details</Text>
+              </TouchableOpacity>
 
-            {/* View Applications */}
-            <TouchableOpacity onPress={() => navigation.navigate('JobApplicationList', { jobId: item.id })}>
-              <Text style={styles.linkText}>View Applications</Text>
-            </TouchableOpacity>
+              {/* View Applications */}
+              <TouchableOpacity onPress={() => navigation.navigate('JobApplicationList', { jobId: item.id })}>
+                <Text className="text-blue-500 mt-2">View Applications</Text>
+              </TouchableOpacity>
 
-            {/* Delete Job */}
-            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-              <Text style={styles.linkText}>Delete Job</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-      <Button title="Post a Job" onPress={() => navigation.navigate('PostJob')} />
+              {/* Delete Job */}
+              <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                <Text className="text-blue-500 mt-2">Delete Job</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+      ) : (
+        <Text className="text-center text-lg text-gray-500 mb-2 mt-2">
+          You have not posted any Jobs
+        </Text>
+      )}
+
+      <Button title="Post a Job" onPress={() => navigation.navigate('JobPostingForm')} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  jobItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  jobTitle: {
-    fontWeight: 'bold',
-  },
-  linkText: {
-    color: 'blue',
-    marginTop: 5,
-  },
-});
 
 export default JobListingManager;

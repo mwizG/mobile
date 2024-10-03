@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { postJob } from '../../services/jobService'; // Assuming postJob is imported correctly
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import 'nativewind';
+import JobTimePicker from '../common/TimePicker';
+import JobDatePicker from '../common/DatePicker';
+import { styled } from 'nativewind';
+
 
 const jobTypes = [
     'Respite Care',
@@ -25,7 +28,9 @@ const JobTypeDropdown = ({ selectedJobType, setSelectedJobType }) => {
       <View className="mb-2">
         <Text className="text-lg mb-2">Select Job Type:</Text>
   
-        <View className="border border-gray-300 rounded-lg">
+        <View className={`text-lg rounded-lg ${
+                    selectedJobType ? 'border-green-500' : 'border-gray-300'
+                  } border`}>
           <Picker
             placeholder='Select Job Type'
             selectedValue={selectedJobType}
@@ -47,11 +52,13 @@ const JobPostingForm = ({ navigation }) => {
     const [location, setLocation] = useState('');
     const [payRate, setPayRate] = useState('');
     const [scheduledDate, setScheduledDate] = useState(new Date()); // Default to current date/time
-    const [scheduledTime, setScheduledTime] = useState(new Date()); // For time selection
+    const [selectedTime, setselectedTime] = useState(new Date()); // For time selection
     const [showDatePicker, setShowDatePicker] = useState(false); // To show/hide date picker
     const [showTimePicker, setShowTimePicker] = useState(false); // To show/hide time picker
     
     const [selectedJobType, setSelectedJobType] = useState('');
+
+    const valid = title && description && location && payRate && selectedJobType && scheduledDate && selectedTime;
 
     const handlePostJob = async () => {
         try {
@@ -66,8 +73,8 @@ const JobPostingForm = ({ navigation }) => {
                 scheduledDate.getFullYear(),
                 scheduledDate.getMonth(),
                 scheduledDate.getDate(),
-                scheduledTime.getHours(),
-                scheduledTime.getMinutes()
+                selectedTime.getHours(),
+                selectedTime.getMinutes()
             );
 
             const jobData = {
@@ -90,18 +97,14 @@ const JobPostingForm = ({ navigation }) => {
         }
     };
 
-    const onChangeDate = (event, selectedDate) => {
-        setShowDatePicker(false); // Hide date picker after selection
-        if (selectedDate) {
-            setScheduledDate(selectedDate); // Set the selected date
-        }
+    
+
+    const handleDateChange = (time) => {
+        setScheduledDate(time);
     };
 
-    const onChangeTime = (event, selectedTime) => {
-        setShowTimePicker(false); // Hide time picker after selection
-        if (selectedTime) {
-            setScheduledTime(selectedTime); // Set the selected time
-        }
+    const handleTimeChange = (time) => {
+        setSelectedTime(time);
     };
 
     const onChangePay = (input) => {
@@ -116,26 +119,35 @@ const JobPostingForm = ({ navigation }) => {
         <SafeAreaView className="flex-1 flex-row p-4">
         <View className="flex-1">
             <TextInput
-                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
+                className={`text-lg mb-2 p-4 rounded-lg ${
+                    title ? 'border-green-500' : 'border-gray-300'
+                } border`}
                 placeholder="Title"
                 value={title}
                 onChangeText={setTitle}
             />
             <TextInput
-                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
+                className={`text-lg mb-2 p-4 rounded-lg ${
+                    description ? 'border-green-500' : 'border-gray-300'
+                  } border`}
                 placeholder="Description"
                 value={description}
                 onChangeText={setDescription}
             />
             <TextInput
-                className="text-lg mb-2 p-4 border border-gray-300 rounded-lg"
+                className={`text-lg mb-2 p-4 rounded-lg ${
+                    location ? 'border-green-500' : 'border-gray-300'
+                  } border`}
                 placeholder="Location"
                 value={location}
                 onChangeText={setLocation}
             />
             <JobTypeDropdown selectedJobType={selectedJobType} setSelectedJobType={setSelectedJobType} />
             
-            <View className="border border-gray-300 rounded-lg flex flex-row items-center px-3 mb-2">
+            <View className={`rounded-lg flex flex-row items-center px-3 mb-4 ${
+                    payRate ? 'border-green-500' : 'border-gray-300'
+                  } border`}
+                  >
                 <Text className="text-lg text-gray-700">ZMW</Text>
                 <TextInput
                 className="flex-1 text-lg p-3 text-black"
@@ -146,65 +158,31 @@ const JobPostingForm = ({ navigation }) => {
                 />
             </View>
             
-            <View style={styles.datePickerContainer}>
-                <Button title="Select Proposed Date" onPress={() => setShowDatePicker(true)} />
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={scheduledDate}
-                        mode="date"
-                        display="default"
-                        onChange={onChangeDate}
-                    />
-                )}
-                <Text style={styles.dateText}>
-                    Scheduled Date: {scheduledDate.toLocaleDateString()}
-                </Text>
+            <View >
+                <View className="flex-row justify-evenly items-center">
+                    <Text className="text-lg">Select Proposed Date: </Text>
+                    <JobDatePicker onTimeChange={handleDateChange} />
+                </View>
 
-                <Button title="Select Proposed Time" onPress={() => setShowTimePicker(true)} />
-                {showTimePicker && (
-                    <DateTimePicker
-                        value={scheduledTime}
-                        mode="time"
-                        display="default"
-                        onChange={onChangeTime}
-                    />
-                )}
-                <Text style={styles.dateText}>
-                    Scheduled Time: {scheduledTime.toLocaleTimeString()}
-                </Text>
+                <View className="flex-row justify-evenly items-center">
+                    <Text className="text-lg">Select Proposed Time: </Text>
+                    <JobTimePicker onTimeChange={handleTimeChange} />
+                </View>
+
             </View>
 
-            <Button title="Post Job" onPress={handlePostJob} />
+            <Pressable 
+                className={`mt-auto mb-auto p-4 rounded-lg items-center ${valid ? 'bg-green-500' : 'bg-gray-300'}`}
+                onPress={handlePostJob}
+                disabled={!valid}
+                >
+            <Text className="text-lg text-white">Post Job</Text>
+            </Pressable>
         </View>
         </SafeAreaView>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 16,
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 12,
-        paddingHorizontal: 8,
-    },
-    datePickerContainer: {
-        marginBottom: 16,
-    },
-    dateText: {
-        marginTop: 8,
-        fontSize: 16,
-    },
-});
+
 
 export default JobPostingForm;
