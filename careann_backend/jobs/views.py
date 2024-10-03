@@ -1,5 +1,6 @@
 # In jobs/views.py
-
+from django_filters import rest_framework as filters
+from rest_framework import filters as drf_filters
 from accounts.models import ExperienceCategory
 from accounts.serializers import JobTypeSerializer
 from rest_framework import generics, permissions, filters
@@ -15,6 +16,7 @@ from .models import Task
 from .serializers import TaskSerializer
 from rest_framework.views import APIView
 from .models import ZAMBIA_LOCATIONS
+from django_filters import rest_framework as filters
 
 
 class LocationListView(generics.ListAPIView):
@@ -158,13 +160,6 @@ class JobCreateView(generics.CreateAPIView):
         serializer.save(care_seeker=self.request.user)
 
 
-class OpenJobListView(generics.ListAPIView):
-    queryset = Job.objects.all()
-    serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['location', 'job_type', 'title']
-    ordering_fields = ['created_at', 'pay_rate']
 
 class AdminDeletedJobListView(generics.ListAPIView):
     serializer_class = JobSerializer
@@ -174,19 +169,33 @@ class AdminDeletedJobListView(generics.ListAPIView):
         # Show only jobs that are marked as 'Deleted'
         return Job.objects.filter(status='Deleted')
 
+class JobFilter(filters.FilterSet):
+    location = filters.CharFilter(field_name='location', lookup_expr='icontains')
+    job_type = filters.CharFilter(field_name='job_type', lookup_expr='icontains')
+    pay_rate = filters.NumberFilter(field_name='pay_rate')
+    status = filters.ChoiceFilter(choices=[('Open', 'Open'), ('In Progress', 'In Progress'), ('Completed', 'Completed'), ('Declined', 'Declined')])
 
-# For general job listing with filtering and search capabilities
+    class Meta:
+        model = Job
+        fields = ['location', 'job_type', 'pay_rate', 'status']
+
 class JobListView(generics.ListAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]  # Anyone can access this view
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['location', 'job_type', 'title']
-    ordering_fields = ['created_at', 'pay_rate']
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = JobFilter
 
     def get_queryset(self):
-        """
-        Returns only jobs that are 'Open' and not marked as 'Deleted'.
-        """
+        return Job.objects.filter(status='Open').exclude(status='Deleted')
+
+class OpenJobListView(generics.ListAPIView):
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = (filters.DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter)
+    filterset_class = JobFilter
+    search_fields = ['title', 'description']
+
+    def get_queryset(self):
         return Job.objects.filter(status='Open').exclude(status='Deleted')
 
 class JobTypeListView(generics.ListAPIView):
@@ -196,39 +205,30 @@ class JobTypeListView(generics.ListAPIView):
     def get_queryset(self):
         return ExperienceCategory.objects.all()
 
-# For fetching all jobs, including non-Open statuses but excluding 'Deleted' jobs
 class AllJobsListView(generics.ListAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [drf_filters.SearchFilter, drf_filters.OrderingFilter]  # Use the correct filters here
     search_fields = ['location', 'job_type', 'title']
     ordering_fields = ['created_at', 'pay_rate']
 
     def get_queryset(self):
-        """
-        Return all jobs, excluding those marked as 'Deleted'.
-        """
         return Job.objects.exclude(status='Deleted')
 
     def list(self, request, *args, **kwargs):
-        """
-        Override the list method to add any custom behavior (if needed).
-        """
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-    
 
-# For fetching only 'Open' jobs
 class OpenJobsListView(generics.ListAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [drf_filters.SearchFilter, drf_filters.OrderingFilter]  # Use the correct filters here
     search_fields = ['location', 'job_type', 'title']
     ordering_fields = ['created_at', 'pay_rate']
 
     def get_queryset(self):
-        jobs_queryset = Job.objects.filter(status='Open')  # Fetch only Open jobs
+        jobs_queryset = Job.objects.filter(status='Open')
         print(f"SQL Query being executed for Open jobs: {jobs_queryset.query}")
         return jobs_queryset
 
@@ -237,8 +237,6 @@ class OpenJobsListView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         print(f"Response data for Open jobs: {serializer.data}")
         return Response(serializer.data)
-
-
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticated]

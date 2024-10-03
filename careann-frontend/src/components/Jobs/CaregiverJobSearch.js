@@ -25,29 +25,48 @@ function CaregiverJobSearch() {
   const [locations, setLocations] = useState([]);
   const [jobTypes, setJobTypes] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch job types from the backend
   const fetchJobTypes = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/jobs/job-types/');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('User is not logged in. Please log in to continue.');
+        return;
+      }
+
+      const response = await axios.get('http://127.0.0.1:8000/api/jobs/job-types/', {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
       setJobTypes(response.data);
     } catch (error) {
       console.error('Error fetching job types', error);
     }
   };
 
-  // Fetch locations from the backend
   const fetchLocations = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('User is not logged in. Please log in to continue.');
+        return;
+      }
+
+      const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
       setLocations(response.data);
     } catch (error) {
       console.error('Error fetching locations', error);
     }
   };
 
-  // Fetch jobs based on filters
   const fetchJobs = useCallback(async () => {
+    setLoading(true); // Set loading state
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://127.0.0.1:8000/api/jobs/search', {
@@ -64,19 +83,15 @@ function CaregiverJobSearch() {
       setJobs(response.data);
     } catch (error) {
       console.error('Error fetching jobs', error);
+    } finally {
+      setLoading(false); // Reset loading state
     }
   }, [location, jobType, payRate, status]);
 
-  // Fetch job types and locations on component mount
   useEffect(() => {
     fetchJobTypes();
     fetchLocations();
   }, []);
-
-  // Fetch jobs whenever filters change
-  useEffect(() => {
-    fetchJobs();
-  }, [location, jobType, payRate, status, fetchJobs]);
 
   return (
     <Container>
@@ -171,10 +186,13 @@ function CaregiverJobSearch() {
         </Grid>
       </Box>
 
+      {/* Display Loading Indicator */}
+      {loading && <Typography variant="h6">Loading...</Typography>}
+
       {/* Display Available Jobs */}
       <Box mt={4}>
         <Typography variant="h5" gutterBottom>
-          Available Jobs
+          Results
         </Typography>
         <Grid container spacing={2}>
           {jobs.map((job) => (

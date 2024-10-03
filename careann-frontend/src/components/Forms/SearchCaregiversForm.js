@@ -39,7 +39,9 @@ function SearchCaregiversForm() {
     if (savedLocation) setLocation(savedLocation);
     if (savedServiceType) setServiceType(savedServiceType);
     if (savedAvailability) setAvailability(savedAvailability);
-    if (savedCaregivers) setCaregivers(JSON.parse(savedCaregivers));
+    if (savedCaregivers) {
+      setCaregivers(JSON.parse(savedCaregivers));
+    }
   }, []);
 
   useEffect(() => {
@@ -111,6 +113,7 @@ function SearchCaregiversForm() {
             Authorization: `Token ${token}`,
           },
         });
+        console.log('the service types: ',response.data)
         setExperienceCategories(response.data);
       } catch (error) {
         console.error('Error fetching experience categories', error);
@@ -251,26 +254,37 @@ function SearchCaregiversForm() {
               <Grid item xs={12} sm={6} md={4} key={caregiver.id}>
                 <Card elevation={2} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2, textAlign: 'center' }}>
                   <CardContent>
-                    <Avatar src={caregiver.avatar} alt={caregiver.username} sx={{ width: 100, height: 100, mx: 'auto', mb: 2 }} />
-                    <Typography variant="h6">{caregiver.first_name} {caregiver.last_name}</Typography>
+                    <Avatar
+                      src={caregiver.profile_image}  // Use the correct property
+                      alt={`${caregiver.first_name || ''} ${caregiver.last_name || ''}`.trim() || 'Caregiver'}
+                      sx={{ width: 100, height: 100, mx: 'auto', mb: 2 }}
+                    />
+                    <Typography variant="h6">
+                      {`${caregiver.first_name || 'N/A'} ${caregiver.last_name || 'N/A'}`.trim()}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {caregiver.service_type} - {caregiver.location}
+                      username: {caregiver.username}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {caregiver.experience_cat1?.name || 'No Experience Listed'} - {caregiver.location}
                     </Typography>
                   </CardContent>
                   <CardActions sx={{ justifyContent: 'center' }}>
                     <Button
                       size="small"
-                      variant="outlined"
+                      variant="contained"
+                      color="primary"
                       onClick={() => goToCaregiverProfile(caregiver.id)}
                     >
                       View Profile
                     </Button>
                     <Button
                       size="small"
-                      variant="contained"
+                      variant="outlined"
+                      color="primary"
                       onClick={() => startConversation(caregiver.username)}
                     >
-                      Start Conversation
+                      Message
                     </Button>
                   </CardActions>
                 </Card>

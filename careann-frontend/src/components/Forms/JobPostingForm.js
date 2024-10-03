@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid, IconButton, InputAdornment } from '@mui/material';
-import { Add, Remove } from '@mui/icons-material';
+import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
 
 function JobPostingForm() {
     const [title, setTitle] = useState('');
@@ -47,17 +46,6 @@ function JobPostingForm() {
       
           fetchLocations();
     }, []);
-
-
-    // Function to increment the pay rate
-    const handleIncrement = () => {
-        setPayRate((prevRate) => Number(prevRate) + 1);
-    };
-
-    // Function to decrement the pay rate
-    const handleDecrement = () => {
-        setPayRate((prevRate) => (prevRate > 0 ? Number(prevRate) - 1 : 0)); // Ensure it doesn't go below 0
-    };
 
     const handlePostJob = async (e) => {
         e.preventDefault();
@@ -144,8 +132,6 @@ function JobPostingForm() {
                             </Select>
                         </FormControl>
                     </Grid>
-                    
-                     {/* Pay Rate Field with Increment and Decrement Buttons */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -154,30 +140,9 @@ function JobPostingForm() {
                             variant="outlined"
                             value={payRate}
                             onChange={(e) => setPayRate(e.target.value)}
-                            InputProps={{
-                                inputProps: { min: 0 }, // Prevent negative numbers
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <IconButton onClick={handleDecrement} disabled={payRate <= 0}>
-                                            <Remove />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={handleIncrement}>
-                                            <Add />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
                             sx={{ bgcolor: '#ffffff' }}
                         />
                     </Grid>
-
-                       
-
-
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
