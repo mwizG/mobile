@@ -13,27 +13,25 @@ import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const AppBar = ({ onNotificationPress, onProfilePress }) => {
-  return (
-    <View className="flex-row px-4 py-1 justify-between items-center bg-white">
-      <Text className="text-lg ">Careann</Text>
-      <View className="flex-row p-2 gap-4">
-        <Pressable onPress={onNotificationPress}>
-          <FontAwesome name="bell" size={24} color="black" />
-          
-        </Pressable>
-        <Pressable onPress={onProfilePress}>
-          <FontAwesome name="user" size={24} color="black" />
-          
-        </Pressable>
-      </View>
-    </View>
-  );
-};
+import AppBar from "../../components/common/AppBar";
+import JobListCard from "../../components/common/JobListCard";
+
+
 
 const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+
+  const jobData = {
+    title: "I need help",
+    description: "This is a test description to see how the content is being rendered, to allow me to style this properly.",
+    location: "lsk",
+    job_type: "Respite Care",
+    pay_rate: 20.00,
+    scheduled_time: "2024-10-20 19:00", // Convert to ISO string
+  };
+
+
 
   return (
     <SafeAreaView className="flex-1 flex-row">
@@ -44,35 +42,8 @@ const HomeScreen = () => {
         <ScrollView className="bg-gray-100">
           <View className="flex-1">
             <View className="flex items-center">
-              <Text className="text-3xl font-bold">CareAnn</Text>
-              <View className="flex-row w-full justify-between mt-4">
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("Services")}
-                >
-                  <Text className="text-white font-semibold">Services</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("HowItWorks")}
-                >
-                  <Text className="text-white font-semibold">How it Works</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("Contact")}
-                >
-                  <Text className="text-white font-semibold">Contact</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("FAQ")}
-                >
-                  <Text className="text-white font-semibold">FAQ</Text>
-                </Pressable>
-              </View>
+              <JobListCard jobDetail={jobData} onCardClick={()=> {console.log('card press')}} />
             </View>
-            <View></View>
           </View>
         </ScrollView>
       </View>
