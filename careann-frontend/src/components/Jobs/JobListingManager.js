@@ -18,7 +18,7 @@ function JobListingManager() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); // For navigation
-
+    
     const currentUserId = parseInt(localStorage.getItem('user_id'), 10); // Ensure ID is an integer
     console.log("Current User ID:", currentUserId); // Debug log
 
