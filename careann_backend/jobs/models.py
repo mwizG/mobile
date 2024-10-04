@@ -56,11 +56,17 @@ class Job(models.Model):
     
 
 class JobApplication(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Accepted', 'Accepted'),
+        ('Rejected', 'Rejected'),
+          # New status to mark job as deleted
+    ]
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     caregiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     cover_letter = models.TextField(null=True, blank=True)
     applied_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=50, default='Pending')  # Status: Pending, Accepted, Rejected
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')  # Status: Pending, Accepted, Rejected
 
     def __str__(self):
         return f"{self.caregiver.username} - {self.job.title}"

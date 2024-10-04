@@ -156,7 +156,7 @@ function JobApplicationDetail() {
             </Typography>
 
             <Box mt={3}>
-                {userRole === 'caregiver' && application.status === 'Accepted' && (
+                {userRole === 'caregiver' && application.status === 'Accepted' && job.status !== 'In Progress' && (
                     <>
                         <Button variant="contained" color="primary" onClick={handleAcceptJobTime} sx={{ mr: 2 }}>
                             Accept Job

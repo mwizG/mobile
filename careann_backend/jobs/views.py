@@ -19,6 +19,7 @@ from .models import ZAMBIA_LOCATIONS
 from django_filters import rest_framework as filters
 from datetime import timedelta, datetime
 from django.utils import timezone
+from django.db.models import Q
 
 class LocationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -86,7 +87,6 @@ class CompleteJobView(APIView):
 
         return Response({"message": "Job marked as completed."}, status=status.HTTP_200_OK)
     
-
 class ProposeJobTimeView(generics.UpdateAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
@@ -97,6 +97,7 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         print(f"Job ID: {kwargs['pk']}")
         job = self.get_object()
 
+        # Ensure the user is authorized to propose a time
         if request.user != job.care_seeker:
             return Response({"error": "You are not authorized to propose a time for this job."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -104,8 +105,15 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         if not proposed_time:
             return Response({"error": "Proposed time is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Convert the proposed time to a datetime object and ensure it is timezone-aware
-        proposed_time = timezone.make_aware(timezone.datetime.fromisoformat(proposed_time))
+        # Convert the proposed time to a datetime object
+        try:
+            proposed_time = timezone.datetime.fromisoformat(proposed_time)
+        except ValueError:
+            return Response({"error": "Invalid datetime format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Make the datetime object timezone-aware if it is not already
+        if proposed_time.tzinfo is None:
+            proposed_time = timezone.make_aware(proposed_time)
 
         # Check for scheduling conflicts with the caregiver's other jobs
         caregiver_jobs = Job.objects.filter(caregiver=job.caregiver).exclude(id=job.id)
@@ -130,7 +138,7 @@ class ProposeJobTimeView(generics.UpdateAPIView):
         job.save()
 
         return Response(JobSerializer(job).data, status=status.HTTP_200_OK)
-    
+ 
 class CreateRatingReviewView(generics.CreateAPIView):
     serializer_class = RatingReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -203,6 +211,7 @@ class JobFilter(filters.FilterSet):
         model = Job
         fields = ['location', 'job_type', 'pay_rate', 'status']
 
+
 class JobListView(generics.ListAPIView):
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]  # Anyone can access this view
@@ -210,7 +219,7 @@ class JobListView(generics.ListAPIView):
     filterset_class = JobFilter
 
     def get_queryset(self):
-        return Job.objects.filter(status='Open').exclude(status='Deleted')
+        return Job.objects.filter(Q(status='Open') | Q(status='Declined')).exclude(status='Deleted')
 
 class OpenJobListView(generics.ListAPIView):
     serializer_class = JobSerializer

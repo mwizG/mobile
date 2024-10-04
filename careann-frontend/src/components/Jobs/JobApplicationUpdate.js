@@ -9,7 +9,6 @@ import {
     Select,
     MenuItem,
     Alert,
-    Box,
     Checkbox,
     FormControlLabel,
     Paper,
@@ -74,53 +73,48 @@ const JobApplicationUpdate = () => {
 
     const proposeTimeUpdate = async () => {
         const proposedTime = proposeNewTime ? newProposedTime : job.proposed_time;
-        console.log("Proposing Time Update:", { proposedTime });
-
+    
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.patch(`${API_URL}/${application.job}/propose-time/`, { proposed_time: proposedTime }, {
-                headers: { Authorization: `Token ${token}` },
-            });
-
-            // Re-fetch job details to get the updated proposed time
+    
+            // Update the proposed time
+            await axios.patch(`${API_URL}/${application.job}/propose-time/`, 
+                { proposed_time: proposedTime }, 
+                { headers: { Authorization: `Token ${token}` } }
+            );
+    
+            // Reset the job status to "Open" only if it is currently "Declined"
+            if (job.status === 'Declined') {
+                await axios.patch(`${API_URL}/${application.job}/`, 
+                    { status: 'Open' }, 
+                    { headers: { Authorization: `Token ${token}` } }
+                );
+            }
+    
+            // Fetch the updated job details
             const updatedJobResponse = await axios.get(`${API_URL}/${application.job}/`, {
                 headers: { Authorization: `Token ${token}` },
             });
-            setJob(updatedJobResponse.data);  // Update the job state with new proposed time
-
-            console.log("Response from proposing time update:", response.data);
-            alert("Job time updated successfully!");
+            
+            setJob(updatedJobResponse.data);
+            alert("Job time updated!" + (job.status === 'Declined' ? " Status reset to Open!" : ""));
         } catch (error) {
-            console.error("Error proposing time update:", error);
-            if (error.response) {
-                setError(error.response.data.error);
-            } else {
-                handleError(error, 'updating proposed time');
-            }
+            handleError(error, 'updating proposed time and resetting job status');
         }
     };
+    
 
-    const handleAcceptJobTime = async () => {
+    // New function to reset job status to "Open"
+    const resetJobStatusToOpen = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}/${job.id}/accept-time/`, {}, {
+            await axios.patch(`${API_URL}/${application.job}/`, { status: 'Open' }, {
                 headers: { Authorization: `Token ${token}` },
             });
-            alert("Job time accepted successfully!");
+            setJob((prevJob) => ({ ...prevJob, status: 'Open' }));
+            alert("Job status reset to Open!");
         } catch (error) {
-            handleError(error, 'accepting the job time');
-        }
-    };
-
-    const handleDeclineJob = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}/${job.id}/decline/`, {}, {
-                headers: { Authorization: `Token ${token}` },
-            });
-            alert("Job declined successfully!");
-        } catch (error) {
-            handleError(error, 'declining the job');
+            handleError(error, 'resetting job status');
         }
     };
 
@@ -130,13 +124,46 @@ const JobApplicationUpdate = () => {
         }
     };
 
+    const startConversation = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const caregiverUsername = application.caregiver;
+
+            const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+            });
+
+            const existingConversation = conversationsResponse.data.find(conversation =>
+                conversation.participants.includes(caregiverUsername)
+            );
+
+            if (existingConversation) {
+                navigate(`/conversations/${existingConversation.id}/messages`);
+            } else {
+                const response = await axios.post('http://127.0.0.1:8000/api/messaging/conversations/', {
+                    participants: [caregiverUsername],
+                }, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+
+                navigate(`/conversations/${response.data.id}/messages`);
+            }
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+        }
+    };
+
     if (!application || !job) {
         return <div>Loading application or job details...</div>;
     }
 
     return (
         <Container component={Paper} elevation={3} sx={{ padding: '30px', borderRadius: '12px', bgcolor: '#f9f9f9' }}>
-            <Typography variant="h4" gutterBottom align="center">
+            <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', color: '#333' }}>
                 Update Job Application
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
@@ -145,14 +172,14 @@ const JobApplicationUpdate = () => {
 
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <Typography variant="h6">Job: {job.title}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#555' }}>Job: {job.title}</Typography>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography>
                         <strong>Caregiver:</strong>{' '}
                         <span 
                             className="caregiver-link" 
-                            style={{ color: 'blue', cursor: 'pointer' }} 
+                            style={{ color: '#007bbf', cursor: 'pointer', textDecoration: 'underline' }} 
                             onClick={goToCaregiverProfile}
                         >
                             {application.caregiver || 'N/A'}
@@ -169,21 +196,42 @@ const JobApplicationUpdate = () => {
                         <strong>Applied At:</strong> {new Date(application.applied_at).toLocaleDateString()}
                     </Typography>
                 </Grid>
+
+                <Grid item xs={12}>
+                   {job.status === 'Declined' && (
+                    <Typography variant="body1">
+                        <strong>Applicant response:</strong> {job.status}
+                    </Typography>
+                    )}
+                    <Typography variant="body1">
+                    <strong>Job status:</strong> {job.status}
+                    </Typography>
+                </Grid>
             </Grid>
 
             <Divider sx={{ margin: '20px 0' }} />
 
             <Typography variant="body1"><strong>Status:</strong></Typography>
-            <Select value={status} onChange={(e) => updateApplicationStatus(e.target.value)} fullWidth>
+            <Select value={status} onChange={(e) => updateApplicationStatus(e.target.value)} fullWidth variant="outlined">
                 <MenuItem value="Pending">Pending</MenuItem>
                 <MenuItem value="Accepted">Accepted</MenuItem>
                 <MenuItem value="Rejected">Rejected</MenuItem>
             </Select>
 
+            {job.status === 'Declined' && (
+                <Button 
+                    variant="contained" 
+                    onClick={resetJobStatusToOpen} 
+                    sx={{ mt: 2, bgcolor: '#ff9800', '&:hover': { bgcolor: '#f57c00' }}}
+                >
+                    Reset to Open
+                </Button>
+            )}
+
             {status === 'Accepted' && (
                 <>
                     <Divider sx={{ margin: '20px 0' }} />
-                    <Typography variant="h6" sx={{ mt: 3 }}>Propose Job Time</Typography>
+                    <Typography variant="h6" sx={{ mt: 3, fontWeight: 'bold' }}>Propose Job Time</Typography>
                     <Typography variant="body1"><strong>Current Proposed Time:</strong> {new Date(job.proposed_time).toLocaleString()}</Typography>
                     
                     <FormControlLabel
@@ -198,6 +246,7 @@ const JobApplicationUpdate = () => {
                             onChange={(e) => setNewProposedTime(e.target.value)}
                             fullWidth
                             sx={{ marginTop: '10px' }}
+                            variant="outlined"
                         />
                     )}
 
@@ -206,36 +255,19 @@ const JobApplicationUpdate = () => {
                         onClick={proposeTimeUpdate} 
                         sx={{ mt: 2, bgcolor: '#4caf50', '&:hover': { bgcolor: '#45a049' }}}
                     >
-                        {proposeNewTime ? "Propose New Time" : "Keep Current Time"}
+                        {proposeNewTime ? "Propose New Time" : "Confirm Time"}
                     </Button>
-
-                    {userRole === 'caregiver' && (
-                        <Box sx={{ mt: 2 }}>
-                            <Button 
-                                variant="contained" 
-                                onClick={handleAcceptJobTime} 
-                                sx={{ mr: 2, bgcolor: '#4caf50', '&:hover': { bgcolor: '#45a049' }}}
-                            >
-                                Accept Job Time
-                            </Button>
-                            <Button 
-                                variant="outlined" 
-                                color="error" 
-                                onClick={handleDeclineJob}
-                            >
-                                Decline Job
-                            </Button>
-                        </Box>
-                    )}
                 </>
             )}
 
+            <Divider sx={{ margin: '20px 0' }} />
             <Button 
-                variant="outlined" 
-                onClick={() => navigate(-1)} 
-                sx={{ ml: 2, mt: 2, borderColor: '#4caf50', color: '#4caf50', '&:hover': { borderColor: '#45a049', color: '#45a049' }}}
+                variant="contained" 
+                color="primary" 
+                onClick={startConversation} 
+                sx={{ mt: 2 }}
             >
-                Go Back
+                Start Conversation with Caregiver
             </Button>
         </Container>
     );

@@ -108,6 +108,7 @@ function App() {
           {/* Caregiver-specific routes */}
           <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
           <Route path="/caregiver/messaging" element={<Messaging />} />
+          <Route path="/caregiver/messaging/:careSeekerId" element={<Messaging />} />
           <Route path="/caregiver/profile" element={<CaregiverProfile/>} />
           <Route path="/caregiver/search-jobs" element={<CaregiverJobSearch />} />
           <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
