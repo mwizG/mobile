@@ -1,188 +1,251 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { postJob } from '../../services/jobService'; // Assuming postJob is imported correctly
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
-import 'nativewind';
 import JobTimePicker from '../common/TimePicker';
 import JobDatePicker from '../common/DatePicker';
-import { styled } from 'nativewind';
-
+import axios from 'axios';
 
 const jobTypes = [
-    'Respite Care',
-    'Home Care',
-    'Senior Care',
-    'Child Care',
-    'Disability Care',
-    'Palliative Care',
-    'Post-Surgical Care',
-    'Maternity Care',
-    'Dementia Care',
-  ];
+  'Respite Care',
+  'Home Care',
+  'Senior Care',
+  'Child Care',
+  'Disability Care',
+  'Palliative Care',
+  'Post-Surgical Care',
+  'Maternity Care',
+  'Dementia Care',
+];
 
 const JobTypeDropdown = ({ selectedJobType, setSelectedJobType }) => {
+  return (
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.label}>Select Job Type:</Text>
+      <Picker
+        selectedValue={selectedJobType}
+        onValueChange={(itemValue) => setSelectedJobType(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Select Job Type" value="" />
+        {jobTypes.map((job, index) => (
+          <Picker.Item label={job} value={job} key={index} />
+        ))}
+      </Picker>
+    </View>
+  );
+};
 
-    return (
-      <View className="mb-2">
-        <Text className="text-lg mb-2">Select Job Type:</Text>
-  
-        <View className={`text-lg rounded-lg ${
-                    selectedJobType ? 'border-green-500' : 'border-gray-300'
-                  } border`}>
+const JobPostingForm = ({ navigation }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [locations, setLocations] = useState([]);
+  const [payRate, setPayRate] = useState('');
+  const [scheduledDate, setScheduledDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [selectedJobType, setSelectedJobType] = useState('');
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          console.error('User not logged in.');
+          return;
+        }
+
+        const response = await axios.get('http://192.168.251.86:8000/api/jobs/locations/', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        setLocations(response.data);
+      } catch (error) {
+        console.error('Error fetching locations', error);
+      }
+    };
+
+    fetchLocations();
+  }, []);
+
+  const valid = title && description && location && payRate && selectedJobType && scheduledDate && selectedTime;
+
+  const handlePostJob = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      if (!token) {
+        Alert.alert('Error', 'User not authenticated');
+        return;
+      }
+
+      // Combine date and time into a single DateTime object
+      const scheduledDateTime = new Date(
+        scheduledDate.getFullYear(),
+        scheduledDate.getMonth(),
+        scheduledDate.getDate(),
+        selectedTime.getHours(),
+        selectedTime.getMinutes()
+      );
+
+      const jobData = {
+        title,
+        description,
+        location,
+        job_type: selectedJobType,
+        pay_rate: payRate,
+        scheduled_time: scheduledDateTime.toISOString(),
+      };
+
+      await postJob(jobData, token);
+
+      Alert.alert('Success', 'Job posted successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      console.error('Error posting job', error);
+      Alert.alert('Error', 'Something went wrong while posting the job.');
+    }
+  };
+
+  const onChangePay = (input) => {
+    const formattedInput = input.replace(/[^0-9.]/g, '');
+    setPayRate(formattedInput);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.formContainer}>
+        <TextInput
+          style={[styles.input, title ? styles.validInput : styles.invalidInput]}
+          placeholder="Title"
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextInput
+          style={[styles.input, description ? styles.validInput : styles.invalidInput]}
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+        />
+        <View style={styles.dropdownContainer}>
+          <Text style={styles.label}>Select Location:</Text>
           <Picker
-            placeholder='Select Job Type'
-            selectedValue={selectedJobType}
-            onValueChange={(itemValue) => setSelectedJobType(itemValue)}
-            className=""
+            selectedValue={location}
+            onValueChange={(itemValue) => setLocation(itemValue)}
+            style={styles.picker}
           >
-            {jobTypes.map((job, index) => (
-              <Picker.Item label={job} value={job} key={index} />
+            <Picker.Item label="Select Location" value="" />
+            {locations.map((loc) => (
+              <Picker.Item key={loc.id} label={loc.name} value={loc.name} />
             ))}
           </Picker>
         </View>
-      </View>
-    );
-  };
+        <JobTypeDropdown selectedJobType={selectedJobType} setSelectedJobType={setSelectedJobType} />
 
-const JobPostingForm = ({ navigation }) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('');
-    const [payRate, setPayRate] = useState('');
-    const [scheduledDate, setScheduledDate] = useState(new Date()); // Default to current date/time
-    const [selectedTime, setselectedTime] = useState(new Date()); // For time selection
-    const [showDatePicker, setShowDatePicker] = useState(false); // To show/hide date picker
-    const [showTimePicker, setShowTimePicker] = useState(false); // To show/hide time picker
-    
-    const [selectedJobType, setSelectedJobType] = useState('');
-
-    const valid = title && description && location && payRate && selectedJobType && scheduledDate && selectedTime;
-
-    const handlePostJob = async () => {
-        try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                Alert.alert('Error', 'User not authenticated');
-                return;
-            }
-
-            // Combine date and time into a single DateTime object
-            const scheduledDateTime = new Date(
-                scheduledDate.getFullYear(),
-                scheduledDate.getMonth(),
-                scheduledDate.getDate(),
-                selectedTime.getHours(),
-                selectedTime.getMinutes()
-            );
-
-            const jobData = {
-                title,
-                description,
-                location,
-                job_type: selectedJobType,
-                pay_rate: payRate,
-                scheduled_time: scheduledDateTime.toISOString(), // Convert to ISO string
-            };
-
-            await postJob(jobData, token);
-
-            Alert.alert('Success', 'Job posted successfully!', [
-                { text: 'OK', onPress: () => navigation.goBack() },
-            ]);
-        } catch (error) {
-            console.error('Error posting job', error);
-            Alert.alert('Error', 'Something went wrong while posting the job.');
-        }
-    };
-
-    
-
-    const handleDateChange = (time) => {
-        setScheduledDate(time);
-    };
-
-    const handleTimeChange = (time) => {
-        setSelectedTime(time);
-    };
-
-    const onChangePay = (input) => {
-        // Remove any non-numeric characters except for a decimal point
-        const formattedInput = input.replace(/[^0-9.]/g, '');
-    
-        // Set formatted value
-        setPayRate(formattedInput);
-      };
-
-    return (
-        <SafeAreaView className="flex-1 flex-row p-4">
-        <View className="flex-1">
-            <TextInput
-                className={`text-lg mb-2 p-4 rounded-lg ${
-                    title ? 'border-green-500' : 'border-gray-300'
-                } border`}
-                placeholder="Title"
-                value={title}
-                onChangeText={setTitle}
-            />
-            <TextInput
-                className={`text-lg mb-2 p-4 rounded-lg ${
-                    description ? 'border-green-500' : 'border-gray-300'
-                  } border`}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-            />
-            <TextInput
-                className={`text-lg mb-2 p-4 rounded-lg ${
-                    location ? 'border-green-500' : 'border-gray-300'
-                  } border`}
-                placeholder="Location"
-                value={location}
-                onChangeText={setLocation}
-            />
-            <JobTypeDropdown selectedJobType={selectedJobType} setSelectedJobType={setSelectedJobType} />
-            
-            <View className={`rounded-lg flex flex-row items-center px-3 mb-4 ${
-                    payRate ? 'border-green-500' : 'border-gray-300'
-                  } border`}
-                  >
-                <Text className="text-lg text-gray-700">ZMW</Text>
-                <TextInput
-                className="flex-1 text-lg p-3 text-black"
-                keyboardType="numeric"
-                placeholder='Enter pay rate'
-                value={payRate}
-                onChangeText={onChangePay}
-                />
-            </View>
-            
-            <View >
-                <View className="flex-row justify-evenly items-center">
-                    <Text className="text-lg">Select Proposed Date: </Text>
-                    <JobDatePicker onTimeChange={handleDateChange} />
-                </View>
-
-                <View className="flex-row justify-evenly items-center">
-                    <Text className="text-lg">Select Proposed Time: </Text>
-                    <JobTimePicker onTimeChange={handleTimeChange} />
-                </View>
-
-            </View>
-
-            <Pressable 
-                className={`mt-auto mb-auto p-4 rounded-lg items-center ${valid ? 'bg-green-500' : 'bg-gray-300'}`}
-                onPress={handlePostJob}
-                disabled={!valid}
-                >
-            <Text className="text-lg text-white">Post Job</Text>
-            </Pressable>
+        <View style={[styles.inputContainer, payRate ? styles.validInput : styles.invalidInput]}>
+          <Text style={styles.label}>ZMW</Text>
+          <TextInput
+            style={styles.payRateInput}
+            keyboardType="numeric"
+            placeholder="Enter pay rate"
+            value={payRate}
+            onChangeText={onChangePay}
+          />
         </View>
-        </SafeAreaView>
-    );
+
+        <JobDatePicker onTimeChange={setScheduledDate} />
+        <JobTimePicker onTimeChange={setSelectedTime} />
+
+        <Pressable
+          style={[styles.submitButton, valid ? styles.validButton : styles.invalidButton]}
+          onPress={handlePostJob}
+          disabled={!valid}
+        >
+          <Text style={styles.buttonText}>Post Job</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
 };
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#e0f2e9',
+  },
+  formContainer: {
+    flex: 1,
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: '#ffffff',
+  },
+  validInput: {
+    borderColor: '#4caf50',
+  },
+  invalidInput: {
+    borderColor: '#ccc',
+  },
+  dropdownContainer: {
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    backgroundColor: '#ffffff',
+  },
+  payRateInput: {
+    flex: 1,
+    height: 40,
+    marginLeft: 8,
+  },
+  submitButton: {
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  validButton: {
+    backgroundColor: '#4caf50',
+  },
+  invalidButton: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+});
 
 export default JobPostingForm;

@@ -9,7 +9,7 @@ const ConversationList = ({ navigation }) => {
 
     useEffect(() => {
         const fetchConversations = async () => {
-            const token = await AsyncStorage.getItem('token');
+            const token = await AsyncStorage.getItem('accessToken');
             const response = await axios.get(`${BASE_URL}/messaging/conversations/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,

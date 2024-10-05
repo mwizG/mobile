@@ -15,7 +15,7 @@ const JobApplicationList = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           Alert.alert('Error', 'User not authenticated');
           return;

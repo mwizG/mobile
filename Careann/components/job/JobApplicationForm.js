@@ -12,7 +12,7 @@ const JobApplicationForm = () => {
 
   const handleSubmit = async () => {
     try {
-      const token = await AsyncStorage.getItem('token'); // Get the token from AsyncStorage
+      const token = await AsyncStorage.getItem('accessToken'); // Get the token from AsyncStorage
       if (!token) {
         Alert.alert('Error', 'User not authenticated');
         return;

@@ -15,7 +15,7 @@ const JobApplicationDetail = () => {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           Alert.alert('Error', 'User not authenticated');
           return;
@@ -42,7 +42,7 @@ const JobApplicationDetail = () => {
 
   const handleAcceptJob = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       await get(`/jobs/${applicationId}/accept/`, {
         headers: {
           Authorization: `Bearer ${token}`, // Fixed formatting
@@ -57,7 +57,7 @@ const JobApplicationDetail = () => {
 
   const handleDeclineJob = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       await get(`/jobs/${applicationId}/decline/`, {
         headers: {
           Authorization: `Bearer ${token}`, // Fixed formatting

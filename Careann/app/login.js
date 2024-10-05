@@ -4,6 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../state/AuthContext'; // Import AuthContext
 import { post } from '../services/api'; // Import the API service
+import { styled } from 'nativewind'; // Import NativeWind
+
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -13,50 +16,58 @@ const Login = () => {
   const navigation = useNavigation();
 
   const { setUser } = useContext(AuthContext); // Access the setUser function from AuthContext
-
+  const { role } = useContext(AuthContext);
+  console.log('User role:', role); // This should now log the correct role
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
     try {
-      if (!username || !password) {
-        setError('Username and password are required.');
-        setLoading(false);
-        return;
-      }
+        if (!username || !password) {
+            setError('Username and password are required.');
+            setLoading(false);
+            return;
+        }
 
-      const data = { username, password };
-      const response = await post('/accounts/login/', data); // Use the API service
-      console.log('Login response:', response.data);
+        const data = { username, password };
+        const response = await post('/accounts/login/', data);
+        console.log('Login response:', response.data);
 
-      // Store token and user info in AsyncStorage
-      await AsyncStorage.setItem('accessToken', response.data.access);
-      await AsyncStorage.setItem('refreshToken', response.data.refresh);
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+        // Extract user and role correctly
+        const user = response.data.user;
+        const role = response.data.role;  // Access role directly from the response
 
-      // Update context
-      setUser(response.data.user);
+        // Store token and user info in AsyncStorage
+        await AsyncStorage.setItem('accessToken', response.data.access);
+        await AsyncStorage.setItem('refreshToken', response.data.refresh);
+        await AsyncStorage.setItem('user', JSON.stringify(user));
 
-      // Navigate based on user role
-      const role = response.data.user.role; // Adjust this based on your user data structure
-      if (role === 'care_seeker') {
-        navigation.navigate('dashboard/careseeker');
-      } else if (role === 'caregiver') {
-        navigation.navigate('dashboard/caregiver');
-      } else if (role === 'admin') {
-        navigation.navigate('dashboard/admin');
-      } else {
-        navigation.navigate('index'); // Fallback to home if role is not recognized
-      }
+        // Update context
+        setUser(user);
+        console.log('User context updated:', user);
+        console.log('User role:', role);  // Log the role for debugging
+
+        // Navigate based on user role
+        if (role === 'care_seeker') {
+            navigation.navigate('dashboard/careseeker');
+        } else if (user.is_caregiver) {
+            navigation.navigate('dashboard/caregiver');
+        } else if (user.is_admin) {
+            navigation.navigate('dashboard/admin');
+        } else {
+            navigation.navigate('index'); // Fallback to home if role is not recognized
+        }
     } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
-      setError('Invalid username or password. Please try again.');
+        console.error('Login failed:', error.response?.data || error.message);
+        setError('Invalid username or password. Please try again.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
+  
   return (
+    
     <View className="flex-1 p-6 bg-gray-200 justify-center">
       <StatusBar backgroundColor='white' barStyle="dark-content" />
       <Text className="text-4xl font-bold mb-8 text-center text-green-500">Login</Text>
@@ -79,6 +90,7 @@ const Login = () => {
       />
       <View className="bg-indigo-600 rounded-lg">
         <Button
+          className=""
           title={loading ? 'Logging in...' : 'Login'}
           onPress={handleSubmit}
           disabled={loading}

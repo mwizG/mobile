@@ -12,7 +12,8 @@ const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('token');
+      await AsyncStorage.setItem('accessToken', response.data.access);
+      await AsyncStorage.setItem('refreshToken', response.data.refresh);
       await AsyncStorage.removeItem('role');
       setUser(null);
       setRole(null);

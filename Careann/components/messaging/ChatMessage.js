@@ -11,7 +11,7 @@ const ChatMessage = ({ route }) => {
 
     useEffect(() => {
         const fetchMessages = async () => {
-            const token = await AsyncStorage.getItem('token');
+            const token = await AsyncStorage.getItem('accessToken');
             const response = await axios.get(`${BASE_URL}/messaging/conversations/${conversationId}/messages/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -24,7 +24,7 @@ const ChatMessage = ({ route }) => {
     }, [conversationId]);
 
     const handleSendMessage = async () => {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         await axios.post(`${BASE_URL}/messaging/conversations/${conversationId}/messages/`, {
             content: newMessage,
         }, {

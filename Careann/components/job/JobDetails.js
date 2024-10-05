@@ -29,7 +29,7 @@ function JobDetails() {
 
   const acceptJobTime = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       const response = await api.patch(`/jobs/${jobId}/accept-time/`, {}, {
         headers: {
           Authorization: `Bearer ${token}`, // Fixed formatting

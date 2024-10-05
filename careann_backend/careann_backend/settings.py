@@ -88,7 +88,7 @@ CORS_ALLOW_METHODS = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "exp://192.168.251.86:8081"
+    "http://192.168.251.86:8081"
         # Allow your React app's origin
 ]
 

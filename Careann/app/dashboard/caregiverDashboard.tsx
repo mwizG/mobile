@@ -12,7 +12,7 @@ function CaregiverDashboard() {
         const fetchApplications = async () => {
             try {
                 // Retrieve token from AsyncStorage
-                const token = await AsyncStorage.getItem('token');
+                const token = await AsyncStorage.getItem('accessToken');
                 if (!token) {
                     console.error('Token not found');
                     return;

@@ -9,7 +9,7 @@ const BulkMessaging = () => {
     const [recipients, setRecipients] = useState([]); // Array of recipient IDs
 
     const handleSendBulkMessage = async () => {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         await axios.post(`${BASE_URL}/messaging/bulk/`, {
             content: message,
             recipients,

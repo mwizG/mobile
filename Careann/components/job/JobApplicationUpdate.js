@@ -17,7 +17,7 @@ const JobApplicationUpdate = () => {
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           Alert.alert('Error', 'User not authenticated');
           return;
@@ -44,7 +44,7 @@ const JobApplicationUpdate = () => {
 
   const handleStatusUpdate = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       await patch(`/jobs/applications/${applicationId}/`, { status }, {
         headers: {
           Authorization: `Bearer ${token}`, // Fixed formatting

@@ -17,7 +17,7 @@ const SearchJob = () => {
   useEffect(() => {
     const fetchAllJobs = async () => {
       try {
-        const token = await AsyncStorage.getItem('token'); // Ensure you replace this with real token management
+        const token = await AsyncStorage.getItem('accessToken'); // Ensure you replace this with real token management
         if (!token) {
           throw new Error('Token not found');
         }
@@ -39,7 +39,7 @@ const SearchJob = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token'); // Replace with your token management logic
+      const token = await AsyncStorage.getItem('accessToken'); // Replace with your token management logic
       if (query.trim() === '') {
         // If search query is empty, show all jobs
         const allJobs = await getAllJobs(token);
