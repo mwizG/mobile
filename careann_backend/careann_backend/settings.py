@@ -48,18 +48,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'accounts', 
+    'corsheaders',
+    'channels',  # Make sure 'channels' is installed and listed
+    'accounts',  # Custom apps need to be listed after 'django.contrib' apps
     'jobs',
     'payments',
-    'corsheaders',
     'messaging',
-    'channels',
     'admin_panel',
     'background_checks',
     'emergency_services',
     'pharmacy',
-
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -20,8 +20,9 @@ const Messaging = () => {
     const [newMessage, setNewMessage] = useState('');
     const messageEndRef = useRef(null);
     const [loading, setLoading] = useState(true);
+    const [loadingMessages, setLoadingMessages] = useState(true); // Loading state for messages
+    const socketRef = useRef(null); // Use ref to store WebSocket instance
 
-    // Fetch conversations when component mounts
     useEffect(() => {
         const fetchConversations = async () => {
             try {
@@ -33,10 +34,9 @@ const Messaging = () => {
                 });
                 setConversations(response.data);
 
-                // Check if there's a saved conversation ID in localStorage
                 const savedConversationId = localStorage.getItem('selectedConversation');
                 if (savedConversationId) {
-                    fetchMessages(savedConversationId);
+                    handleSelectConversation(savedConversationId);
                 }
             } catch (error) {
                 console.error('Error fetching conversations:', error);
@@ -45,10 +45,47 @@ const Messaging = () => {
             }
         };
         fetchConversations();
+
+        // Clean up WebSocket connection on component unmount
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.close();
+            }
+        };
     }, []);
 
-    // Fetch messages for the selected conversation
+    const handleSelectConversation = (conversationId) => {
+        if (selectedConversation === conversationId) return; // Prevent re-initializing same conversation
+
+        setSelectedConversation(conversationId);
+        localStorage.setItem('selectedConversation', conversationId);
+
+        // Close any existing socket connection
+        if (socketRef.current) {
+            socketRef.current.close();
+        }
+
+        // Establish a new WebSocket connection for the selected conversation
+        const token = localStorage.getItem('token');
+        socketRef.current = new WebSocket(`ws://127.0.0.1:8001/ws/messaging/${conversationId}/?token=${token}`);
+
+        // Handle incoming WebSocket messages
+        socketRef.current.onmessage = (event) => {
+            const newMessage = JSON.parse(event.data);
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+        };
+
+        // Handle WebSocket errors
+        socketRef.current.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        // Fetch messages for the selected conversation initially
+        fetchMessages(conversationId);
+    };
+
     const fetchMessages = async (conversationId) => {
+        setLoadingMessages(true);
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(`http://127.0.0.1:8000/api/messaging/conversations/${conversationId}/messages/`, {
@@ -57,59 +94,40 @@ const Messaging = () => {
                 },
             });
             setMessages(response.data);
-            setSelectedConversation(conversationId);
-            localStorage.setItem('selectedConversation', conversationId);
         } catch (error) {
             console.error('Error fetching messages:', error);
+        } finally {
+            setLoadingMessages(false);
         }
     };
 
-    useEffect(() => {
-        if (selectedConversation) {
-            // Polling every 5 seconds for new messages
-            const intervalId = setInterval(() => {
-                fetchMessages(selectedConversation);
-            }, 5000);
-
-            return () => clearInterval(intervalId);
+    const handleSendMessage = () => {
+        if (socketRef.current && newMessage.trim()) {
+            const messageData = {
+                content: newMessage,
+                conversation: selectedConversation,
+            };
+            
+            // Log the message data being sent
+            console.log('Sending message data:', JSON.stringify(messageData));
+            
+            socketRef.current.send(JSON.stringify(messageData));
+            setNewMessage('');
         }
-    }, [selectedConversation]);
+    };
+    
 
-    // Scroll to the bottom of the messages when a new message is received
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+
     useEffect(() => {
         if (messageEndRef.current) {
             messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages]);
-
-    // Handle sending a new message
-    const handleSendMessage = async () => {
-        if (!newMessage.trim()) return;
-        try {
-            const token = localStorage.getItem('token');
-            const messageData = {
-                content: newMessage,
-                conversation: selectedConversation,
-            };
-
-            await axios.post(
-                `http://127.0.0.1:8000/api/messaging/conversations/${selectedConversation}/messages/`,
-                messageData,
-                {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                }
-            );
-            setNewMessage('');
-            fetchMessages(selectedConversation); // Refresh messages
-        } catch (error) {
-            console.error('Error sending message:', error);
-            if (error.response) {
-                console.error('Error response data:', error.response.data);
-            }
-        }
-    };
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', height: '80vh' }}>
@@ -123,10 +141,10 @@ const Messaging = () => {
                     ) : (
                         <List>
                             {conversations.map((conversation) => (
-                                <ListItem 
-                                    button 
-                                    key={conversation.id} 
-                                    onClick={() => fetchMessages(conversation.id)} 
+                                <ListItem
+                                    button
+                                    key={conversation.id}
+                                    onClick={() => handleSelectConversation(conversation.id)}
                                     sx={{ backgroundColor: selectedConversation === conversation.id ? '#f0f0f0' : 'inherit' }}
                                 >
                                     <ListItemText primary={`Conversation with ${conversation.participants.join(', ')}`} />
@@ -142,21 +160,25 @@ const Messaging = () => {
                                 Messages
                             </Typography>
                             <div style={{ flex: 1, overflowY: 'auto', maxHeight: '60vh' }}>
-                                <List>
-                                    {messages.length === 0 ? (
-                                        <Typography variant="body2">No messages yet.</Typography>
-                                    ) : (
-                                        messages.map((message) => (
-                                            <ListItem key={message.id}>
-                                                <ListItemText 
-                                                    primary={<strong>{message.sender}:</strong>} 
-                                                    secondary={message.content} 
-                                                />
-                                            </ListItem>
-                                        ))
-                                    )}
-                                    <div ref={messageEndRef}></div>
-                                </List>
+                                {loadingMessages ? (
+                                    <CircularProgress />
+                                ) : (
+                                    <List>
+                                        {messages.length === 0 ? (
+                                            <Typography variant="body2">No messages yet.</Typography>
+                                        ) : (
+                                            messages.map((message) => (
+                                                <ListItem key={message.id}>
+                                                    <ListItemText
+                                                        primary={<strong>{message.sender}:</strong>}
+                                                        secondary={message.content}
+                                                    />
+                                                </ListItem>
+                                            ))
+                                        )}
+                                        <div ref={messageEndRef}></div>
+                                    </List>
+                                )}
                             </div>
                             <div style={{ display: 'flex', marginTop: 2 }}>
                                 <TextField
@@ -164,6 +186,7 @@ const Messaging = () => {
                                     placeholder="Type a message"
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
+                                    onKeyPress={handleKeyPress}
                                     sx={{ flex: 1, marginRight: 2 }}
                                 />
                                 <Button variant="contained" onClick={handleSendMessage}>
@@ -172,12 +195,12 @@ const Messaging = () => {
                             </div>
                         </Paper>
                     ) : (
-                        <Typography variant="body2">Select a conversation to view messages</Typography>
+                        <Typography variant="body2">Select a conversation to start chatting!</Typography>
                     )}
                 </Grid>
             </Grid>
         </Container>
     );
-}
+};
 
 export default Messaging;
