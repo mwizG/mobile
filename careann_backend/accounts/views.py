@@ -29,7 +29,7 @@ class ExperienceCategoryListView(generics.ListAPIView):
         return response
     
 class LocationListView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     serializer_class = LocationSerializer
 
     def get_queryset(self):

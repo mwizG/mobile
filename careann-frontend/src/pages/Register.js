@@ -53,30 +53,31 @@ function Register() {
   const navigate = useNavigate();
   const [locations, setLocations] = useState([]);
 // Fetch locations for the dropdown with Authorization header
-  useEffect(() => {
-      const fetchLocations = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          if (!token) {
-            console.error('User is not logged in. Please log in to continue.');
-            return;
-          }
+useEffect(() => {
+  const fetchLocations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('User is not logged in. Please log in to continue.');
+        return;
+      }
 
-          const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          });
-          setLocations(response.data);
-        } catch (error) {
-          console.error('Error fetching locations', error);
-        }
-      };
+      console.log('Token:', token); // Log the token for debugging
 
-      fetchLocations(); // Fetch locations on component mount
-    }, []);
+      const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
+        headers: {
+          // Use 'Bearer' instead of 'Token' if required
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setLocations(response.data);
+    } catch (error) {
+      console.error('Error fetching locations', error);
+    }
+  };
 
-
+  fetchLocations(); // Fetch locations on component mount
+}, []);
 
 
   const handleChange = (e) => {
