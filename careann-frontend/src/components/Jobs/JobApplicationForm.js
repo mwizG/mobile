@@ -22,12 +22,12 @@ function JobApplicationForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             const requestData = {
                 cover_letter: coverLetter,
             };
             const headers = {
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
             };
 
             // Log the request data and headers

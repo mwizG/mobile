@@ -8,12 +8,12 @@ function AvailabilityForm() {
     const handleUpdateAvailability = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.patch('http://your-backend-api-url/api/caregivers/availability/', {
                 availability
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             alert('Availability updated successfully!');

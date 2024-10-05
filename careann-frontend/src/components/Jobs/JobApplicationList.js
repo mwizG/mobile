@@ -27,7 +27,7 @@ function JobApplicationList() {
             setError(null); // Reset error state before fetching
 
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 if (!token) {
                     setError('User not authenticated');
                     return;
@@ -36,8 +36,8 @@ function JobApplicationList() {
                 // Fetch all applications from the API
                 const response = await axios.get('http://127.0.0.1:8000/api/jobs/applications/', {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
 
                 // Filter applications by the provided jobId (if it exists)

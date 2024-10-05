@@ -9,7 +9,7 @@ function PaymentForm({ jobId, caregiverId }) {
     const handlePayment = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.post('http://your-backend-api-url/api/payments/', {
                 job: jobId,
                 amount,
@@ -17,7 +17,7 @@ function PaymentForm({ jobId, caregiverId }) {
                 caregiver: caregiverId,
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             alert('Payment successful!');

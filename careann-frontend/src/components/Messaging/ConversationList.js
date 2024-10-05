@@ -22,19 +22,19 @@ function ConversationList() {
     useEffect(() => {
         const fetchConversations = async () => {
             try {
-                const token = localStorage.getItem('token');  // Retrieve token from local storage
+                const token = localStorage.getItem('accessToken');  // Retrieve the correct token from local storage
                 if (!token) {
                     throw new Error("Authentication token not found.");
                 }
 
                 const response = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
                     headers: {
-                        Authorization: `Token ${token}`,  // Send the token in headers for authentication
+                        Authorization: `Bearer ${token}`,  // Use Bearer for JWT
                     },
                 });
                 setConversations(response.data);  // Store the retrieved conversations in state
             } catch (error) {
-                setError('Error fetching conversations');
+                setError('Error fetching conversations: ' + (error.response ? error.response.data : error.message));
                 console.error('Error fetching conversations:', error);
             } finally {
                 setLoading(false);  // Stop loading when data is fetched or an error occurs

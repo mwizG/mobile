@@ -24,7 +24,7 @@ const JobApplicationDetail = () => {
         // Fetch the job details using the applicationId
         const response = await get(`/jobs/applications/${applicationId}/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`, // Fixed formatting
           },
         });
 
@@ -45,7 +45,7 @@ const JobApplicationDetail = () => {
       const token = await AsyncStorage.getItem('token');
       await get(`/jobs/${applicationId}/accept/`, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
       navigation.navigate('CaregiverJobs'); // Redirect to caregiver jobs page after accepting
@@ -60,7 +60,7 @@ const JobApplicationDetail = () => {
       const token = await AsyncStorage.getItem('token');
       await get(`/jobs/${applicationId}/decline/`, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
       navigation.navigate('CaregiverJobs'); // Redirect to caregiver jobs page after declining

@@ -22,10 +22,10 @@ function CaregiverList() {
     useEffect(() => {
         const fetchCaregivers = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken');
                 const response = await axios.get('http://127.0.0.1:8000/api/messaging/caregivers/', {
                     headers: {
-                        Authorization: `Token ${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 setCaregivers(response.data);
@@ -41,12 +41,12 @@ function CaregiverList() {
 
     const startConversation = async (caregiverUsername) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
 
             // Fetch existing conversations
             const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
@@ -64,7 +64,7 @@ function CaregiverList() {
                     participants: [caregiverUsername],
                 }, {
                     headers: {
-                        Authorization: `Token ${token}`,
+                       Authorization: `Bearer ${token}`,
                     },
                 });
 

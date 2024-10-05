@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiPost } from '../services/api'; // Import the API service
+import { apiPost, apiRequestWithRefresh } from '../services/api'; // Ensure apiRequestWithRefresh is imported
 import { TextField, Button, Typography, Container, CircularProgress, Box } from '@mui/material';
-import '@fontsource/poppins';  // Creative typography import
+import '@fontsource/poppins'; 
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -15,23 +15,39 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
     try {
       const data = { username, password };
-      const response = await apiPost('/accounts/login/', data); // Use the API service
-  
-      localStorage.setItem('token', response.token);
+      const response = await apiRequestWithRefresh('/accounts/login/', data, 'post'); // Call the function here
+
+      console.log('Login response:', response);  // Check if new tokens are received
+
+      // Only update tokens if they have changed
+      const currentAccessToken = localStorage.getItem('accessToken');
+      const currentRefreshToken = localStorage.getItem('refreshToken');
+
+      if (currentAccessToken !== response.access || currentRefreshToken !== response.refresh) {
+        localStorage.setItem('accessToken', response.access);
+        localStorage.setItem('refreshToken', response.refresh);
+      }
+
+      // Store user role and ID
       localStorage.setItem('role', response.role);
-      localStorage.setItem('user_id', response.user.id); // Save user ID
-  
-      if (response.role === 'care_seeker') {
-        navigate('/care-seeker/dashboard');
-      } else if (response.role === 'caregiver') {
-        navigate('/caregiver/dashboard');
-      } else if (response.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/'); // Fallback to home if role is not recognized
+      localStorage.setItem('user_id', response.user.id);
+
+      // Navigate to the appropriate dashboard based on role
+      switch(response.role) {
+        case 'care_seeker':
+          navigate('/care-seeker/dashboard');
+          break;
+        case 'caregiver':
+          navigate('/caregiver/dashboard');
+          break;
+        case 'admin':
+          navigate('/admin/dashboard');
+          break;
+        default:
+          navigate('/');
       }
     } catch (error) {
       console.error('Login failed', error);

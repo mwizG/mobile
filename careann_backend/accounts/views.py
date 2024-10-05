@@ -13,7 +13,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import transaction
 from django.http import Http404  # Import Http404
 from .models import ZAMBIA_LOCATIONS
-
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 class ExperienceCategoryListView(generics.ListAPIView):
     queryset = ExperienceCategory.objects.all()
     serializer_class = ExperienceCategorySerializer
@@ -259,40 +261,43 @@ class RegisterView(generics.CreateAPIView):
             print("Serializer errors:", serializer.errors)  # Log the errors for debugging
             return Response(serializer.errors, status=400)
 
-class LoginView(ObtainAuthToken):
+
+
+class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        
-         # Determine the role
-        if user.is_superuser or user.is_staff:
-            role = 'admin'
-        elif user.is_care_seeker:
-            role = 'care_seeker'
-        elif user.is_caregiver:
-            role = 'caregiver'
-        else:
-            role = 'unknown'
 
+        # Generate new tokens for the user
         response_data = {
-            'token': token.key,
+            'access': serializer.validated_data['access'],
+            'refresh': serializer.validated_data['refresh'],
             'user': UserSerializer(user).data,
-            'role': role  # Return role explicitly
+            'role': self.get_user_role(user)
         }
 
-        print(f"Response data: {response_data}")  # This will print to the console/logs
+        print(f"Response data: {response_data}")  # Verify that the tokens are changing
+        return Response(response_data, status=200)
 
-       
-        return Response({
-            'token': token.key,
-            'user': UserSerializer(user).data,
-            'role': role  # Return role explicitly
-        })
- 
+        
+    def get_user_role(self, user):
+        if user.is_superuser or user.is_staff:
+            return 'admin'
+        elif user.is_care_seeker:
+            return 'care_seeker'
+        elif user.is_caregiver:
+            return 'caregiver'
+        else:
+            return 'unknown'
+        
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        # Call the parent class method to refresh the token
+        return super().post(request, *args, **kwargs)
+
 
 
 

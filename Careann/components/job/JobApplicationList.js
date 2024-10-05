@@ -24,7 +24,7 @@ const JobApplicationList = () => {
         // Fetch all applications
         const response = await get(`/jobs/applications/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 

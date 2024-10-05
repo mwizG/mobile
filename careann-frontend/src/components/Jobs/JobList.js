@@ -13,28 +13,37 @@ function JobList({ fetchAll = false }) {
 
     useEffect(() => {
         const fetchJobs = async () => {
+            setLoading(true); // Set loading to true before fetching
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    throw new Error('No access token found.');
+                }
+    
                 const endpoint = fetchAll 
                     ? 'http://127.0.0.1:8000/api/jobs/all-jobs/'  // Fetch all jobs
-                    : 'http://127.0.0.1:8000/api/jobs/open-jobs/'; // Fetch only open jobs
-
+                    : 'http://127.0.0.1:8000/api/jobs/open-jobs/';
+                    
                 const response = await axios.get(endpoint, {
                     headers: {
-                        Authorization: `Token ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
-
+    
                 setJobs(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching jobs:", error);
-                setError(true);
-                setLoading(false);
+            } catch (err) {
+                const errorMessage = err.response 
+                    ? `Error fetching jobs: ${err.response.data.detail || err.message}` 
+                    : `Error fetching jobs: ${err.message}`;
+                setError(errorMessage);
+            } finally {
+                setLoading(false); // Ensure loading is set to false regardless of the outcome
             }
         };
+    
         fetchJobs();
-    }, [fetchAll]);
+    }, [fetchAll]); // Added fetchAll as a dependency if it can change
+    
 
     const goToCareseekerProfile = (careSeekerId) => {
         if (careSeekerId) {

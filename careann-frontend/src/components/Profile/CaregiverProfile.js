@@ -56,7 +56,7 @@ function CaregiverProfile() {
     useEffect(() => {
         const fetchLocations = async () => {
           try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             if (!token) {
               console.error('User is not logged in. Please log in to continue.');
               return;
@@ -64,7 +64,7 @@ function CaregiverProfile() {
   
             const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
               headers: {
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
               },
             });
             setLocations(response.data);
@@ -82,10 +82,10 @@ function CaregiverProfile() {
   useEffect(() => {
     const fetchCaregiver = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         const response = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -113,10 +113,10 @@ function CaregiverProfile() {
 
     const fetchCredentials = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         const response = await axios.get(`http://127.0.0.1:8000/api/accounts/credentials/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setCredentials(response.data);
@@ -154,7 +154,7 @@ function CaregiverProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       const formData = new FormData();
       const existingProfileImage = caregiver ? caregiver.profile_image : null;
 
@@ -169,15 +169,17 @@ function CaregiverProfile() {
 
       await axios.put(`http://127.0.0.1:8000/api/accounts/profile/`, formData, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
 
       alert('Profile updated successfully');
       setEditMode(false);
       const updatedProfile = await axios.get(`http://127.0.0.1:8000/api/accounts/profile/`, {
-        headers: { Authorization: `Token ${token}` },
-      });
+        headers: {
+          Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
+      },
+  });
       setCaregiver(updatedProfile.data);
       const userRole = updatedProfile.data.is_caregiver ? 'caregiver' : updatedProfile.data.is_care_seeker ? 'care_seeker' : '';
       setRole(userRole);
@@ -198,7 +200,7 @@ function CaregiverProfile() {
     formData.append('file', file);
 
     try {
-        const token = localStorage.getItem('token'); // Retrieve token here
+        const token = localStorage.getItem('accessToken');  // Retrieve token here
         const response = await axios.post('http://127.0.0.1:8000/api/accounts/upload_credentials/', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',

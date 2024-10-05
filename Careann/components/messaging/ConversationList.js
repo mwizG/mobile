@@ -12,7 +12,7 @@ const ConversationList = ({ navigation }) => {
             const token = await AsyncStorage.getItem('token');
             const response = await axios.get(`${BASE_URL}/messaging/conversations/`, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             setConversations(response.data);

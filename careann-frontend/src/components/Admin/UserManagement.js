@@ -8,7 +8,7 @@ function UserManagement() {
 
     useEffect(() => {
         async function fetchUsers() {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             console.log('Token:', token); 
             if (!token) {
                 console.error('No authentication token found.');
@@ -37,7 +37,7 @@ function UserManagement() {
     }, []);
 
     const toggleActiveStatus = async (userId) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         if (!token) {
             console.error('No authentication token found for toggling status.');
             setError('No authentication token found for toggling status.');
@@ -47,7 +47,7 @@ function UserManagement() {
         try {
             await axios.patch(`http://127.0.0.1:8000/api/admin_panel/user/${userId}/toggle-active/`, null, {
                 headers: {
-                    Authorization: `Token ${token}`, // Use "Token" prefix
+                    Authorization: `Bearer ${token}` // Use "Token" prefix
                 },
             });
             setUsers(users.map(user => user.id === userId ? { ...user, is_active: !user.is_active } : user));

@@ -8,7 +8,7 @@ function AnalyticsDashboard() {
 
     useEffect(() => {
         async function fetchAnalytics() {
-            const token = localStorage.getItem('token'); // Retrieve the token
+            const token = localStorage.getItem('accessToken');  // Retrieve the token
             if (!token) {
                 console.error('No authentication token found.');
                 setError('No authentication token found.');

@@ -26,10 +26,10 @@ function CaregiverDetail() {
   useEffect(() => {
     const fetchCaregiver = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         const response = await axios.get(`http://127.0.0.1:8000/api/accounts/caregivers/${caregiverId}/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setCaregiver(response.data);
@@ -49,10 +49,10 @@ function CaregiverDetail() {
     
     const fetchCredentials = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         const response = await axios.get(`http://127.0.0.1:8000/api/accounts/caregivers/${caregiverId}/credentials/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setCredentials(response.data);

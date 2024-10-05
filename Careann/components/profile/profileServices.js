@@ -6,7 +6,7 @@ export const fetchProfile = async () => {
     const token = await AsyncStorage.getItem('token');
     const response = await axios.get(`${BASE_URL}/profile/`, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -21,7 +21,7 @@ export const updateProfile = async (profileData) => {
     const token = await AsyncStorage.getItem('token');
     const response = await axios.put(`${BASE_URL}/profile/update/`, profileData, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;

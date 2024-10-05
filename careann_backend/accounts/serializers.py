@@ -4,7 +4,7 @@ from .models import CustomUser, ExperienceCategory,Certification
 from django.contrib.auth import authenticate
 from django.db.models import Avg
 from collections import OrderedDict 
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -13,9 +13,14 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(**data)
         if user and user.is_active:
-            return {'user': user}  # Return a dictionary with 'user' as the key
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            return {
+                'user': user,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),  # Access token
+            }
         raise serializers.ValidationError("Invalid Credentials")
-
 class CredentialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification

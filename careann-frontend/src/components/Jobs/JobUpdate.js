@@ -28,7 +28,7 @@ function JobUpdate() {
     useEffect(() => {
         const fetchJob = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 if (!token) {
                     navigate('/login');
                     return;
@@ -36,8 +36,8 @@ function JobUpdate() {
 
                 const response = await axios.get(`${API_URL}${jobId}/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setJob(response.data);
                 setStatus(response.data.status);
@@ -56,10 +56,10 @@ function JobUpdate() {
 
     const completeJob = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.patch(`${API_URL}${jobId}/update-status/`, { status: 'Awaiting Approval' }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             setStatus('Awaiting Approval');
@@ -71,10 +71,10 @@ function JobUpdate() {
 
     const updateSeekerStatus = async (newStatus) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.patch(`${API_URL}${jobId}/approve-completion/`, { status: newStatus }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 

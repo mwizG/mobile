@@ -25,7 +25,7 @@ const JobApplicationUpdate = () => {
 
         const response = await get(`/jobs/applications/${applicationId}/`, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`, // Fixed formatting
           },
         });
         
@@ -47,7 +47,7 @@ const JobApplicationUpdate = () => {
       const token = await AsyncStorage.getItem('token');
       await patch(`/jobs/applications/${applicationId}/`, { status }, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
       navigation.navigate('JobApplicationList'); // Redirect after update

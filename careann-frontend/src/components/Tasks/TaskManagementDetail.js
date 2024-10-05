@@ -12,11 +12,11 @@ function TaskManagementDetail() {
     useEffect(() => {
         const fetchTask = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 const response = await axios.get(`http://127.0.0.1:8000/api/jobs/tasks/${taskId}/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setTask(response.data);
                 setDescription(response.data.description);
@@ -31,13 +31,13 @@ function TaskManagementDetail() {
 
     const handleUpdateTask = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/tasks/${taskId}/`, {
                 description: description,
                 scheduled_time: scheduledTime,
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             console.log('Task updated:', response.data);
@@ -49,12 +49,12 @@ function TaskManagementDetail() {
 
     const handleMarkComplete = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/tasks/${taskId}/`, {
                 status: 'Completed',
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             console.log('Task marked as complete:', response.data);
@@ -66,10 +66,10 @@ function TaskManagementDetail() {
 
     const handleDeleteTask = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.delete(`http://127.0.0.1:8000/api/jobs/tasks/${taskId}/`, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             console.log('Task deleted');

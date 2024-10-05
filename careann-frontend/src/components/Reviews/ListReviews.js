@@ -21,7 +21,7 @@ function ListReviews() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 if (!token) {
                     console.error('No token found');
                     return;
@@ -29,8 +29,8 @@ function ListReviews() {
 
                 const response = await axios.get(API_URL, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setReviews(response.data);
             } catch (error) {

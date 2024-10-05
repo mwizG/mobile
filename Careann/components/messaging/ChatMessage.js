@@ -14,7 +14,7 @@ const ChatMessage = ({ route }) => {
             const token = await AsyncStorage.getItem('token');
             const response = await axios.get(`${BASE_URL}/messaging/conversations/${conversationId}/messages/`, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             setMessages(response.data);
@@ -29,7 +29,7 @@ const ChatMessage = ({ route }) => {
             content: newMessage,
         }, {
             headers: {
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         setNewMessage('');

@@ -27,7 +27,7 @@ function Review() {
 
     useEffect(() => {
         const role = localStorage.getItem('role');
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
 
         if (!token) {
             navigate('/login');
@@ -37,8 +37,8 @@ function Review() {
             try {
                 const response = await axios.get(`${API_URL}${jobId}/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
 
                 const jobData = response.data;
@@ -58,7 +58,7 @@ function Review() {
 
     const submitReview = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             if (!token) {
                 navigate('/login');
                 return;
@@ -72,7 +72,7 @@ function Review() {
 
             await axios.post(`${API_URL}reviews/create/`, payload, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 

@@ -4,9 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../state/AuthContext'; // Import AuthContext
 import { post } from '../services/api'; // Import the API service
-import { styled } from 'nativewind'; // Import NativeWind
-
-
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -30,28 +27,29 @@ const Login = () => {
 
       const data = { username, password };
       const response = await post('/accounts/login/', data); // Use the API service
-      console.log(response.data);
+      console.log('Login response:', response.data);
 
-      // Store token and user info in AsyncStorage or Context
-      await AsyncStorage.setItem('token', response.data.token);
+      // Store token and user info in AsyncStorage
+      await AsyncStorage.setItem('accessToken', response.data.access);
+      await AsyncStorage.setItem('refreshToken', response.data.refresh);
       await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-      await AsyncStorage.setItem('role', response.data.role);
 
       // Update context
       setUser(response.data.user);
 
       // Navigate based on user role
-      if (response.data.role === 'care_seeker') {
+      const role = response.data.user.role; // Adjust this based on your user data structure
+      if (role === 'care_seeker') {
         navigation.navigate('dashboard/careseeker');
-      } else if (response.data.role === 'caregiver') {
+      } else if (role === 'caregiver') {
         navigation.navigate('dashboard/caregiver');
-      } else if (response.data.role === 'admin') {
+      } else if (role === 'admin') {
         navigation.navigate('dashboard/admin');
       } else {
         navigation.navigate('index'); // Fallback to home if role is not recognized
       }
     } catch (error) {
-      console.error('Login failed', error.response?.data || error.message);
+      console.error('Login failed:', error.response?.data || error.message);
       setError('Invalid username or password. Please try again.');
     } finally {
       setLoading(false);
@@ -59,7 +57,6 @@ const Login = () => {
   };
 
   return (
-    
     <View className="flex-1 p-6 bg-gray-200 justify-center">
       <StatusBar backgroundColor='white' barStyle="dark-content" />
       <Text className="text-4xl font-bold mb-8 text-center text-green-500">Login</Text>
@@ -82,7 +79,6 @@ const Login = () => {
       />
       <View className="bg-indigo-600 rounded-lg">
         <Button
-          className=""
           title={loading ? 'Logging in...' : 'Login'}
           onPress={handleSubmit}
           disabled={loading}

@@ -8,7 +8,7 @@ function ContentModeration() {
 
     useEffect(() => {
         const fetchModerationActions = async () => {
-            const token = localStorage.getItem('token'); // Retrieve the token
+            const token = localStorage.getItem('accessToken');  // Retrieve the token
             if (!token) {
                 setError('No authentication token found.');
                 setLoading(false);
@@ -29,7 +29,7 @@ function ContentModeration() {
     }, []);
 
     const handleUpdateAction = async (actionId, newStatus) => {
-        const token = localStorage.getItem('token'); // Retrieve the token
+        const token = localStorage.getItem('accessToken');  // Retrieve the token
         if (!token) {
             setError('No authentication token found for updating action.');
             return;

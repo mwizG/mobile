@@ -4,7 +4,7 @@ const API_URL = 'http://127.0.0.1:8000/api/admin_panel'; // Update this with you
 
 // Function to get the authentication token
 const getAuthToken = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken'); 
     return token ? token.replace(/"/g, '') : null;
 };
 

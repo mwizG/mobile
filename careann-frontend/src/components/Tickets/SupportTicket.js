@@ -10,7 +10,7 @@ function SupportTicket() {
   const handleCreateTicket = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token'); // Retrieve token from local storage
+      const token = localStorage.getItem('accessToken');  // Retrieve token from local storage
       if (!token) {
         setError('User is not authenticated. Please log in.');
         return;
@@ -25,7 +25,7 @@ function SupportTicket() {
         payload,
         {
           headers: {
-            Authorization: `Token ${token}`, // Pass the token in the request header
+            Authorization: `Bearer ${token}`, // Pass the token in the request header
           },
         }
       );

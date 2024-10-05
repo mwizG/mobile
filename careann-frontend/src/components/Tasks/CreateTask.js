@@ -14,11 +14,11 @@ function CreateTask() {
     useEffect(() => {
         const fetchJobs = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 const response = await axios.get('http://127.0.0.1:8000/api/jobs/caregiver-jobs/', {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setJobs(response.data);  // Set the jobs for the dropdown
             } catch (error) {
@@ -34,14 +34,14 @@ function CreateTask() {
         e.preventDefault();  // Prevent page refresh
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/tasks/create/', {
                 job: jobId,  // The selected job ID
                 description: description,
                 scheduled_time: scheduledTime,
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 

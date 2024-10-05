@@ -24,12 +24,12 @@ function CaregiverJobManagement() {
     useEffect(() => {
         const fetchJobs = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 
                 const response = await axios.get(API_URL, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setJobs(response.data);
             } catch (error) {

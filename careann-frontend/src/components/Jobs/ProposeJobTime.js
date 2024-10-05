@@ -11,7 +11,7 @@ function ProposeJobTime() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
 
       // Log the token and request details
       console.log('Token:', token);
@@ -24,7 +24,7 @@ function ProposeJobTime() {
         { proposed_time: proposedTime },
         {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

@@ -29,17 +29,17 @@ function CaregiverJobSearch() {
 
   const fetchJobTypes = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       if (!token) {
         console.error('User is not logged in. Please log in to continue.');
         return;
       }
 
-      const response = await axios.get('http://127.0.0.1:8000/api/jobs/job-types/', {
+       const response = await axios.get('http://127.0.0.1:8000/api/jobs/job-types/', {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
-      });
+       });
       setJobTypes(response.data);
     } catch (error) {
       console.error('Error fetching job types', error);
@@ -48,7 +48,7 @@ function CaregiverJobSearch() {
 
   const fetchLocations = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       if (!token) {
         console.error('User is not logged in. Please log in to continue.');
         return;
@@ -56,7 +56,7 @@ function CaregiverJobSearch() {
 
       const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
       setLocations(response.data);
@@ -68,10 +68,10 @@ function CaregiverJobSearch() {
   const fetchJobs = useCallback(async () => {
     setLoading(true); // Set loading state
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       const response = await axios.get('http://127.0.0.1:8000/api/jobs/search', {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
         params: {
           location,

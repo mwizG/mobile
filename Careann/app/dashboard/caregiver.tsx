@@ -21,7 +21,7 @@ function CaregiverDashboard() {
                 // Fetch job applications using the get method from api.js
                 const response = await get('/jobs/applications/', {
                     headers: {
-                        Authorization: `Token ${token}`,  // Add the token in the Authorization header
+                        Authorization: `Bearer ${token}`,  // Add the token in the Authorization header
                     },
                 });
                 setApplications(response.data);

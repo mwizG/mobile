@@ -48,7 +48,7 @@ function SearchCaregiversForm() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         if (!token) {
           console.error('User is not logged in. Please log in to continue.');
           return;
@@ -56,7 +56,7 @@ function SearchCaregiversForm() {
 
         const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setLocations(response.data);
@@ -70,11 +70,11 @@ function SearchCaregiversForm() {
 
   const startConversation = async (caregiverUsername) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
 
       const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
 
@@ -89,7 +89,7 @@ function SearchCaregiversForm() {
           participants: [caregiverUsername],
         }, {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -103,7 +103,7 @@ function SearchCaregiversForm() {
   useEffect(() => {
     const fetchExperienceCategories = async () => {
         try {
-            const token = localStorage.getItem('token'); // or however you store your token
+            const token = localStorage.getItem('accessToken');  // or however you store your token
             if (!token) {
                 console.error('User is not logged in. Please log in to continue.');
                 return;
@@ -138,14 +138,14 @@ function SearchCaregiversForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       if (!token) {
         console.error('User is not logged in. Please log in to continue.');
         return;
       }
       const response = await axios.get('http://127.0.0.1:8000/api/accounts/caregivers/search/', {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
         params: {
           location,

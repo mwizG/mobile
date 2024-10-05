@@ -35,18 +35,18 @@ const JobApplicationUpdate = () => {
 
     const fetchApplication = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const role = localStorage.getItem('role');
             setUserRole(role);
 
             const appResponse = await axios.get(`${API_URL}/applications/${pk}/`, {
-                headers: { Authorization: `Token ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             setApplication(appResponse.data);
             setStatus(appResponse.data.status);
 
             const jobResponse = await axios.get(`${API_URL}/${appResponse.data.job}/`, {
-                headers: { Authorization: `Token ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             setJob(jobResponse.data);
         } catch (err) {
@@ -61,9 +61,9 @@ const JobApplicationUpdate = () => {
 
     const updateApplicationStatus = async (newStatus) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             await axios.patch(`${API_URL}/applications/${pk}/`, { status: newStatus }, {
-                headers: { Authorization: `Token ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             setStatus(newStatus);
         } catch (error) {
@@ -73,48 +73,33 @@ const JobApplicationUpdate = () => {
 
     const proposeTimeUpdate = async () => {
         const proposedTime = proposeNewTime ? newProposedTime : job.proposed_time;
-    
+
         try {
-            const token = localStorage.getItem('token');
-    
+            const token = localStorage.getItem('accessToken');
+
             // Update the proposed time
             await axios.patch(`${API_URL}/${application.job}/propose-time/`, 
                 { proposed_time: proposedTime }, 
-                { headers: { Authorization: `Token ${token}` } }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-    
+
             // Reset the job status to "Open" only if it is currently "Declined"
             if (job.status === 'Declined') {
                 await axios.patch(`${API_URL}/${application.job}/`, 
                     { status: 'Open' }, 
-                    { headers: { Authorization: `Token ${token}` } }
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
             }
-    
+
             // Fetch the updated job details
             const updatedJobResponse = await axios.get(`${API_URL}/${application.job}/`, {
-                headers: { Authorization: `Token ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
-            
+
             setJob(updatedJobResponse.data);
             alert("Job time updated!" + (job.status === 'Declined' ? " Status reset to Open!" : ""));
         } catch (error) {
             handleError(error, 'updating proposed time and resetting job status');
-        }
-    };
-    
-
-    // New function to reset job status to "Open"
-    const resetJobStatusToOpen = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}/${application.job}/`, { status: 'Open' }, {
-                headers: { Authorization: `Token ${token}` },
-            });
-            setJob((prevJob) => ({ ...prevJob, status: 'Open' }));
-            alert("Job status reset to Open!");
-        } catch (error) {
-            handleError(error, 'resetting job status');
         }
     };
 
@@ -126,13 +111,11 @@ const JobApplicationUpdate = () => {
 
     const startConversation = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const caregiverUsername = application.caregiver;
 
             const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
-                headers: {
-                    Authorization: `Token ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const existingConversation = conversationsResponse.data.find(conversation =>
@@ -145,15 +128,13 @@ const JobApplicationUpdate = () => {
                 const response = await axios.post('http://127.0.0.1:8000/api/messaging/conversations/', {
                     participants: [caregiverUsername],
                 }, {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
 
                 navigate(`/conversations/${response.data.id}/messages`);
             }
         } catch (error) {
-            console.error('Error starting conversation:', error);
+            handleError(error, 'starting conversation');
         }
     };
 

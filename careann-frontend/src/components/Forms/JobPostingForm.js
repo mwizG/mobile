@@ -27,7 +27,7 @@ function JobPostingForm() {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-              const token = localStorage.getItem('token');
+              const token = localStorage.getItem('accessToken'); 
               if (!token) {
                 console.error('User is not logged in. Please log in to continue.');
                 return;
@@ -35,7 +35,7 @@ function JobPostingForm() {
       
               const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
                 headers: {
-                  Authorization: `Token ${token}`,
+                  Authorization: `Bearer ${token}`,
                 },
               });
               setLocations(response.data);
@@ -50,7 +50,7 @@ function JobPostingForm() {
     const handlePostJob = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.post('http://127.0.0.1:8000/api/jobs/create/', {
                 title,
                 description,
@@ -60,7 +60,7 @@ function JobPostingForm() {
                 proposed_time: proposedTime,
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             alert('Job posted successfully!');

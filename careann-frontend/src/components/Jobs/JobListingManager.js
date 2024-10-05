@@ -28,11 +28,11 @@ function JobListingManager() {
         setError(null); // Reset error state before fetching
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
 
             const response = await axios.get('http://127.0.0.1:8000/api/jobs/all-jobs/', {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
@@ -62,10 +62,10 @@ function JobListingManager() {
     // Handle job deletion
     const handleDelete = async (jobId) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.delete(`http://127.0.0.1:8000/api/jobs/${jobId}/`, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             // Remove job from local state after successful deletion

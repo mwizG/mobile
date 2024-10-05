@@ -20,7 +20,7 @@ from django_filters import rest_framework as filters
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.db.models import Q
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class LocationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LocationSerializer
@@ -214,7 +214,8 @@ class JobFilter(filters.FilterSet):
 
 class JobListView(generics.ListAPIView):
     serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]  # Anyone can access this view
+    permission_classes = [permissions.AllowAny] 
+    authentication_classes = [JWTAuthentication] # Anyone can access this view
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = JobFilter
 

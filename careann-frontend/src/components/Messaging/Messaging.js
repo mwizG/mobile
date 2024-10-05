@@ -13,6 +13,7 @@ import {
     Paper,
 } from '@mui/material';
 
+
 const Messaging = () => {
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
@@ -20,16 +21,16 @@ const Messaging = () => {
     const [newMessage, setNewMessage] = useState('');
     const messageEndRef = useRef(null);
     const [loading, setLoading] = useState(true);
-    const [loadingMessages, setLoadingMessages] = useState(true); // Loading state for messages
-    const socketRef = useRef(null); // Use ref to store WebSocket instance
+    const [loadingMessages, setLoadingMessages] = useState(true);
+    const socketRef = useRef(null);
 
     useEffect(() => {
         const fetchConversations = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken');  // Updated token key
                 const response = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
                     headers: {
-                        Authorization: `Token ${token}`,
+                        Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
                     },
                 });
                 setConversations(response.data);
@@ -46,7 +47,6 @@ const Messaging = () => {
         };
         fetchConversations();
 
-        // Clean up WebSocket connection on component unmount
         return () => {
             if (socketRef.current) {
                 socketRef.current.close();
@@ -55,42 +55,43 @@ const Messaging = () => {
     }, []);
 
     const handleSelectConversation = (conversationId) => {
-        if (selectedConversation === conversationId) return; // Prevent re-initializing same conversation
+        if (selectedConversation === conversationId) return;
 
         setSelectedConversation(conversationId);
         localStorage.setItem('selectedConversation', conversationId);
 
-        // Close any existing socket connection
         if (socketRef.current) {
             socketRef.current.close();
         }
 
-        // Establish a new WebSocket connection for the selected conversation
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');  // Updated token key
+        console.log(`Connecting to WebSocket: ws://127.0.0.1:8001/ws/messaging/${conversationId}/?token=${token}`);
+
         socketRef.current = new WebSocket(`ws://127.0.0.1:8001/ws/messaging/${conversationId}/?token=${token}`);
 
-        // Handle incoming WebSocket messages
         socketRef.current.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
             setMessages((prevMessages) => [...prevMessages, newMessage]);
         };
 
-        // Handle WebSocket errors
         socketRef.current.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
 
-        // Fetch messages for the selected conversation initially
+        socketRef.current.onclose = (event) => {
+            console.error('WebSocket closed:', event);
+        };
+
         fetchMessages(conversationId);
     };
 
     const fetchMessages = async (conversationId) => {
         setLoadingMessages(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');  // Updated token key
             const response = await axios.get(`http://127.0.0.1:8000/api/messaging/conversations/${conversationId}/messages/`, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
                 },
             });
             setMessages(response.data);
@@ -107,15 +108,13 @@ const Messaging = () => {
                 content: newMessage,
                 conversation: selectedConversation,
             };
-            
-            // Log the message data being sent
+
             console.log('Sending message data:', JSON.stringify(messageData));
-            
+
             socketRef.current.send(JSON.stringify(messageData));
             setNewMessage('');
         }
     };
-    
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -128,7 +127,6 @@ const Messaging = () => {
             messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages]);
-
     return (
         <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', height: '80vh' }}>
             <Grid container spacing={2} sx={{ flexGrow: 1 }}>

@@ -21,11 +21,11 @@ function CaregiverList2() {
     useEffect(() => {
         const fetchCaregivers = async () => {
             try {
-                const token = localStorage.getItem('token'); // Retrieve token from local storage
+                const token = localStorage.getItem('accessToken');  // Retrieve token from local storage
                 const response = await axios.get(`http://127.0.0.1:8000/api/accounts/caregivers/service/${serviceType}/`, {
                     headers: {
-                        Authorization: `Token ${token}` // Include token in request headers
-                    }
+                        Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
+                    },
                 });
                 setCaregivers(response.data);
             } catch (error) {
@@ -45,12 +45,12 @@ function CaregiverList2() {
 
     const startConversation = async (caregiverUsername) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
 
             // Fetch existing conversations
             const conversationsResponse = await axios.get('http://127.0.0.1:8000/api/messaging/conversations/', {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
@@ -68,8 +68,8 @@ function CaregiverList2() {
                     participants: [caregiverUsername]
                 }, {
                     headers: {
-                        Authorization: `Token ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
+                    },
                 });
 
                 // Navigate to the new conversation's messages

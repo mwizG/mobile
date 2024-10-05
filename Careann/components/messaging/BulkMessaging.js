@@ -15,7 +15,7 @@ const BulkMessaging = () => {
             recipients,
         }, {
             headers: {
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         setMessage('');

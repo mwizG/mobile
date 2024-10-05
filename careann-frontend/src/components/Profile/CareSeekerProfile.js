@@ -38,7 +38,7 @@ function CareSeekerProfile() {
     useEffect(() => {
         const fetchLocations = async () => {
           try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             if (!token) {
               console.error('User is not logged in. Please log in to continue.');
               return;
@@ -46,7 +46,7 @@ function CareSeekerProfile() {
   
             const response = await axios.get('http://127.0.0.1:8000/api/accounts/locations/', {
               headers: {
-                Authorization: `Token ${token}`,
+                Authorization: `Bearer ${token}`,
               },
             });
             setLocations(response.data);
@@ -63,10 +63,10 @@ function CareSeekerProfile() {
   useEffect(() => {
     const fetchCareSeeker = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken'); 
         const response = await axios.get('http://127.0.0.1:8000/api/accounts/profile/', {
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setCareSeeker(response.data);
@@ -137,10 +137,10 @@ function CareSeekerProfile() {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       const response = await axios.put('http://127.0.0.1:8000/api/accounts/profile/', formData, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data', // Set the correct content type for file uploads
         },
       });
@@ -153,8 +153,10 @@ function CareSeekerProfile() {
 
       // Optionally re-fetch updated data to reflect changes immediately
       const updatedProfile = await axios.get('http://127.0.0.1:8000/api/accounts/profile/', {
-        headers: { Authorization: `Token ${token}` },
-      });
+        headers: {
+          Authorization: `Bearer ${token}`,  // Use Bearer token for JWT
+      },
+  });
       setCareSeeker(updatedProfile.data);
     } catch (error) {
       // Log the error response from the server

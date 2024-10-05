@@ -56,7 +56,7 @@ function Register() {
 useEffect(() => {
   const fetchLocations = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken'); 
       if (!token) {
         console.error('User is not logged in. Please log in to continue.');
         return;

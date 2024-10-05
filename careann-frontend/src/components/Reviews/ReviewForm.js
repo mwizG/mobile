@@ -9,13 +9,13 @@ function ReviewForm({ jobId }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.post(`http://your-backend-api-url/api/jobs/${jobId}/review/`, {
                 rating,
                 review
             }, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             alert('Review submitted successfully!');

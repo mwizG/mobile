@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import CaregiverCredentialsView, CertificationDetailView, CertificationListView, ExperienceCategoryListView, LocationListView, RegisterView,UploadCredentialsView,LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
+from .views import CaregiverCredentialsView, CertificationDetailView, CertificationListView, CustomTokenRefreshView, ExperienceCategoryListView, LocationListView, RegisterView,UploadCredentialsView,LoginView,ProfileView,CaregiverSearchView,CaregiverDetailView,CaregiverByJobTypeView,CareSeekerDetailView 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('credentials/', CertificationListView.as_view(), name='certification-list'),  # List and Create endpoint
     path('credentials/<int:pk>/', CertificationDetailView.as_view(), name='certification-detail'),  # Retrieve and Delete endpoint
     path('caregivers/<int:caregiver_id>/credentials/', CaregiverCredentialsView.as_view(), name='caregiver-credentials'),
+    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
 ]

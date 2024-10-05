@@ -24,7 +24,7 @@ function JobApplicationDetail() {
     useEffect(() => {
         const fetchJobAndApplication = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 if (!token) {
                     setError('No token found. Please log in.');
                     return;
@@ -33,23 +33,23 @@ function JobApplicationDetail() {
                 // Fetch job details
                 const jobResponse = await axios.get(`${API_URL}${id}/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setJob(jobResponse.data);
 
                 // Fetch applications for this job
                 const applicationResponse = await axios.get(`${API_URL}${id}/applications/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
 
                 // Fetch logged-in user's ID
                 const userResponse = await axios.get('http://127.0.0.1:8000/api/accounts/profile', {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 const loggedInUserId = userResponse.data.id;
 
@@ -83,7 +83,7 @@ function JobApplicationDetail() {
         }
     
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             
             // Create the payload with proposed time as both scheduled_time and accepted_time
             const payload = {
@@ -94,8 +94,8 @@ function JobApplicationDetail() {
             // Send the PATCH request to accept the job with scheduled_time and accepted_time
             await axios.patch(`${API_URL}${id}/accept/`, payload, {
                 headers: {
-                    Authorization: `Token ${token}`,
-                },
+                    Authorization: `Bearer ${token}`, // Fixed formatting
+                  },
             });
     
             alert('Job accepted successfully!');
@@ -112,11 +112,11 @@ function JobApplicationDetail() {
 
     const handleDeclineJob = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.patch(`${API_URL}${id}/decline/`, {}, {
                 headers: {
-                    Authorization: `Token ${token}`,
-                },
+                    Authorization: `Bearer ${token}`, // Fixed formatting
+                  },
             });
             alert('Job declined successfully!');
             navigate('/caregiver-jobs');

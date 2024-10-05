@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'corsheaders',
     'channels',  # Make sure 'channels' is installed and listed
     'accounts',  # Custom apps need to be listed after 'django.contrib' apps
@@ -72,15 +72,41 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True  # Allows cookies and authorization headers
+CORS_ALLOW_HEADERS = [
+    '*',
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "exp://192.168.251.86:8081"
+        # Allow your React app's origin
+]
+
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Set your preferred access token expiration
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),      # Set your preferred refresh token expiration
+    'ROTATE_REFRESH_TOKENS': True,                    # Optional: Rotate refresh tokens
+    'BLACKLIST_AFTER_ROTATION': True,                 # Optional: Blacklist old refresh tokens
 }
 
 AUTH_USER_MODEL = 'accounts.CustomUser'

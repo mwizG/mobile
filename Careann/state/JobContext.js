@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 import { get, del, post, patch } from '../services/api'; // Assume these functions are defined in api.js for making API calls
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '@react-navigation/native';
 
 export const JobContext = createContext();
 
@@ -12,7 +12,7 @@ export const JobProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userRole, setUserRole] = useState('');
-  const navigate = useNavigate(); // Use navigate for redirections if needed
+  const navigation = useNavigation(); // Use navigation for redirections if needed
 
   // Fetch all jobs based on a flag (if it should fetch all jobs or only open jobs)
   const fetchJobs = async (fetchAll = false) => {
@@ -126,7 +126,7 @@ export const JobProvider = ({ children }) => {
   // Go to Caregiver profile
   const goToCaregiverProfile = (caregiverId) => {
     if (caregiverId) {
-      navigate(`/caregiver/${caregiverId}`);
+      navigation.navigate('CaregiverProfile', { caregiverId }); // Adjust according to your screen name
     }
   };
 

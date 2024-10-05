@@ -22,7 +22,7 @@ const JobApplicationForm = () => {
         cover_letter: coverLetter,
       };
       const headers = {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       };
 
       // Log the request data and headers

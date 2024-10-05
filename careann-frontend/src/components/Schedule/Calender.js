@@ -10,11 +10,11 @@ function CaregiverCalendar() {
     useEffect(() => {
         const fetchSchedule = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 const response = await axios.get('http://your-backend-api-url/api/schedule/', {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setSchedule(response.data);
             } catch (error) {

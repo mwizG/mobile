@@ -32,7 +32,7 @@ function JobDetails() {
       const token = await AsyncStorage.getItem('token');
       const response = await api.patch(`/jobs/${jobId}/accept-time/`, {}, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`, // Fixed formatting
         },
       });
       console.log('Job time accepted:', response.data);

@@ -6,7 +6,7 @@ export const postJob = async (jobData, token) => {
   try {
     const response = await post('/jobs/create/', jobData, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -19,7 +19,7 @@ export const searchJobs = async (query, token) => {
   try {
     const response = await get('/jobs/search/', {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       params: { search: query }, // Ensure you're using the correct parameter for your API
     });
@@ -33,7 +33,7 @@ export const fetchApplications = async (token) => {
   try {
     const response = await axios.get(`${BASE_URL}/jobs/applications/`, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -45,7 +45,7 @@ export const getAllJobs = async (token) => {
   try {
     const response = await get('/jobs/search', {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;

@@ -13,7 +13,7 @@ function JobDetail() {
     useEffect(() => {
         const fetchJob = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('accessToken'); 
                 if (!token) {
                     console.error('No token found');
                     navigate('/login'); // Redirect to login if no token
@@ -22,8 +22,8 @@ function JobDetail() {
 
                 const response = await axios.get(`http://127.0.0.1:8000/api/jobs/${jobId}/`, {
                     headers: {
-                        Authorization: `Token ${token}`,
-                    },
+          Authorization: `Bearer ${token}`, // Fixed formatting
+        },
                 });
                 setJob(response.data);
             } catch (error) {
@@ -44,10 +44,10 @@ function JobDetail() {
 
     const acceptJobTime = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken'); 
             await axios.patch(`http://127.0.0.1:8000/api/jobs/${jobId}/accept-time/`, {}, {
                 headers: {
-                    Authorization: `Token ${token}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
             navigate('/tasks');  // Redirect after accepting job time
