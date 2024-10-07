@@ -580,3 +580,25 @@ class UpdateJobStatusView(APIView):
             return Response(JobSerializer(job).data)
         except Job.DoesNotExist:
             return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+
+class ScheduledJobsListView(generics.ListAPIView):
+    """
+    View to list all scheduled jobs for the caregiver.
+    """
+    serializer_class = JobSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Return jobs where caregiver is the logged-in user and scheduled_time is not null
+        return Job.objects.filter(caregiver=user).exclude(scheduled_time=None)
+
+class CompletedJobsListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = JobSerializer
+
+    def get_queryset(self):
+        return Job.objects.filter(status='Completed')

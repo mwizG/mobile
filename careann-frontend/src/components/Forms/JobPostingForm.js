@@ -27,22 +27,23 @@ function JobPostingForm() {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-              const token = localStorage.getItem('accessToken'); 
-              if (!token) {
-                console.error('User is not logged in. Please log in to continue.');
-                return;
-              }
-      
-              const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-              setLocations(response.data);
+                const token = localStorage.getItem('accessToken'); // Correct variable name used here
+                if (!token) {
+                    console.error('User is not logged in. Please log in to continue.');
+                    return;
+                }
+        
+                const response = await axios.get('http://127.0.0.1:8000/api/jobs/locations/', {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Correct variable name used here
+                    },
+                });
+                setLocations(response.data);
             } catch (error) {
-              console.error('Error fetching locations', error);
+                console.error('Error fetching locations', error);
             }
-          };
+        };
+        
       
           fetchLocations();
     }, []);

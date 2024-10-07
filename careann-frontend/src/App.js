@@ -47,6 +47,8 @@ import Review from './components/Reviews/Review';
 import ListReviews from './components/Reviews/ListReviews';   
 import CaregiverProfile from './components/Profile/CaregiverProfile';
 import CareSeekerProfile from './components/Profile/CareSeekerProfile';
+import CaregiverSchedule from './pages/CaregiverSchedule';
+import JobHistory from './components/Jobs/JobHistory';
 
 function App() {
   const userRole = localStorage.getItem('role');
@@ -111,7 +113,7 @@ function App() {
           <Route path="/caregiver/messaging/:careSeekerId" element={<Messaging />} />
           <Route path="/caregiver/profile" element={<CaregiverProfile/>} />
           <Route path="/caregiver/search-jobs" element={<CaregiverJobSearch />} />
-          <Route path="/caregiver/schedule" element={<CaregiverDashboard />} />
+          <Route path="/caregiver/schedule" element={<CaregiverSchedule />} />
           <Route path="caregiver/jobs/:jobId" element={<JobDetail />} />  
           <Route path="caregiver/jobsUp/:jobId" element={<JobUpdate />}/>
           <Route path="/caregiver/jobs/:jobId/apply" element={<JobApplicationForm />} />
@@ -125,6 +127,7 @@ function App() {
           <Route path="/caregiver/conversations" element={<ConversationList />} /> 
           <Route path="/caregiver/listreviews" element={<ListReviews />} /> 
           <Route path="/jobs/:jobId/review-care-seeker" element={<Review />} /> 
+          <Route path="/caregiver/history" element={<JobHistory/>}/>
 
           {/* Admin-specific routes */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

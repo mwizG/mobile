@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import TaskCreateView,JobTypeListView,LocationListView,JobApplicationListByJobView,UpdateJobStatusView,CompleteJobView,ApproveJobCompletionView,TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
+from .views import CompletedJobsListView, ScheduledJobsListView, TaskCreateView,JobTypeListView,LocationListView,JobApplicationListByJobView,UpdateJobStatusView,CompleteJobView,ApproveJobCompletionView,TaskListView,JobCreateView,AllJobsListView, OpenJobsListView,JobListView, JobDetailView,TaskDetailView, JobApplicationCreateView, JobApplicationListView, JobApplicationUpdateView,ListRatingReviewView, CreateRatingReviewView,CaregiverJobsView, AcceptJobView, DeclineJobView,ProposeJobTimeView,AcceptJobTimeView
 
 urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -29,5 +29,7 @@ urlpatterns = [
     path('<int:pk>/update-status/', UpdateJobStatusView.as_view(), name='update-job-status'),
     path('<int:pk>/approve-completion/', ApproveJobCompletionView.as_view(), name='approve-job-completion'),
     path('<int:job_id>/approve-completion/', ApproveJobCompletionView.as_view(), name='approve-completion'),
+    path('scheduled/', ScheduledJobsListView.as_view(), name='scheduled-jobs'),
+    path('completed/',CompletedJobsListView.as_view(), name='completed'),
   
 ]

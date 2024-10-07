@@ -103,6 +103,27 @@ const JobApplicationUpdate = () => {
         }
     };
 
+    const resetJobStatusToOpen = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            await axios.patch(`${API_URL}/${application.job}/`, 
+                { status: 'Open' }, 
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+    
+            // Fetch the updated job details after resetting status
+            const updatedJobResponse = await axios.get(`${API_URL}/${application.job}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            setJob(updatedJobResponse.data);
+            alert("Job status reset to Open!");
+        } catch (error) {
+            handleError(error, 'resetting job status to Open');
+        }
+    };
+    
+
     const goToCaregiverProfile = () => {
         if (application?.caregiver_id) {
             navigate(`/caregiver/${application.caregiver_id}`);
@@ -200,14 +221,16 @@ const JobApplicationUpdate = () => {
             </Select>
 
             {job.status === 'Declined' && (
-                <Button 
-                    variant="contained" 
-                    onClick={resetJobStatusToOpen} 
-                    sx={{ mt: 2, bgcolor: '#ff9800', '&:hover': { bgcolor: '#f57c00' }}}
-                >
-                    Reset to Open
-                </Button>
-            )}
+            <Button 
+                variant="contained" 
+                onClick={resetJobStatusToOpen}
+                sx={{ mt: 2, bgcolor: '#ff9800', '&:hover': { bgcolor: '#f57c00' }}}
+            >
+                Reset to Open
+            </Button>
+             )}
+
+
 
             {status === 'Accepted' && (
                 <>
