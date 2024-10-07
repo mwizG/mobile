@@ -1,8 +1,11 @@
+
 from rest_framework import serializers
 from .models import Job
 from .models import JobApplication
 from .models import RatingReview, Task
 from accounts.models import CustomUser
+from django.utils import timezone  # Ensure you import Django's timezone module
+import pytz
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -72,10 +75,34 @@ class JobSerializer(serializers.ModelSerializer):
             # Check if the current user (caregiver) has already applied for this job
             return JobApplication.objects.filter(job=obj, caregiver=request.user).exists()
         return False
+    
 
 class TaskSerializer(serializers.ModelSerializer):
-    caregiver = serializers.ReadOnlyField(source='caregiver.username')
-
     class Meta:
         model = Task
-        fields = ('id', 'job', 'caregiver', 'description', 'scheduled_time', 'status', 'reminder_sent')
+        fields = ['id', 'job', 'caregiver', 'description', 'scheduled_time','status']
+
+    def validate_scheduled_time(self, value):
+        # Convert the scheduled time to Zambian time
+        zambia_tz = pytz.timezone('Africa/Lusaka')
+        value = value.astimezone(zambia_tz)
+
+        # Get the job associated with the task
+        job_id = self.initial_data.get('job')
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            raise serializers.ValidationError("Job does not exist.")
+
+        # Ensure the scheduled time is not in the past
+        if value < timezone.now().astimezone(zambia_tz):
+            raise serializers.ValidationError("Scheduled time cannot be in the past.")
+
+        # Ensure the scheduled time is not before the job's scheduled time
+        if value < job.scheduled_time.astimezone(zambia_tz):
+            raise serializers.ValidationError(f"Scheduled time cannot be earlier than the job's scheduled time of {job.scheduled_time.astimezone(zambia_tz)}.")
+
+        return value
+
+    def create(self, validated_data):
+        return Task.objects.create(**validated_data)

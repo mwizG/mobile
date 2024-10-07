@@ -29,14 +29,22 @@ class LocationListView(generics.ListAPIView):
         # Convert ZAMBIA_LOCATIONS to a list of dictionaries to use with the serializer
         return [{'name': location[1]} for location in ZAMBIA_LOCATIONS]
 
+
+
 class TaskCreateView(generics.CreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(caregiver=self.request.user)
+    def create(self, request, *args, **kwargs):
+        # Log the incoming data for debugging
+        print("Request data:", request.data)  # Adjusted for correct logging
+        
+        # Set the caregiver to the current user
+        request.data['caregiver'] = request.user.id  # Set the caregiver to the authenticated user
 
+        return super().create(request, *args, **kwargs)   
+    
 class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]

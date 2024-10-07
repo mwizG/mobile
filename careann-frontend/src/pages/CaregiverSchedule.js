@@ -1,145 +1,158 @@
+// src/pages/CaregiverSchedule.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Typography, Grid, Card, CardContent, Paper, Container } from '@mui/material';
-import { LocalizationProvider, DateCalendar } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css'; // Import calendar styles
+import { Typography, Container } from '@mui/material';
+
+const localizer = momentLocalizer(moment);
 
 function CaregiverSchedule() {
-  const [jobs, setJobs] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(moment());
+    const [jobs, setJobs] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Fetch scheduled jobs
-    const fetchScheduledJobs = async () => {
-      try {
-        const token = localStorage.getItem('accessToken'); // Retrieve the access token
-        const response = await axios.get('http://192.168.251.86:8000/api/jobs/scheduled/', {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include the token in the headers
-          },
-        });
-        setJobs(response.data); // Set the jobs data
-        console.log('Scheduled Jobs:', response.data); // Debugging: log fetched jobs
-      } catch (error) {
-        console.error('Error fetching scheduled jobs:', error);
-      }
+    useEffect(() => {
+        // Fetch scheduled jobs
+        const fetchScheduledJobs = async () => {
+            try {
+                const token = localStorage.getItem('accessToken'); // Retrieve the access token
+                const response = await axios.get('http://192.168.251.86:8000/api/jobs/scheduled/', {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the headers
+                    },
+                });
+                setJobs(response.data); // Set the jobs data
+            } catch (error) {
+                console.error('Error fetching scheduled jobs:', error);
+                setError('Failed to load scheduled jobs. Please try again.');
+            }
+        };
+
+        fetchScheduledJobs();
+    }, []);
+
+    useEffect(() => {
+        // Fetch tasks
+        const fetchTasks = async () => {
+            try {
+                const token = localStorage.getItem('accessToken'); // Retrieve the access token
+                const response = await axios.get('http://192.168.251.86:8000/api/jobs/tasks/', {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the headers
+                    },
+                });
+                console.log('Fetched tasks:', response.data); // Log the tasks
+                setTasks(response.data); // Set the tasks data
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+                setError('Failed to load tasks. Please try again.');
+            }
+        };
+
+        fetchTasks();
+    }, []);
+
+    // Format jobs to be used in the calendar component
+    const events = jobs.map((job) => ({
+        id: job.id,
+        title: job.title,
+        start: new Date(job.scheduled_time), // Use job's scheduled time as the event start
+        end: new Date(moment(job.scheduled_time).add(1, 'hours')), // Add 1 hour as default event duration
+        location: job.location,
+        description: job.description,
+        payRate: job.pay_rate,
+        status: job.status,
+    }));
+
+    // Format tasks to include the main job title and status
+    const taskEvents = tasks.map((task) => {
+        const relatedJob = jobs.find(job => job.id === task.job.id);
+        const taskEvent = {
+            id: task.id,
+            title: relatedJob ? `${task.description} (Job: ${relatedJob.title})` : task.description,
+            start: new Date(task.scheduled_time),
+            end: new Date(moment(task.scheduled_time).add(1, 'hours')),
+            isTask: true,
+            status: task.status,
+        };
+        console.log("Task Event:", taskEvent); // Log each task event
+        return taskEvent;
+    });
+
+    // Combine jobs and tasks into a single events array
+    const combinedEvents = [...events, ...taskEvents];
+    console.log("Combined Events:", combinedEvents); // Log the combined events
+
+    const eventStyleGetter = (event) => {
+        let backgroundColor = '#76c7c0'; // Default color for jobs
+        let textDecoration = 'none'; // Default text decoration
+
+        if (event.isTask) {
+            if (event.status && event.status.toLowerCase() === 'completed') { // Check for completed status
+                backgroundColor = '#d3d3d3'; // Grey out completed tasks
+                textDecoration = 'line-through'; // Line-through for completed tasks
+            } else {
+                backgroundColor = '#ffab40'; // Color for ongoing tasks
+            }
+        }
+
+        return {
+            style: {
+                backgroundColor,
+                color: '#ffffff',
+                textDecoration,
+            },
+        };
     };
 
-    fetchScheduledJobs();
-  }, []);
+    const handleSelectEvent = (event) => {
+        if (event.isTask) {
+            alert(`Task: ${event.title}\nScheduled Time: ${moment(event.start).format('MMMM Do YYYY, h:mm:ss a')}\nStatus: ${event.status}`);
+        } else {
+            alert(`Job: ${event.title}\nLocation: ${event.location}\nDescription: ${event.description}\nPay Rate: ${event.payRate}\nStatus: ${event.status}`);
+        }
+    };
 
-  // Get unique job dates to highlight on the calendar
-  const jobDates = jobs.map(job => moment(job.scheduled_time).utc().startOf('day').format('YYYY-MM-DD'));
-
-  // Filter jobs for the selected date with timezone handling
-  const filteredJobs = jobs.filter((job) => {
-    const jobDate = moment(job.scheduled_time);
-    return jobDate.isValid() && jobDate.utc().isSame(selectedDate.utc(), 'day');
-  });
-
-  return (
-    <Container>
-      <Typography variant="h4" gutterBottom align="center" sx={{ marginTop: '20px' }}>
-        Manage Your Schedule
-      </Typography>
-      <Grid container spacing={3}>
-        {/* Calendar Picker */}
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ padding: 2 }}>
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-              <DateCalendar
-                value={selectedDate}
-                onChange={(newDate) => setSelectedDate(moment(newDate))}
-                renderDay={(day, _, pickersDayProps) => {
-                  const dateString = day.format('YYYY-MM-DD');
-                  const hasJob = jobDates.includes(dateString);
-                  const isToday = day.isSame(moment(), 'day'); // Check if the day is today
-
-                  // Set background color based on conditions
-                  const backgroundColor = hasJob 
-                    ? '#ffcc80' // Job date highlight
-                    : isToday 
-                      ? '#80d0ff' // Today's highlight
-                      : undefined; // No highlight
-
-                  return (
-                    <div
-                      style={{
-                        backgroundColor,
-                        borderRadius: '50%',
-                        width: '36px', // Adjust width for a better fit
-                        height: '36px', // Adjust height for a better fit
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '2px', // Add margin for spacing
-                        position: 'relative',
-                      }}
-                    >
-                      <Typography variant="body2" {...pickersDayProps}>
-                        {day.date()}
-                      </Typography>
-                      {hasJob && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            right: '2px',
-                            top: '2px',
-                            backgroundColor: 'red',
-                            borderRadius: '50%',
-                            width: '8px', // Adjust indicator size
-                            height: '8px', // Adjust indicator size
-                          }}
-                        />
-                      )}
-                    </div>
-                  );
-                }}
-                sx={{ width: '100%' }}
-              />
-            </LocalizationProvider>
-          </Paper>
-        </Grid>
-
-        {/* Job Schedule for the Selected Date */}
-        <Grid item xs={12} md={8}>
-          <Paper elevation={3} sx={{ padding: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Scheduled Jobs for {moment(selectedDate).format('MMMM Do, YYYY')}
+    return (
+        <Container>
+            <Typography variant="h4" gutterBottom align="center" sx={{ marginTop: '20px' }}>
+                Manage Your Schedule
             </Typography>
-            {filteredJobs.length > 0 ? (
-              <Grid container spacing={2}>
-                {filteredJobs.map((job) => (
-                  <Grid item xs={12} sm={6} md={4} key={job.id}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="h6">{job.title}</Typography>
-                        <Typography variant="body2">
-                          <strong>Time:</strong> {moment(job.scheduled_time).format('hh:mm A')}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Location:</strong> {job.location}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Status:</strong> {job.status}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Description:</strong> {job.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Typography variant="body2">No jobs scheduled for this date.</Typography>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
-  );
+            {error && <Typography color="error">{error}</Typography>} {/* Display error messages if any */}
+            <div style={{ height: '80vh', padding: '20px' }}>
+                <Calendar
+                    localizer={localizer}
+                    events={combinedEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: 500 }}
+                    eventPropGetter={eventStyleGetter}
+                    onSelectEvent={handleSelectEvent}
+                    components={{
+                        event: ({ event }) => (
+                            <span>
+                                <strong>{event.title}</strong>
+                                <br />
+                                {event.isTask ? (
+                                    <span>Task Scheduled<br />Status: {event.status}</span> // Display task status
+                                ) : (
+                                    <>
+                                        <span>{event.description}</span>
+                                        <br />
+                                        <span>Task in: {event.MainJob}</span>
+                                        <br />
+                                        <span>Status: {event.status}</span>
+                                    </>
+                                )}
+                            </span>
+                        ),
+                    }}
+                />
+            </div>
+        </Container>
+    );
 }
 
 export default CaregiverSchedule;
