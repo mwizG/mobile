@@ -141,8 +141,6 @@ function CaregiverSchedule() {
                                     <>
                                         <span>{event.description}</span>
                                         <br />
-                                        <span>Task in: {event.MainJob}</span>
-                                        <br />
                                         <span>Status: {event.status}</span>
                                     </>
                                 )}
