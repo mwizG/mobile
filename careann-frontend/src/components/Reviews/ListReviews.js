@@ -9,8 +9,9 @@ import {
     ListItem,
     ListItemText,
     Divider,
-    Box,
+    Grid,
 } from '@mui/material';
+import { Star } from '@mui/icons-material';
 
 const API_URL = 'http://127.0.0.1:8000/api/jobs/reviews/';
 
@@ -21,7 +22,7 @@ function ListReviews() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const token = localStorage.getItem('accessToken'); 
+                const token = localStorage.getItem('accessToken');
                 if (!token) {
                     console.error('No token found');
                     return;
@@ -29,8 +30,8 @@ function ListReviews() {
 
                 const response = await axios.get(API_URL, {
                     headers: {
-          Authorization: `Bearer ${token}`, // Fixed formatting
-        },
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
                 setReviews(response.data);
             } catch (error) {
@@ -50,31 +51,46 @@ function ListReviews() {
     }
 
     return (
-        <Container component={Paper} elevation={3} sx={{ padding: '20px', marginTop: '20px', bgcolor: '#e8f5e9' }}>
-            <Typography variant="h4" gutterBottom sx={{ color: '#388e3c', fontWeight: 'bold' }}>
+        <Container sx={{ padding: '30px', marginTop: '20px' }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#388e3c', fontWeight: 'bold', textAlign: 'center' }}>
                 Received Reviews
             </Typography>
             {reviews.length === 0 ? (
-                <Typography sx={{ color: '#555' }}>No reviews received yet.</Typography>
+                <Typography sx={{ color: '#555', textAlign: 'center', fontStyle: 'italic' }}>
+                    No reviews received yet.
+                </Typography>
             ) : (
                 <List>
                     {reviews.map((review) => (
-                        <div key={review.id}>
-                            <ListItem sx={{ bgcolor: '#f1f8e9', borderRadius: '8px', margin: '10px 0' }}>
-                                <ListItemText
-                                    primary={<strong style={{ color: '#388e3c' }}>Reviewer:</strong>}
-                                    secondary={review.reviewer}
-                                />
-                                <ListItemText
-                                    primary={<strong style={{ color: '#388e3c' }}>Job:</strong>}
-                                    secondary={review.job_title}
-                                />
-
-                                <ListItemText
-                                    primary={<strong style={{ color: '#388e3c' }}>Rating:</strong>}
-                                    secondary={`${review.rating}/5`}
-                                />
-                            </ListItem>
+                        <Paper 
+                            key={review.id}
+                            elevation={3} 
+                            sx={{ 
+                                margin: '15px 0', 
+                                padding: '15px',
+                                borderRadius: '8px', 
+                                boxShadow: 2, // Add a more pronounced shadow for depth
+                                backgroundColor: '#ffffff' // White background for each review tile
+                            }}
+                        >
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <ListItemText
+                                        primary={<strong style={{ color: '#388e3c' }}>Reviewer:</strong>}
+                                        secondary={review.reviewer}
+                                    />
+                                    <ListItemText
+                                        primary={<strong style={{ color: '#388e3c' }}>Job:</strong>}
+                                        secondary={review.job_title}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} container justifyContent="flex-end" alignItems="center">
+                                    <Typography variant="h6" sx={{ color: '#388e3c', display: 'flex', alignItems: 'center' }}>
+                                        <Star sx={{ color: '#ffb300', marginRight: '5px' }} />
+                                        {review.rating}/5
+                                    </Typography>
+                                </Grid>
+                            </Grid>
                             <ListItem>
                                 <ListItemText
                                     primary={<strong style={{ color: '#388e3c' }}>Review:</strong>}
@@ -87,8 +103,8 @@ function ListReviews() {
                                     secondary={new Date(review.created_at).toLocaleDateString()}
                                 />
                             </ListItem>
-                            <Divider />
-                        </div>
+                            <Divider sx={{ margin: '10px 0' }} />
+                        </Paper>
                     ))}
                 </List>
             )}

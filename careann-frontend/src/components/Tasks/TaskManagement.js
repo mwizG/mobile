@@ -46,51 +46,58 @@ function TaskManagement() {
             </Typography>
 
             {/* Show error message if any */}
-            {error && <Typography variant="body1" color="error" align="center">{error}</Typography>}
-
-            {/* Button to navigate to the task creation page */}
-            <Button 
-                variant="contained" 
-                onClick={handleCreateTask} 
-                sx={{ backgroundColor: '#4caf50', color: 'white', marginBottom: '20px' }}
+            {error && <Typography color="error">{error}</Typography>}
+            
+            <Button
+                variant="contained"
+                color="primary"
+                sx={{ marginBottom: '20px', backgroundColor: '#4caf50' }}
+                onClick={handleCreateTask}
             >
                 Create New Task
             </Button>
 
-            {tasks.length === 0 && !error ? (
-                <Typography variant="body1" align="center">No tasks found.</Typography>
-            ) : (
-                <Grid container spacing={3}>
-                    {tasks.map(task => (
-                        <Grid item xs={12} sm={6} md={4} key={task.id}>
-                            <Card variant="outlined">
-                                <CardContent>
-                                    <Typography variant="h6">{task.description}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Scheduled Time:</strong> {new Date(task.scheduled_time).toLocaleString()}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        <strong>Status:</strong> {task.status}
-                                    </Typography>
-                                    <Button 
-                                        variant="contained" 
-                                        onClick={() => viewTaskDetails(task.id)} 
-                                        sx={{ backgroundColor: '#80d0ff', color: 'white', marginTop: '10px' }}
-                                    >
-                                        View Details
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
+            <Paper>
+                <Grid container spacing={2} justifyContent="center">
+                    {tasks
+                        .filter(task => task.status.toLowerCase() !== 'deleted') // Filter out deleted tasks
+                        .map((task) => (
+                            <Grid item key={task.id} xs={12} sm={6} md={4}>
+                                <Card>
+                                    <CardContent>
+                                        <Typography variant="h6" component="div">
+                                            {task.description}
+                                        </Typography>
+                                        <Typography color="textSecondary">
+                                            Scheduled Time: {new Date(task.scheduled_time).toLocaleString()}
+                                        </Typography>
+                                        <Typography color="textSecondary">
+                                            End Time: {task.end_time ? new Date(task.end_time).toLocaleString() : 'N/A'}
+                                        </Typography>
+                                        <Typography color="textSecondary">
+                                            Status: {task.status}
+                                        </Typography>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => viewTaskDetails(task.id)}
+                                            sx={{ marginTop: '10px' }}
+                                        >
+                                            View Details
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
                 </Grid>
-            )}
-            <Button 
-                variant="outlined" 
-                onClick={handleBack} 
-                sx={{ marginTop: '20px', color: '#4caf50' }}
+            </Paper>
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleBack}
+                sx={{ marginTop: '20px' }}
             >
-                Back
+                Back to Dashboard
             </Button>
         </Container>
     );

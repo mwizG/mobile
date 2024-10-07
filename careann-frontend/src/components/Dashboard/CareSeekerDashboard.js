@@ -45,35 +45,29 @@ function CareSeekerDashboard() {
                     </IconButton>
                     {/* Desktop navigation */}
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-                        <Link to="/care-seeker/search">
+                        <Link to="/care-seeker/search" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Search for Caregivers</Button>
                         </Link>
-                        <Link to="/care-seeker/post-job">
+                        <Link to="/care-seeker/post-job" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Post a Job</Button>
                         </Link>
-                        <Link to="/care-seeker/jobs">
+                        <Link to="/care-seeker/jobs" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">View & Manage Job Listings</Button>
                         </Link>
-                        <Link to="/care-seeker/caregiverlist">
+                        <Link to="/care-seeker/caregiverlist" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Caregivers</Button>
                         </Link>
-                        <Link to="/care-seeker/conversations">
+                        <Link to="/care-seeker/conversations" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Conversations</Button>
                         </Link>
-                        <Link to="/care-seeker/payments">
-                            <Button color="inherit">Manage Payments</Button>
-                        </Link>
-                        <Link to="/care-seeker/schedule">
-                            <Button color="inherit">Manage Schedule</Button>
-                        </Link>
-                        <Link to="/care-seeker/profile">
+
+                        <Link to="/care-seeker/profile" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Profile Management</Button>
                         </Link>
-                        <Link to="/care-seeker/settings">
+                        <Link to="/care-seeker/settings" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Settings</Button>
                         </Link>
-
-                        <Link to="//Tickets">
+                        <Link to="//Tickets" style={{ textDecoration: 'none' }}>
                             <Button color="inherit">Support</Button>
                         </Link>
                     </Box>
@@ -88,15 +82,47 @@ function CareSeekerDashboard() {
             >
                 <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
                     <List>
-                        <Link to="/care-seeker/search"><ListItem button><ListItemText primary="Search for Caregivers" /></ListItem></Link>
-                        <Link to="/care-seeker/post-job"><ListItem button><ListItemText primary="Post a Job" /></ListItem></Link>
-                        <Link to="/care-seeker/jobs"><ListItem button><ListItemText primary="View & Manage Job Listings" /></ListItem></Link>
-                        <Link to="/care-seeker/caregiverlist"><ListItem button><ListItemText primary="Caregivers" /></ListItem></Link>
-                        <Link to="/care-seeker/conversations"><ListItem button><ListItemText primary="Conversations" /></ListItem></Link>
-                        <Link to="/care-seeker/payments"><ListItem button><ListItemText primary="Manage Payments" /></ListItem></Link>
-                        <Link to="/care-seeker/schedule"><ListItem button><ListItemText primary="Manage Schedule" /></ListItem></Link>
-                        <Link to="/care-seeker/profile"><ListItem button><ListItemText primary="Profile Management" /></ListItem></Link>
-                        <Link to="/care-seeker/settings"><ListItem button><ListItemText primary="Settings" /></ListItem></Link>
+                        <Link to="/care-seeker/search" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Search for Caregivers" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/post-job" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Post a Job" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/jobs" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="View & Manage Job Listings" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/caregiverlist" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Caregivers" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/conversations" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Conversations" />
+                            </ListItem>
+                        </Link>
+                       
+                        <Link to="/care-seeker/schedule" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Manage Schedule" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/profile" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Profile Management" />
+                            </ListItem>
+                        </Link>
+                        <Link to="/care-seeker/settings" style={{ textDecoration: 'none' }}>
+                            <ListItem button>
+                                <ListItemText primary="Settings" />
+                            </ListItem>
+                        </Link>
                     </List>
                 </Box>
             </Drawer>
@@ -117,16 +143,16 @@ function CareSeekerDashboard() {
                 <Grid container spacing={2}>
                     {services.map((service, index) => (
                         <Grid item xs={12} sm={4} key={index}>
-                            <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', cursor: 'pointer' }}>
-                                <Link to={`/care-seeker/caregiverlist/${service.title.toLowerCase().replace(/ /g, '-')}`}>
+                            <Link to={`/care-seeker/caregiverlist/${service.title.toLowerCase().replace(/ /g, '-')}`} style={{ textDecoration: 'none' }}>
+                                <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', cursor: 'pointer', transition: '0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: 6 } }}>
                                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#388e3c' }}>
                                         {service.title}
                                     </Typography>
                                     <Typography variant="body2" sx={{ color: '#616161' }}>
                                         {service.description}
                                     </Typography>
-                                </Link>
-                            </Paper>
+                                </Paper>
+                            </Link>
                         </Grid>
                     ))}
                 </Grid>
