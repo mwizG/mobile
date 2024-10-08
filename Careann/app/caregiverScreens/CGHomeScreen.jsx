@@ -7,11 +7,12 @@ import {
   ScrollView,
   Modal,
   Pressable,
-  StatusBar
+  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import JobListCard from "@/components/common/JobListCard";
 
 const AppBar = ({ onNotificationPress, onProfilePress }) => {
   return (
@@ -20,24 +21,58 @@ const AppBar = ({ onNotificationPress, onProfilePress }) => {
       <View className="flex-row p-2 gap-4">
         <Pressable onPress={onNotificationPress}>
           <FontAwesome name="bell" size={24} color="black" />
-          
         </Pressable>
         <Pressable onPress={onProfilePress}>
           <FontAwesome name="user" size={24} color="black" />
-          
         </Pressable>
       </View>
     </View>
   );
 };
 
-const CGHomeScreen = () => {
+const CGHomeScreen = ({ fetchAll = false }) => {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [error, setError] = useState(false);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setLoading(true); // Set loading to true before fetching
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          throw new Error("No access token found.");
+        }
+
+        const endpoint = fetchAll
+          ? "http://127.0.0.1:8000/api/jobs/all-jobs/" // Fetch all jobs
+          : "http://127.0.0.1:8000/api/jobs/open-jobs/";
+
+        const response = await axios.get(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setJobs(response.data);
+      } catch (err) {
+        const errorMessage = err.response
+          ? `Error fetching jobs: ${err.response.data.detail || err.message}`
+          : `Error fetching jobs: ${err.message}`;
+        setError(errorMessage);
+      } finally {
+        setLoading(false); // Ensure loading is set to false regardless of the outcome
+      }
+    };
+
+    fetchJobs();
+  }, [fetchAll]); // Added fetchAll as a dependency if it can change
 
   return (
     <SafeAreaView className="flex-1 flex-row">
-      <StatusBar backgroundColor='white' barStyle="dark-content" />
+      <StatusBar backgroundColor="white" barStyle="dark-content" />
       <View className="flex-1">
         <AppBar onNotificationPress={() => setModalVisible(true)} />
 
@@ -71,7 +106,22 @@ const CGHomeScreen = () => {
                 </Pressable>
               </View>
             </View>
-            <View></View>
+            <View>
+              <ScrollView className="flex-1 p-4">
+                {jobs ? (
+                  jobs.map((job) => (
+                    <JobListCard
+                      jobDetail={job}
+                      onCardClick={() => {
+                        console.log("card press");
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Text className="">No jobs are currently open.</Text>
+                )}
+              </ScrollView>
+            </View>
           </View>
         </ScrollView>
       </View>
