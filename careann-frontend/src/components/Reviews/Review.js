@@ -77,7 +77,7 @@ function Review() {
             });
 
             alert('Review submitted successfully!');
-            navigate('/care-seeker/listreviews');
+            navigate('/care-seeker/jobs');
         } catch (error) {
             setError('Error submitting the review. Ensure the job is completed.');
         }

@@ -5,13 +5,13 @@ import { Container, Typography, TextField, Button, Select, MenuItem, FormControl
 
 function CreateTask() {
     const [description, setDescription] = useState('');
-    const [scheduledTime, setScheduledTime] = useState('');
+    const [scheduledTime, setScheduledTime] = useState('');  // Start time of the task
+    const [endTime, setEndTime] = useState('');  // End time of the task
     const [jobId, setJobId] = useState('');  // Task must be tied to a job
     const [jobs, setJobs] = useState([]);  // List of accepted jobs for dropdown
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Fetch accepted jobs when the component loads
     useEffect(() => {
         const fetchJobs = async () => {
             try {
@@ -33,16 +33,20 @@ function CreateTask() {
 
     const handleCreateTask = async (e) => {
         e.preventDefault(); // Prevent page refresh
-    
-        // Check the jobId being sent
-        console.log('Selected Job ID:', jobId);  // Log the job ID
-    
+
+        // Ensure the end time is after the scheduled time
+        if (new Date(endTime) <= new Date(scheduledTime)) {
+            setError('End time must be after the start time.');
+            return;
+        }
+
         const payload = {
-            job: jobId,  // The selected job ID
+            job: jobId,
             description: description,
             scheduled_time: scheduledTime,
+            end_time: endTime,  // Include end time in the payload
         };
-    
+
         try {
             const token = localStorage.getItem('accessToken'); 
             const response = await axios.post('http://127.0.0.1:8000/api/jobs/tasks/create/', payload, {
@@ -50,25 +54,25 @@ function CreateTask() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             console.log('Task created successfully:', response.data);
             navigate('/tasks');
         } catch (error) {
             console.error('Error creating task:', error);
             if (error.response && error.response.status === 400) {
-                // Assuming the error response follows a standard format for validation errors
                 const errors = error.response.data; 
-                const errorMessages = Object.values(errors).flat().join(', '); // Flatten error messages
+                const errorMessages = Object.values(errors).flat().join(', ');
                 setError(errorMessages || "Invalid input data. Please check the fields.");
             } else {
                 setError("An error occurred while creating the task.");
             }
         }
     };
+
     const handleBack = () => {
-        navigate('/tasks');  // Back to the task management page/caregiver/dashboard
+        navigate('/tasks');  // Back to the task management page
     };
-    
+
     return (
         <Container sx={{ marginTop: '20px', paddingBottom: '20px' }}>
             <Typography variant="h4" gutterBottom align="center" sx={{ color: '#4caf50' }}>
@@ -105,6 +109,7 @@ function CreateTask() {
                         variant="outlined"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
+                        InputLabelProps={{ shrink: true }} // Ensure label sticks to top
                         required
                         sx={{ marginBottom: '20px' }}
                     />
@@ -112,9 +117,23 @@ function CreateTask() {
                     <TextField
                         fullWidth
                         type="datetime-local"
+                        label="Scheduled Start Time"
                         variant="outlined"
                         value={scheduledTime}
                         onChange={(e) => setScheduledTime(e.target.value)}
+                        InputLabelProps={{ shrink: true }} // Ensure label sticks to top
+                        required
+                        sx={{ marginBottom: '20px' }}
+                    />
+
+                    <TextField
+                        fullWidth
+                        type="datetime-local"
+                        label="Scheduled End Time"
+                        variant="outlined"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        InputLabelProps={{ shrink: true }} // Ensure label sticks to top
                         required
                         sx={{ marginBottom: '20px' }}
                     />
@@ -127,16 +146,14 @@ function CreateTask() {
                         Create Task
                     </Button>
                     <Button 
-                      variant="outlined" 
+                        variant="outlined" 
                         onClick={handleBack} 
-                         sx={{ marginTop: '20px', color: '#4caf50' }}
-                        >
-                         Back
+                        sx={{ marginTop: '20px', color: '#4caf50' }}
+                    >
+                        Back
                     </Button>
-                    
                 </form>
             </Paper>
-            
         </Container>
     );
 }

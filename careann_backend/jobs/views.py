@@ -39,11 +39,12 @@ class TaskCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         # Log the incoming data for debugging
         print("Request data:", request.data)  # Adjusted for correct logging
-        
+
         # Set the caregiver to the current user
         request.data['caregiver'] = request.user.id  # Set the caregiver to the authenticated user
 
-        return super().create(request, *args, **kwargs)   
+        return super().create(request, *args, **kwargs)
+  
     
 class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
@@ -64,18 +65,32 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         task = self.get_object()
+        print(f"PATCH Request Data: {request.data}")
 
-        # Mark the task as complete if needed
-        if request.data.get('status') == 'complete':
-            task.status = 'Completed'
-            task.save()
+        # Use the serializer to validate and update the data
+        serializer = self.get_serializer(task, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
 
-        return super().patch(request, *args, **kwargs)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
         task = self.get_object()
-        task.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Check if the user is the owner of the task or an admin
+        if request.user != task.caregiver and not request.user.is_staff:
+            return Response({"error": "You are not authorized to delete this task."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Restrict deletion if the task is in 'In Progress' status
+        if task.status == 'In Progress':
+            return Response({"error": "Cannot delete a task that is in progress."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Perform soft delete by updating the status to 'Deleted'
+        task.status = 'Deleted'
+        task.save()
+        return Response({"message": "Task marked as deleted and is now only visible to admins."}, status=status.HTTP_200_OK)
+
 
 
 class CompleteJobView(APIView):

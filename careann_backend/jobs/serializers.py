@@ -75,12 +75,31 @@ class JobSerializer(serializers.ModelSerializer):
             # Check if the current user (caregiver) has already applied for this job
             return JobApplication.objects.filter(job=obj, caregiver=request.user).exists()
         return False
-    
+ 
+
+# Ensure zambia_tz is defined
+zambia_tz = pytz.timezone("Africa/Lusaka")
+
+# Convert string to timezone-aware datetime
+def localize_datetime(dt_str):
+    """
+    Convert an ISO format string or datetime object to a timezone-aware datetime object.
+    """
+    if isinstance(dt_str, str):
+        dt = timezone.datetime.fromisoformat(dt_str)
+    else:
+        dt = dt_str
+
+    if timezone.is_naive(dt):
+        return timezone.make_aware(dt, zambia_tz)
+    return dt
+
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'job', 'caregiver', 'description', 'scheduled_time','status']
+        fields = ['id', 'job', 'caregiver', 'description', 'scheduled_time', 'end_time', 'status']  # Include 'end_time'
+        read_only_fields = ['caregiver']  # Caregiver will be set in the create method
 
     def validate_scheduled_time(self, value):
         # Convert the scheduled time to Zambian time
@@ -105,4 +124,20 @@ class TaskSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        return Task.objects.create(**validated_data)
+        # Assuming the caregiver is the currently authenticated user
+        validated_data['caregiver'] = self.context['request'].user
+        return super().create(validated_data)
+
+    def validate(self, data):
+        # Handle the end_time validation as before
+        scheduled_time = data.get('scheduled_time')
+        end_time = data.get('end_time')
+
+        if scheduled_time and end_time:
+            if scheduled_time > end_time:
+                raise serializers.ValidationError("Scheduled time must be less than or equal to end time.")
+
+            if (scheduled_time and not end_time) or (end_time and not scheduled_time):
+                raise serializers.ValidationError("Both scheduled time and end time must be provided together.")
+
+        return data

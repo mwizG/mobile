@@ -6,10 +6,20 @@ import { Container, Typography, TextField, Button, Paper, Box, Alert } from '@mu
 function TaskManagementDetail() {
     const { taskId } = useParams();
     const [task, setTask] = useState(null);
+    const [jobStatus, setJobStatus] = useState('');
     const [description, setDescription] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
-    const [isCompleted, setIsCompleted] = useState(false); // Track completion status
+    const [endTime, setEndTime] = useState('');
+    const [isCompleted, setIsCompleted] = useState(false);
     const navigate = useNavigate();
+
+    // Function to convert datetime string to 'YYYY-MM-DDTHH:MM' format
+    const formatDateTimeLocal = (datetimeString) => {
+        const date = new Date(datetimeString);
+        const offset = date.getTimezoneOffset();
+        date.setMinutes(date.getMinutes() - offset); // Adjust date to correct timezone
+        return date.toISOString().slice(0, 16); // Return in 'YYYY-MM-DDTHH:MM' format
+    };
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -20,10 +30,22 @@ function TaskManagementDetail() {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                setTask(response.data);
-                setDescription(response.data.description);
-                setScheduledTime(response.data.scheduled_time);
-                setIsCompleted(response.data.status === 'Completed'); // Set completion status based on the response
+                const taskData = response.data;
+
+                // Fetch the job associated with the task to check the status
+                const jobResponse = await axios.get(`http://127.0.0.1:8000/api/jobs/${taskData.job}/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setJobStatus(jobResponse.data.status);
+
+                // Set task details, converting times to the correct format
+                setTask(taskData);
+                setDescription(taskData.description);
+                setScheduledTime(formatDateTimeLocal(taskData.scheduled_time)); // Convert to correct format
+                setEndTime(formatDateTimeLocal(taskData.end_time)); // Convert to correct format
+                setIsCompleted(taskData.status === 'Completed');
             } catch (error) {
                 console.error('Error fetching task details:', error);
             }
@@ -38,13 +60,14 @@ function TaskManagementDetail() {
             const response = await axios.patch(`http://127.0.0.1:8000/api/jobs/tasks/${taskId}/`, {
                 description: description,
                 scheduled_time: scheduledTime,
+                end_time: endTime,
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
             console.log('Task updated:', response.data);
-            setTask(response.data); // Update task state with new data
+            setTask(response.data);
             navigate('/tasks');
         } catch (error) {
             console.error('Error updating task:', error);
@@ -62,9 +85,8 @@ function TaskManagementDetail() {
                 },
             });
             console.log('Task marked as complete:', response.data);
-            setTask(response.data); // Update task state with new data
-            setIsCompleted(true); // Update the completion status
-            // Optionally, navigate to tasks after marking complete
+            setTask(response.data);
+            setIsCompleted(true);
         } catch (error) {
             console.error('Error marking task as complete:', error);
         }
@@ -79,18 +101,36 @@ function TaskManagementDetail() {
                 },
             });
             console.log('Task deleted');
-            navigate('/tasks'); 
+            navigate('/tasks');
         } catch (error) {
             console.error('Error deleting task:', error);
         }
     };
 
     const handleBack = () => {
-        navigate('/tasks');  
+        navigate('/tasks');
     };
 
     if (!task) {
         return <div>Loading task details...</div>;
+    }
+
+    // Check if the job is deleted
+    if (jobStatus === 'Deleted') {
+        return (
+            <Container sx={{ marginTop: '20px', paddingBottom: '20px' }}>
+                <Typography variant="h6" align="center" sx={{ color: 'red' }}>
+                    This job has been deleted and is no longer available.
+                </Typography>
+                <Button 
+                    variant="outlined" 
+                    onClick={handleBack} 
+                    sx={{ marginTop: '20px', color: '#4caf50' }}
+                >
+                    Back
+                </Button>
+            </Container>
+        );
     }
 
     return (
@@ -113,7 +153,7 @@ function TaskManagementDetail() {
                         variant="outlined"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        disabled={isCompleted} // Disable editing if completed
+                        disabled={isCompleted}
                     />
                 </Box>
                 
@@ -125,7 +165,19 @@ function TaskManagementDetail() {
                         type="datetime-local"
                         value={scheduledTime}
                         onChange={(e) => setScheduledTime(e.target.value)}
-                        disabled={isCompleted} // Disable editing if completed
+                        disabled={isCompleted}
+                    />
+                </Box>
+
+                <Box sx={{ marginBottom: '20px' }}>
+                    <Typography variant="h6">End Time:</Typography>
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        type="datetime-local"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        disabled={isCompleted}
                     />
                 </Box>
 
@@ -134,7 +186,7 @@ function TaskManagementDetail() {
                         variant="contained" 
                         sx={{ backgroundColor: '#4caf50', color: 'white', flexGrow: 1, marginRight: '10px' }}
                         onClick={handleUpdateTask}
-                        disabled={isCompleted} // Disable button if completed
+                        disabled={isCompleted}
                     >
                         Update Task
                     </Button>
@@ -142,7 +194,7 @@ function TaskManagementDetail() {
                         variant="contained" 
                         sx={{ backgroundColor: '#4caf50', color: 'white', flexGrow: 1, marginRight: '10px' }}
                         onClick={handleMarkComplete}
-                        disabled={isCompleted} // Disable button if already completed
+                        disabled={isCompleted}
                     >
                         Mark as Complete
                     </Button>

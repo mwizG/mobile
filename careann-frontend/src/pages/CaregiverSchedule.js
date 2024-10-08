@@ -1,9 +1,8 @@
-// src/pages/CaregiverSchedule.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css'; // Import calendar styles
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Typography, Container } from '@mui/material';
 
 const localizer = momentLocalizer(moment);
@@ -43,7 +42,6 @@ function CaregiverSchedule() {
                         Authorization: `Bearer ${token}`, // Include the token in the headers
                     },
                 });
-                console.log('Fetched tasks:', response.data); // Log the tasks
                 setTasks(response.data); // Set the tasks data
             } catch (error) {
                 console.error('Error fetching tasks:', error);
@@ -64,52 +62,67 @@ function CaregiverSchedule() {
         description: job.description,
         payRate: job.pay_rate,
         status: job.status,
+        isJob: true, // Mark as job
     }));
 
     // Format tasks to include the main job title and status
     const taskEvents = tasks.map((task) => {
-        const relatedJob = jobs.find(job => job.id === task.job.id);
-        const taskEvent = {
+        const relatedJob = task.job ? jobs.find(job => job.id === task.job.id) : null;
+
+        return {
             id: task.id,
             title: relatedJob ? `${task.description} (Job: ${relatedJob.title})` : task.description,
             start: new Date(task.scheduled_time),
-            end: new Date(moment(task.scheduled_time).add(1, 'hours')),
+            end: new Date(task.end_time || moment(task.scheduled_time).add(1, 'hours').toDate()), // Use task's end time or add 1 hour
             isTask: true,
             status: task.status,
         };
-        console.log("Task Event:", taskEvent); // Log each task event
-        return taskEvent;
     });
 
     // Combine jobs and tasks into a single events array
     const combinedEvents = [...events, ...taskEvents];
-    console.log("Combined Events:", combinedEvents); // Log the combined events
 
     const eventStyleGetter = (event) => {
         let backgroundColor = '#76c7c0'; // Default color for jobs
         let textDecoration = 'none'; // Default text decoration
-
+    
+        // Styling for jobs
+        if (event.isJob) {
+            if (event.status && event.status.toLowerCase() === 'completed') { 
+                backgroundColor = '#a5d6a7'; // Light green color for completed jobs
+                textDecoration = 'line-through'; // Line-through for completed jobs
+            } else {
+                backgroundColor = '#1A43BF'; // Default color for ongoing jobs
+            }
+        }
+    
+        // Styling for tasks
         if (event.isTask) {
-            if (event.status && event.status.toLowerCase() === 'completed') { // Check for completed status
-                backgroundColor = '#d3d3d3'; // Grey out completed tasks
+            if (event.status && event.status.toLowerCase() === 'deleted') { 
+                backgroundColor = '#d3d3d3'; // Grey out deleted tasks
+                textDecoration = 'line-through'; // Line-through for deleted tasks
+            } else if (event.status && event.status.toLowerCase() === 'completed') { 
+                backgroundColor = '#ffcccc'; // Light red color for completed tasks
                 textDecoration = 'line-through'; // Line-through for completed tasks
             } else {
                 backgroundColor = '#ffab40'; // Color for ongoing tasks
             }
         }
-
+    
         return {
             style: {
                 backgroundColor,
                 color: '#ffffff',
                 textDecoration,
+                border: '1px solid #ffffff', // Adding a border to distinguish events
+                borderRadius: '5px', // Slightly rounded corners for a modern look
             },
         };
     };
 
     const handleSelectEvent = (event) => {
         if (event.isTask) {
-            alert(`Task: ${event.title}\nScheduled Time: ${moment(event.start).format('MMMM Do YYYY, h:mm:ss a')}\nStatus: ${event.status}`);
+            alert(`Task: ${event.title}\nScheduled Time: ${moment(event.start).format('MMMM Do YYYY, h:mm:ss a')}\nEnd Time: ${moment(event.end).format('MMMM Do YYYY, h:mm:ss a')}\nStatus: ${event.status}`);
         } else {
             alert(`Job: ${event.title}\nLocation: ${event.location}\nDescription: ${event.description}\nPay Rate: ${event.payRate}\nStatus: ${event.status}`);
         }
