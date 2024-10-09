@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StatusBar, View, Text, TextInput, Button, ActivityIndicator } from 'react-native';
+import { StatusBar, View, Text, TextInput, Button, ActivityIndicator, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../state/AuthContext'; // Import AuthContext
@@ -17,7 +17,7 @@ const Login = () => {
 
   const { setUser } = useContext(AuthContext); // Access the setUser function from AuthContext
   const { role } = useContext(AuthContext);
-  console.log('User role:', role); // This should now log the correct role
+  //console.log('User role:', role); // This should now log the correct role
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
@@ -73,7 +73,7 @@ const Login = () => {
       <Text className="text-4xl font-bold mb-8 text-center text-green-500">Login</Text>
       {error && <Text className="text-red-500 mb-4 text-center">{error}</Text>}
       <TextInput
-        className="border border-gray-300 rounded-lg p-4 mb-4"
+        className={`text-lg mb-2 p-4 rounded-lg ${username ? 'border-green-500' : 'border-gray-300'} border`}
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
@@ -81,21 +81,29 @@ const Login = () => {
         editable={!loading}
       />
       <TextInput
-        className="border border-gray-300 rounded-lg p-4 mb-6"
+        className={`text-lg mb-2 p-4 rounded-lg ${password ? 'border-green-500' : 'border-gray-300'} border`}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
         editable={!loading}
       />
-      <View className="bg-indigo-600 rounded-lg">
-        <Button
-          className=""
-          title={loading ? 'Logging in...' : 'Login'}
-          onPress={handleSubmit}
-          disabled={loading}
-        />
-      </View>
+      <Pressable
+            className="bg-blue-500 p-1 rounded items-center mt-2"
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 
+            <Text className="text-lg text-white">
+            Logging in....
+          </Text>
+           : 
+            <Text className="text-lg text-white">
+              LOGIN
+            </Text>}
+            
+
+      </Pressable>
       {loading && <ActivityIndicator size="large" color="#0000ff" className="mt-4" />}
     </View>
   );

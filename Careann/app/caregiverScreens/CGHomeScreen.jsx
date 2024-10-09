@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,14 @@ import {
   Modal,
   Pressable,
   StatusBar,
+  Alert
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import JobListCard from "@/components/common/JobListCard";
+import { fetchJobs } from "@/services/jobService";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppBar = ({ onNotificationPress, onProfilePress }) => {
   return (
@@ -30,84 +33,39 @@ const AppBar = ({ onNotificationPress, onProfilePress }) => {
   );
 };
 
-const CGHomeScreen = ({ fetchAll = false }) => {
+const CGHomeScreen = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState(false);
   const navigation = useNavigation();
+  const [fetchAll,setFetchAll] = useState(false);
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true); // Set loading to true before fetching
+    const getJobs = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = await AsyncStorage.getItem('accessToken'); // Ensure you replace this with real token management
         if (!token) {
-          throw new Error("No access token found.");
+          throw new Error('Token not found');
         }
-
-        const endpoint = fetchAll
-          ? "http://127.0.0.1:8000/api/jobs/all-jobs/" // Fetch all jobs
-          : "http://127.0.0.1:8000/api/jobs/open-jobs/";
-
-        const response = await axios.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setJobs(response.data);
-      } catch (err) {
-        const errorMessage = err.response
-          ? `Error fetching jobs: ${err.response.data.detail || err.message}`
-          : `Error fetching jobs: ${err.message}`;
-        setError(errorMessage);
-      } finally {
-        setLoading(false); // Ensure loading is set to false regardless of the outcome
+        const data = await fetchJobs(token);
+        setJobs(data);
+      } catch (error) {
+        Alert.alert('Error', error.message || 'Something went wrong while fetching jobs.');
       }
     };
-
-    fetchJobs();
-  }, [fetchAll]); // Added fetchAll as a dependency if it can change
+  
+    getJobs();
+  }, [fetchAll]);
 
   return (
-    <SafeAreaView className="flex-1 flex-row">
+    <SafeAreaView className="flex-1 flex-row ">
       <StatusBar backgroundColor="white" barStyle="dark-content" />
-      <View className="flex-1">
+      <View className="flex-1 bg-blue-200">
         <AppBar onNotificationPress={() => setModalVisible(true)} />
-
-        <ScrollView className="bg-gray-50 p-4">
+        <ScrollView className=" p-4">
+          
           <View className="flex-1">
-            <View className="flex items-center">
-              <View className="flex-row w-full justify-between mt-4">
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("Services")}
-                >
-                  <Text className="text-white font-semibold">Services</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("HowItWorks")}
-                >
-                  <Text className="text-white font-semibold">How it Works</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("Contact")}
-                >
-                  <Text className="text-white font-semibold">Contact</Text>
-                </Pressable>
-                <Pressable
-                  className="bg-blue-500 p-2 rounded"
-                  onPress={() => navigation.navigate("FAQ")}
-                >
-                  <Text className="text-white font-semibold">FAQ</Text>
-                </Pressable>
-              </View>
-            </View>
-            <View>
-              <ScrollView className="flex-1 p-4">
                 {jobs ? (
                   jobs.map((job) => (
                     <JobListCard
@@ -120,9 +78,7 @@ const CGHomeScreen = ({ fetchAll = false }) => {
                 ) : (
                   <Text className="">No jobs are currently open.</Text>
                 )}
-              </ScrollView>
             </View>
-          </View>
         </ScrollView>
       </View>
 

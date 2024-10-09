@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Button, ScrollView, StatusBar 
 import { useNavigation } from '@react-navigation/native';
 import { styled } from 'nativewind'; // NativeWind for styling
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 
 const experienceOptions = [
@@ -54,6 +55,13 @@ const Register = () => {
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+
+  const handleExperienceChange = (field, value) => {
+    setFormData({
+      ...formData,
+      [field]: value,
     });
   };
 
@@ -185,15 +193,23 @@ const Register = () => {
 
         {formData.is_caregiver && formData.password && (
           <>
+            
             <Input
-              placeholder="Experience"
-              value={formData.experience}
-              onChangeText={(value) => handleChange('experience', value)}
+              placeholder="Tell us more about yourself"
+              value={formData.bio}
+              onChangeText={(value) => handleChange('bio', value)}
+              multiline
+              numberOfLines={4}
             />
             <Input
               placeholder="Certifications"
               value={formData.certifications}
               onChangeText={(value) => handleChange('certifications', value)}
+            />
+            <Input
+              placeholder="Contact Info"
+              value={formData.contact_info}
+              onChangeText={(value) => handleChange('contact_info', value)}
             />
             <Input
               placeholder="Availability"
@@ -205,27 +221,53 @@ const Register = () => {
               value={formData.payment_preference}
               onChangeText={(value) => handleChange('payment_preference', value)}
             />
-            <Input
-              placeholder="Experience Categories"
-              value={formData.experience_categories}
-              onChangeText={(value) => handleChange('experience_categories', value)}
-            />
+            <View className="flex-1 p-4">
+              {/* Experience Category 1 Dropdown */}
+              <View className="mb-4">
+                <Text className="mb-1 text-lg">Experience Category 1</Text>
+                <Picker
+                  selectedValue={formData.experience_cat1}
+                  onValueChange={(itemValue) => handleExperienceChange('experience_cat1', itemValue)}
+                  className="border border-gray-300 p-2 rounded-md"
+                >
+                  {experienceOptions.map((option) => (
+                    <Picker.Item key={option.id} label={option.name} value={option.id} />
+                  ))}
+                </Picker>
+              </View>
+
+              {/* Experience Category 2 Dropdown */}
+              <View className=" mb-4">
+                <Text className="mb-1 text-lg">Experience Category 2</Text>
+                <Picker
+                  selectedValue={formData.experience_cat2}
+                  onValueChange={(itemValue) => handleExperienceChange('experience_cat2', itemValue)}
+                  className=" border border-gray-300 p-2 rounded-md"
+                >
+                  {experienceOptions.map((option) => (
+                    <Picker.Item key={option.id} label={option.name} value={option.id} />
+                  ))}
+                </Picker>
+              </View>
+
+              {/* Experience Category 3 Dropdown */}
+              <View className="mb-4">
+                <Text className="mb-1 text-lg">Experience Category 3</Text>
+                <Picker
+                  selectedValue={formData.experience_cat3}
+                  onValueChange={(itemValue) => handleExperienceChange('experience_cat3', itemValue)}
+                  className="border border-gray-300 p-2 rounded-md"
+                >
+                  {experienceOptions.map((option) => (
+                    <Picker.Item key={option.id} label={option.name} value={option.id} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
             <Input
               placeholder="Location"
               value={formData.location}
               onChangeText={(value) => handleChange('location', value)}
-            />
-            <Input
-              placeholder="Contact Info"
-              value={formData.contact_info}
-              onChangeText={(value) => handleChange('contact_info', value)}
-            />
-            <Input
-              placeholder="Tell us more about yourself"
-              value={formData.bio}
-              onChangeText={(value) => handleChange('bio', value)}
-              multiline
-              numberOfLines={4}
             />
           </>
         )}

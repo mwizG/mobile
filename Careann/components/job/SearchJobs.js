@@ -9,7 +9,6 @@ const SearchJob = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  
   const { setSelectedJob } = useContext(JobContext);
   const navigation = useNavigation(); // Initialize navigation
 
