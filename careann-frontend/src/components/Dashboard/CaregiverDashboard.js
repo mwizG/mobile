@@ -33,13 +33,11 @@ function CaregiverDashboard() {
     const menuItems = [
         { text: "Search for Jobs", link: "/caregiver/search-jobs" },
         { text: "View & Manage Jobs", link: "/caregiver-jobs" },
-        { text: "Manage Schedule & Availability", link: "/caregiver/schedule" },
+        { text: "My Calender", link: "/caregiver/schedule" },
         { text: "Task Management", link: "/caregiver/tasks" },
         { text: "Job History", link: "/caregiver/history" },
         { text: "Conversations", link: "/caregiver/conversations" },
         { text: "View & Manage Reviews", link: "/caregiver/listreviews" },
-        { text: "Emergency Contacts", link: "/caregiver/emergency-contacts" },
-        { text: "Settings", link: "/caregiver/settings" },
         { text: "Profile", link: "/caregiver/profile" },
         { text: "Support", link: "/Tickets" },
 

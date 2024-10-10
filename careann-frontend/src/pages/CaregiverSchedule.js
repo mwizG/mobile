@@ -17,7 +17,7 @@ function CaregiverSchedule() {
         const fetchScheduledJobs = async () => {
             try {
                 const token = localStorage.getItem('accessToken'); // Retrieve the access token
-                const response = await axios.get('http://192.168.251.86:8000/api/jobs/scheduled/', {
+                const response = await axios.get('http://127.0.0.1:8000/api/jobs/scheduled/', {
                     headers: {
                         Authorization: `Bearer ${token}`, // Include the token in the headers
                     },

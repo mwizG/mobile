@@ -102,24 +102,25 @@ function SearchCaregiversForm() {
 
   useEffect(() => {
     const fetchExperienceCategories = async () => {
-        try {
-            const token = localStorage.getItem('accessToken');  // or however you store your token
-            if (!token) {
-                console.error('User is not logged in. Please log in to continue.');
-                return;
-            }
-
-            const response = await axios.get('http://127.0.0.1:8000/api/accounts/experience-categories/', {
-                headers: {
-                    'Authorization': `Token ${token}` // Use the correct token format
-                }
-            });
-            console.log('Fetched experience categories:', response.data);
-            setExperienceCategories(response.data); // Ensure this line is executed correctly
-        } catch (error) {
-            console.error('Error fetching experience categories:', error);
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('User is not logged in. Please log in to continue.');
+          return;
         }
+    
+        const response = await axios.get('http://127.0.0.1:8000/api/accounts/experience-categories/', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Use 'Bearer' instead of 'Token'
+          },
+        });
+    
+        setExperienceCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching experience categories:', error);
+      }
     };
+    
 
     fetchExperienceCategories();
 }, []);
@@ -210,15 +211,7 @@ function SearchCaregiversForm() {
                 ))}
               </Select>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Availability"
-                value={availability}
-                onChange={(e) => setAvailability(e.target.value)}
-                variant="outlined"
-              />
-            </Grid>
+
           </Grid>
 
           <Box sx={{ mt: 4, textAlign: 'center' }}>
