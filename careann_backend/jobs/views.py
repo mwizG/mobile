@@ -21,6 +21,9 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 from django.db.models import Q
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
+
 class LocationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LocationSerializer

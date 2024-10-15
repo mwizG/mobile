@@ -177,8 +177,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),  # Include first_name
-            last_name=validated_data.get('last_name', ''),    # Include last_name
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
             is_care_seeker=validated_data.get('is_care_seeker', False),
             is_caregiver=validated_data.get('is_caregiver', False)
         )

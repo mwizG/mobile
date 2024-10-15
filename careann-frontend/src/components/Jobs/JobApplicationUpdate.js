@@ -208,18 +208,26 @@ const JobApplicationUpdate = () => {
                     <Typography variant="body1">
                     <strong>Job status:</strong> {job.status}
                     </Typography>
+
+                    <Typography variant="body1">
+                    <strong>application status:</strong> {status}
+                    </Typography>
                 </Grid>
             </Grid>
 
             <Divider sx={{ margin: '20px 0' }} />
-
-            <Typography variant="body1"><strong>Status:</strong></Typography>
-            <Select value={status} onChange={(e) => updateApplicationStatus(e.target.value)} fullWidth variant="outlined">
+            {job.status === 'Open' &&(
+                <>
+                <Typography variant="body1"><strong>Status:</strong></Typography>
+                <Select value={status} onChange={(e) => updateApplicationStatus(e.target.value)} fullWidth variant="outlined">
                 <MenuItem value="Pending">Pending</MenuItem>
                 <MenuItem value="Accepted">Accepted</MenuItem>
                 <MenuItem value="Rejected">Rejected</MenuItem>
-            </Select>
-
+                </Select>
+                
+                </>
+            
+              )}
             {job.status === 'Declined' && (
             <Button 
                 variant="contained" 
@@ -230,9 +238,9 @@ const JobApplicationUpdate = () => {
             </Button>
              )}
 
+            
 
-
-            {status === 'Accepted' && (
+            {status === 'Accepted' && job.status === 'Open' &&(
                 <>
                     <Divider sx={{ margin: '20px 0' }} />
                     <Typography variant="h6" sx={{ mt: 3, fontWeight: 'bold' }}>Propose Job Time</Typography>

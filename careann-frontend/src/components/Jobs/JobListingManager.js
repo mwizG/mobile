@@ -127,7 +127,9 @@ function JobListingManager() {
                                     >
                                         View Applications
                                     </Button>
-                                    <Button
+                                    {job.status !=='In Progress' &&(
+                                        <>
+                                        <Button
                                         variant="outlined"
                                         color="error"
                                         onClick={() => handleDelete(job.id)}
@@ -135,6 +137,12 @@ function JobListingManager() {
                                     >
                                         Delete Job
                                     </Button>
+
+                                        </>
+                                    )
+
+                                    }
+                                    
                                 </Box>
                             </Paper>
                         </Grid>
